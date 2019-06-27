@@ -2,9 +2,7 @@ import _ from 'lodash';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
 import Config from '../config';
-import GetUserProfileRequest from './graphql/requests/user/profile';
-import GetUserOrganizationMembershipsRequest from './graphql/requests/user/organization-memberships';
-import GetOrganizationProfileRequest from './graphql/requests/organization/profile';
+import requests from './graphql/requests/unified';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { RequestError, RequestErrorType } from '../lib/errors';
 
@@ -21,7 +19,7 @@ export default class APIFetcher {
     });
 
     static async fetchUserProfile(username: string): Promise<UserProfile | null> {
-        const fetchedProfile = await this.fetch<UserProfile>(new GetUserProfileRequest(username));
+        const fetchedProfile = await this.fetch<UserProfile>(new requests.UserProfile(username));
 
         if (!fetchedProfile) return null;
 
@@ -35,13 +33,13 @@ export default class APIFetcher {
     }
 
     static async fetchOrganization(organizationName: string): Promise<OrganizationProfile | null> {
-        return await this.fetch<OrganizationProfile>(new GetOrganizationProfileRequest(organizationName));
+        return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
     }
 
     private static async fetchUserBelongingOrganizations(
         username: string
     ): Promise<OrganizationProfileMinified[] | null> {
-        return await this.pageFetch<OrganizationProfileMinified>(new GetUserOrganizationMembershipsRequest(username));
+        return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
     }
 
     // TODO: Unit test
