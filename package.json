@@ -8,9 +8,9 @@
     "prebuild": "rimraf ./dist",
     "build": "tsc",
     "lint": "eslint ./src/**/*.ts -c .eslintrc.json",
-    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "test": "jest --passWithNoTests",
-    "test:cover": "jest --passWithNoTests --collectCoverage --reporters=default --reporters=jest-junit"
+    "test:cover": "jest --passWithNoTests --collectCoverage --reporters=default --reporters=jest-junit",
+    "start": "node ./dist/main.js"
   },
   "repository": {
     "type": "git",
@@ -60,7 +60,6 @@
     "@types/node": "^12.0.4",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
-    "coveralls": "^3.0.4",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-import": "^2.17.3",
