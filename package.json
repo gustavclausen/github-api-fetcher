@@ -1,0 +1,76 @@
+{
+  "name": "github-api-fetcher",
+  "version": "0.0.0",
+  "description": "Simplified data fetching client for GitHub's V4 API",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "scripts": {
+    "prebuild": "rimraf ./dist",
+    "build": "tsc",
+    "lint": "eslint ./src/**/*.ts -c .eslintrc.json",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "test": "jest --passWithNoTests",
+    "test:cover": "jest --passWithNoTests --collectCoverage --reporters=default --reporters=jest-junit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gustavclausen/github-api-fetcher.git"
+  },
+  "author": "Gustav Kofoed Clausen <gustav@gustavclausen.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gustavclausen/github-api-fetcher/issues"
+  },
+  "homepage": "https://github.com/gustavclausen/github-api-fetcher#readme",
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "verbose": true,
+    "testPathIgnorePatterns": [
+      "/dist/",
+      "/node_modules/"
+    ],
+    "collectCoverageFrom": [
+      "**/*.{js,ts}",
+      "!**/node_modules/**"
+    ]
+  },
+  "jest-junit": {
+    "outputDirectory": "./coverage",
+    "outputName": "./junit-results.xml"
+  },
+  "dependencies": {
+    "class-transformer": "^0.2.3",
+    "graphql-request": "^1.8.2",
+    "lodash": "^4.17.11",
+    "reflect-metadata": "^0.1.13",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "@types/lodash": "^4.14.134",
+    "@types/node": "^12.0.4",
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
+    "coveralls": "^3.0.4",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^24.8.0",
+    "jest-junit": "^6.4.0",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.2.0",
+    "typescript": "^3.5.1",
+    "rimraf": "^2.6.3"
+  }
+}
