@@ -11,8 +11,7 @@
     "pretest": "export NODE_ENV=test",
     "test": "jest --passWithNoTests",
     "pretest:cover": "export NODE_ENV=test",
-    "test:cover": "jest --passWithNoTests --collectCoverage --reporters=default --reporters=jest-junit",
-    "start": "node ./dist/main.js"
+    "test:cover": "jest --passWithNoTests --collectCoverage --reporters=default --reporters=jest-junit"
   },
   "repository": {
     "type": "git",
