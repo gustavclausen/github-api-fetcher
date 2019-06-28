@@ -4,12 +4,7 @@ import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
-import { RequestError, RequestErrorType } from '../lib/errors';
-
-enum GraphQLRequestError {
-    NOT_FOUND, // E.g. user or organization profile not found
-    UNKNOWN // Arbitrary, unknown error. Typically syntax error in GraphQL query set to endpoint.
-}
+import { ResponseError, ResponseErrorType } from '../lib/errors';
 
 export default class APIFetcher {
     private graphQLClient: GraphQLClient;
@@ -53,23 +48,23 @@ export default class APIFetcher {
         return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
     }
 
-    // TODO: Unit test for error flow
-    private async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
+    async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
         try {
             const response = await this.graphQLClient.rawRequest(request.query, request.variables);
             return request.parseResponse(response.data);
         } catch (error) {
-            switch (APIFetcher.checkRequestError(error)) {
-                case GraphQLRequestError.NOT_FOUND:
-                    return null;
-                default:
-                    throw error;
+            const classifiedError = APIFetcher.classifyResponseError(error) as ResponseError;
+
+            if (classifiedError.type === ResponseErrorType.NOT_FOUND) {
+                return null;
             }
+
+            throw classifiedError;
         }
     }
 
     // TODO: Unit test
-    private async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
+    async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
         const fetchResults = await this.fetch<T[]>(pagedRequest);
 
         if (!fetchResults) return null;
@@ -83,54 +78,69 @@ export default class APIFetcher {
         return fetchResults;
     }
 
-    // TODO: Unit test control flow
-    // TODO: Add comments
-    private static checkRequestError(error: Error): GraphQLRequestError {
-        const statusCode = _.get(error, 'response.status') as number;
-        const topLevelErrorMessage = _.get(error, 'response.message');
+    private static classifyResponseError(error: Error): ResponseError {
+        const responseStatusCode = _.get(error, 'response.status') as number;
+        const topLevelResponseErrorMessage = _.get(error, 'response.message');
 
-        const classifyError = (error: Error): GraphQLRequestError => {
+        // Finds and classifies error in nested response object
+        const aux = (error: Error): ResponseError => {
             const responseErrors = _.get(error, 'response.errors') as object[];
 
             if (responseErrors && !_.isEmpty(responseErrors)) {
-                const firstError: { type?: string; message?: string } = responseErrors[0];
+                const firstResponseError: { type?: string; message?: string } = responseErrors[0];
 
-                switch (firstError.type) {
+                switch (firstResponseError.type) {
                     case 'NOT_FOUND':
-                        return GraphQLRequestError.NOT_FOUND;
+                        return new ResponseError(
+                            ResponseErrorType.NOT_FOUND,
+                            firstResponseError.message ? firstResponseError.message : `Resource not found`
+                        );
                     case 'INSUFFICIENT_SCOPES':
                         const baseErrorMessage = 'Insufficient scopes to perform request';
-                        throw new RequestError(
-                            RequestErrorType.INSUFFICIENT_SCOPE,
-                            firstError.message
-                                ? `${baseErrorMessage}. Error message: ${firstError.message}`
+                        return new ResponseError(
+                            ResponseErrorType.INSUFFICIENT_SCOPES,
+                            firstResponseError.message
+                                ? `${baseErrorMessage}. Error message: ${firstResponseError.message}`
                                 : baseErrorMessage
                         );
+                    default:
+                        break;
                 }
             }
 
-            return GraphQLRequestError.UNKNOWN;
+            return new ResponseError(ResponseErrorType.UNKNOWN, error.message);
         };
 
-        if (statusCode) {
-            switch (statusCode) {
+        if (responseStatusCode) {
+            if (responseStatusCode >= 500) {
+                return new ResponseError(
+                    ResponseErrorType.GITHUB_SERVER_ERROR,
+                    topLevelResponseErrorMessage
+                        ? topLevelResponseErrorMessage
+                        : `GitHub API server responded with an error. Status code: ${responseStatusCode}`
+                );
+            }
+
+            switch (responseStatusCode) {
                 case 200:
-                    return classifyError(error);
+                    return aux(error);
                 case 401:
-                    throw new RequestError(
-                        RequestErrorType.BAD_CREDENTIALS,
-                        topLevelErrorMessage ? topLevelErrorMessage : 'Bad credentials provided'
+                    return new ResponseError(
+                        ResponseErrorType.BAD_CREDENTIALS,
+                        topLevelResponseErrorMessage ? topLevelResponseErrorMessage : 'Bad credentials provided'
                     );
                 case 403:
-                    throw new RequestError(
-                        RequestErrorType.ACCESS_FORBIDDEN,
-                        topLevelErrorMessage
-                            ? topLevelErrorMessage
+                    return new ResponseError(
+                        ResponseErrorType.ACCESS_FORBIDDEN,
+                        topLevelResponseErrorMessage
+                            ? topLevelResponseErrorMessage
                             : 'Request forbidden by GitHub endpoint. Check if abuse detection mechanism is triggered or rate limit is exceeded.'
                     );
+                default:
+                    break;
             }
         }
 
-        return GraphQLRequestError.UNKNOWN;
+        return new ResponseError(ResponseErrorType.UNKNOWN, error.message);
     }
 }
