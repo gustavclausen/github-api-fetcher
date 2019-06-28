@@ -14,7 +14,6 @@ enum GraphQLRequestError {
 export default class APIFetcher {
     private graphQLClient: GraphQLClient;
 
-    // TODO: Write test to validate API access token is set in parameter or in environment
     constructor(apiAccessToken?: string) {
         // Search for API access token, and setup GraphQL client
         let accessToken = apiAccessToken ? apiAccessToken : config.apiAccessToken;
