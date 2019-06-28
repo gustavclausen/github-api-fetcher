@@ -7,25 +7,36 @@ import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { RequestError, RequestErrorType } from '../lib/errors';
 
 enum GraphQLRequestError {
-    NOT_FOUND,
-    UNKNOWN
+    NOT_FOUND, // E.g. user or organization profile not found
+    UNKNOWN // Arbitrary, unknown error. Typically syntax error in GraphQL query set to endpoint.
 }
 
-// TODO: Validate API access token is set in parameter or in environment
 export default class APIFetcher {
-    private static graphQLClient = new GraphQLClient(config.apiEndpoint, {
-        headers: {
-            Authorization: `Bearer ${config.apiAccessToken}`
-        }
-    });
+    private graphQLClient: GraphQLClient;
 
-    static async fetchUserProfile(username: string): Promise<UserProfile | null> {
+    // TODO: Write test to validate API access token is set in parameter or in environment
+    constructor(apiAccessToken?: string) {
+        // Search for API access token, and setup GraphQL client
+        let accessToken = apiAccessToken ? apiAccessToken : config.apiAccessToken;
+        if (!accessToken) {
+            throw new Error('Config error');
+        }
+
+        this.graphQLClient = new GraphQLClient(config.apiEndpoint, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+    }
+
+    // TODO: Write integration test
+    async getUserProfile(username: string): Promise<UserProfile | null> {
         const fetchedProfile = await this.fetch<UserProfile>(new requests.UserProfile(username));
 
         if (!fetchedProfile) return null;
 
         // Fetch info about organizations user is member of, and add result to profile
-        const organizationMemberships = await this.fetchUserBelongingOrganizations(username);
+        const organizationMemberships = await this.getUserOrganizationMemberships(username);
         if (organizationMemberships) {
             fetchedProfile.organizationMemberships = organizationMemberships;
         }
@@ -33,23 +44,23 @@ export default class APIFetcher {
         return fetchedProfile;
     }
 
-    static async fetchOrganization(organizationName: string): Promise<OrganizationProfile | null> {
-        return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
-    }
-
-    private static async fetchUserBelongingOrganizations(
-        username: string
-    ): Promise<OrganizationProfileMinified[] | null> {
+    // TODO: Write integration test
+    private async getUserOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
         return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
     }
 
-    // TODO: Unit test
-    private static async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
+    // TODO: Write integration test
+    async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {
+        return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
+    }
+
+    // TODO: Unit test for error flow
+    private async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
         try {
             const response = await this.graphQLClient.rawRequest(request.query, request.variables);
             return request.parseResponse(response.data);
         } catch (error) {
-            switch (this.checkError(error)) {
+            switch (APIFetcher.checkRequestError(error)) {
                 case GraphQLRequestError.NOT_FOUND:
                     return null;
                 default:
@@ -59,7 +70,7 @@ export default class APIFetcher {
     }
 
     // TODO: Unit test
-    private static async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
+    private async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
         const fetchResults = await this.fetch<T[]>(pagedRequest);
 
         if (!fetchResults) return null;
@@ -75,7 +86,7 @@ export default class APIFetcher {
 
     // TODO: Unit test control flow
     // TODO: Add comments
-    private static checkError(error: Error): GraphQLRequestError {
+    private static checkRequestError(error: Error): GraphQLRequestError {
         const statusCode = _.get(error, 'response.status') as number;
         const topLevelErrorMessage = _.get(error, 'response.message');
 

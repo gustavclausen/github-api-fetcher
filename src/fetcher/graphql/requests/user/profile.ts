@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Expose, Transform, plainToClass } from 'class-transformer';
 import { UserProfile, OrganizationProfileMinified } from '../../../../models';
 import { GraphQLRequest, GraphQLFragment, GraphQLObjectField, GITHUB_OBJECT_NAMES } from '../../utils';
+import { ParseError } from '../../../../lib/errors';
 
 class UserProfileParseModel implements UserProfile {
     @Expose()
@@ -59,10 +60,10 @@ export default class GetUserProfileRequest implements GraphQLRequest<UserProfile
 
     parseResponse(rawData: object): UserProfile {
         const userProfileData = _.get(rawData, 'user');
-        if (userProfileData) {
-            return plainToClass(UserProfileParseModel, userProfileData, { excludeExtraneousValues: true });
+        if (!userProfileData) {
+            throw new ParseError(rawData);
         }
 
-        throw new Error(`Unable to parse response data for user profile.`);
+        return plainToClass(UserProfileParseModel, userProfileData, { excludeExtraneousValues: true });
     }
 }

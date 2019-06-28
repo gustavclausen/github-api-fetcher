@@ -9,6 +9,19 @@ export class RequestError extends Error {
 
     constructor(type: RequestErrorType, message: string) {
         super(message);
+        Object.setPrototypeOf(this, RequestError.prototype); // Set the prototype explicitly
+
         this.type = type;
+    }
+}
+
+export class ParseError extends Error {
+    dataToParse!: object;
+
+    constructor(dataToParse: object) {
+        super('Unable to parse data');
+        Object.setPrototypeOf(this, ParseError.prototype); // Set the prototype explicitly
+
+        this.dataToParse = dataToParse;
     }
 }
