@@ -1,8 +1,8 @@
 import _ from 'lodash';
+import config from '../config';
+import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
-import Config from '../config';
-import requests from './graphql/requests/unified';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { RequestError, RequestErrorType } from '../lib/errors';
 
@@ -11,10 +11,11 @@ enum GraphQLRequestError {
     UNKNOWN
 }
 
+// TODO: Validate API access token is set in parameter or in environment
 export default class APIFetcher {
-    private static graphQLClient = new GraphQLClient(Config.apiEndpoint, {
+    private static graphQLClient = new GraphQLClient(config.apiEndpoint, {
         headers: {
-            // Authorization: `Bearer ` TODO: insert access token from dotenv
+            Authorization: `Bearer ${config.apiAccessToken}`
         }
     });
 
