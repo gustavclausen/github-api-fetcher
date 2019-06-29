@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Expose, Transform, plainToClass } from 'class-transformer';
 import { OrganizationProfile } from '../../../../models';
 import { GraphQLRequest, GraphQLFragment, GraphQLObjectField, GITHUB_OBJECT_NAMES } from '../../utils';
+import { ParseError } from '../../../../lib/errors';
 
 class OrganizationProfileParseModel implements OrganizationProfile {
     @Expose()
@@ -52,12 +53,12 @@ export default class GetOrganizationProfileRequest implements GraphQLRequest<Org
 
     parseResponse(rawData: object): OrganizationProfile {
         const organizationProfileData = _.get(rawData, 'organization');
-        if (organizationProfileData) {
-            return plainToClass(OrganizationProfileParseModel, organizationProfileData, {
-                excludeExtraneousValues: true
-            });
+        if (!organizationProfileData) {
+            throw new ParseError(rawData);
         }
 
-        throw new Error(`Unable to parse response data for organization profile.`);
+        return plainToClass(OrganizationProfileParseModel, organizationProfileData, {
+            excludeExtraneousValues: true
+        });
     }
 }

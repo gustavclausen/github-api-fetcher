@@ -8,6 +8,7 @@ import {
     pageInfoFragment,
     GITHUB_OBJECT_NAMES
 } from '../../utils';
+import { ParseError } from '../../../../lib/errors';
 
 class MinOrganizationProfileParseModel implements OrganizationProfileMinified {
     @Expose()
@@ -52,10 +53,13 @@ export default class GetUserOrganizationMembershipsRequest extends AbstractPaged
     parseResponse(rawData: object): OrganizationProfileMinified[] {
         super.parseResponse(rawData);
 
-        // TODO: Add null check for nodes
+        const results = getValueForFirstKey(rawData, 'nodes') as object;
+        if (!results) {
+            throw new ParseError(rawData);
+        }
 
         // Parse each element in response data
-        return Object.values(getValueForFirstKey(rawData, 'nodes') as object).map(
+        return Object.values(results).map(
             (curValue: object): OrganizationProfileMinified => {
                 return plainToClass(MinOrganizationProfileParseModel, curValue, { excludeExtraneousValues: true });
             }

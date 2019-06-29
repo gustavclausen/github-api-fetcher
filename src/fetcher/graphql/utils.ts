@@ -106,7 +106,7 @@ export abstract class AbstractPagedRequest<T> implements PagedGraphQLRequest<T> 
 
 export interface PageInfo {
     hasNextPage: boolean;
-    nextElement: string;
+    nextElement: string | null;
 }
 
 export const pageInfoFragment = new GraphQLFragment('pageInfo', GITHUB_OBJECT_NAMES.PageInfo, [

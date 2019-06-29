@@ -4,28 +4,33 @@ import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
-import { RequestError, RequestErrorType } from '../lib/errors';
+import { ResponseError, ResponseErrorType } from '../lib/errors';
 
-enum GraphQLRequestError {
-    NOT_FOUND,
-    UNKNOWN
-}
-
-// TODO: Validate API access token is set in parameter or in environment
 export default class APIFetcher {
-    private static graphQLClient = new GraphQLClient(config.apiEndpoint, {
-        headers: {
-            Authorization: `Bearer ${config.apiAccessToken}`
-        }
-    });
+    private graphQLClient: GraphQLClient;
 
-    static async fetchUserProfile(username: string): Promise<UserProfile | null> {
+    constructor(apiAccessToken?: string) {
+        // Search for API access token, and setup GraphQL client
+        let accessToken = apiAccessToken ? apiAccessToken : config.apiAccessToken;
+        if (!accessToken) {
+            throw new Error('Config error');
+        }
+
+        this.graphQLClient = new GraphQLClient(config.apiEndpoint, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+    }
+
+    // TODO: Write integration test
+    async getUserProfile(username: string): Promise<UserProfile | null> {
         const fetchedProfile = await this.fetch<UserProfile>(new requests.UserProfile(username));
 
         if (!fetchedProfile) return null;
 
         // Fetch info about organizations user is member of, and add result to profile
-        const organizationMemberships = await this.fetchUserBelongingOrganizations(username);
+        const organizationMemberships = await this.getUserOrganizationMemberships(username);
         if (organizationMemberships) {
             fetchedProfile.organizationMemberships = organizationMemberships;
         }
@@ -33,94 +38,109 @@ export default class APIFetcher {
         return fetchedProfile;
     }
 
-    static async fetchOrganization(organizationName: string): Promise<OrganizationProfile | null> {
-        return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
-    }
-
-    private static async fetchUserBelongingOrganizations(
-        username: string
-    ): Promise<OrganizationProfileMinified[] | null> {
+    // TODO: Write integration test
+    private async getUserOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
         return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
     }
 
-    // TODO: Unit test
-    private static async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
+    // TODO: Write integration test
+    async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {
+        return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
+    }
+
+    async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
         try {
             const response = await this.graphQLClient.rawRequest(request.query, request.variables);
             return request.parseResponse(response.data);
         } catch (error) {
-            switch (this.checkError(error)) {
-                case GraphQLRequestError.NOT_FOUND:
-                    return null;
-                default:
-                    throw error;
+            const classifiedError = APIFetcher.classifyResponseError(error) as ResponseError;
+
+            if (classifiedError.type === ResponseErrorType.NOT_FOUND) {
+                return null;
             }
+
+            throw classifiedError;
         }
     }
 
-    // TODO: Unit test
-    private static async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
-        const fetchResults = await this.fetch<T[]>(pagedRequest);
-
-        if (!fetchResults) return null;
+    async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
+        let fetchResults = await this.fetch<T[]>(pagedRequest);
 
         // Fetch next elements while there is any
-        while (pagedRequest.hasNextPage()) {
-            const nextFetch = await this.graphQLClient.rawRequest(pagedRequest.query, pagedRequest.variables);
-            fetchResults.concat(pagedRequest.parseResponse(nextFetch.data));
+        while (fetchResults && pagedRequest.hasNextPage()) {
+            const nextFetchResults = await this.fetch<T[]>(pagedRequest);
+
+            if (!nextFetchResults) break;
+
+            fetchResults = fetchResults.concat(nextFetchResults);
         }
 
         return fetchResults;
     }
 
-    // TODO: Unit test control flow
-    // TODO: Add comments
-    private static checkError(error: Error): GraphQLRequestError {
-        const statusCode = _.get(error, 'response.status') as number;
-        const topLevelErrorMessage = _.get(error, 'response.message');
+    private static classifyResponseError(error: Error): ResponseError {
+        const responseStatusCode = _.get(error, 'response.status') as number;
+        const topLevelResponseErrorMessage = _.get(error, 'response.message');
 
-        const classifyError = (error: Error): GraphQLRequestError => {
+        // Finds and classifies error in nested response object
+        const aux = (error: Error): ResponseError => {
             const responseErrors = _.get(error, 'response.errors') as object[];
 
             if (responseErrors && !_.isEmpty(responseErrors)) {
-                const firstError: { type?: string; message?: string } = responseErrors[0];
+                const firstResponseError: { type?: string; message?: string } = responseErrors[0];
 
-                switch (firstError.type) {
+                switch (firstResponseError.type) {
                     case 'NOT_FOUND':
-                        return GraphQLRequestError.NOT_FOUND;
+                        return new ResponseError(
+                            ResponseErrorType.NOT_FOUND,
+                            firstResponseError.message ? firstResponseError.message : `Resource not found`
+                        );
                     case 'INSUFFICIENT_SCOPES':
                         const baseErrorMessage = 'Insufficient scopes to perform request';
-                        throw new RequestError(
-                            RequestErrorType.INSUFFICIENT_SCOPE,
-                            firstError.message
-                                ? `${baseErrorMessage}. Error message: ${firstError.message}`
+                        return new ResponseError(
+                            ResponseErrorType.INSUFFICIENT_SCOPES,
+                            firstResponseError.message
+                                ? `${baseErrorMessage}. Error message: ${firstResponseError.message}`
                                 : baseErrorMessage
                         );
+                    default:
+                        break;
                 }
             }
 
-            return GraphQLRequestError.UNKNOWN;
+            return new ResponseError(ResponseErrorType.UNKNOWN, error.message);
         };
 
-        if (statusCode) {
-            switch (statusCode) {
+        if (responseStatusCode) {
+            if (responseStatusCode >= 500) {
+                return new ResponseError(
+                    ResponseErrorType.GITHUB_SERVER_ERROR,
+                    topLevelResponseErrorMessage
+                        ? topLevelResponseErrorMessage
+                        : `GitHub API server responded with an error. Status code: ${responseStatusCode}`
+                );
+            }
+
+            switch (responseStatusCode) {
                 case 200:
-                    return classifyError(error);
+                    return aux(error);
                 case 401:
-                    throw new RequestError(
-                        RequestErrorType.BAD_CREDENTIALS,
-                        topLevelErrorMessage ? topLevelErrorMessage : 'Bad credentials provided'
+                    return new ResponseError(
+                        ResponseErrorType.BAD_CREDENTIALS,
+                        topLevelResponseErrorMessage ? topLevelResponseErrorMessage : 'Bad credentials provided'
                     );
                 case 403:
-                    throw new RequestError(
-                        RequestErrorType.ACCESS_FORBIDDEN,
-                        topLevelErrorMessage
-                            ? topLevelErrorMessage
+                    return new ResponseError(
+                        ResponseErrorType.ACCESS_FORBIDDEN,
+                        topLevelResponseErrorMessage
+                            ? topLevelResponseErrorMessage
                             : 'Request forbidden by GitHub endpoint. Check if abuse detection mechanism is triggered or rate limit is exceeded.'
                     );
+                default:
+                    break;
             }
         }
 
-        return GraphQLRequestError.UNKNOWN;
+        return new ResponseError(ResponseErrorType.UNKNOWN, error.message);
     }
 }
