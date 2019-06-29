@@ -8,10 +8,10 @@
     "prebuild": "rimraf ./dist",
     "build": "tsc",
     "lint": "eslint ./src/**/*.ts -c .eslintrc.json",
-    "pretest": "export NODE_ENV=test",
-    "test": "jest --passWithNoTests",
-    "pretest:cover": "export NODE_ENV=test",
-    "test:cover": "jest --passWithNoTests --collectCoverage --reporters=default --reporters=jest-junit"
+    "test": "export NODE_ENV=test && jest",
+    "test:cover": "export NODE_ENV=test && jest --collectCoverage --reporters=default --reporters=jest-junit",
+    "test:unit": "export NODE_ENV=test && jest --testMatch \"**/src/**/?(*.)+(spec|test).ts\"",
+    "test:integration": "export NODE_ENV=test && jest --testMatch \"**/tests/integration/**/?(*.)+(spec|test).ts\""
   },
   "repository": {
     "type": "git",
@@ -24,8 +24,13 @@
   },
   "homepage": "https://github.com/gustavclausen/github-api-fetcher#readme",
   "jest": {
-    "roots": [
-      "<rootDir>/src"
+    "globals": {
+      "ts-jest": {
+        "compiler": "ttypescript"
+      }
+    },
+    "testMatch": [
+      "**/?(*.)+(spec|test).ts"
     ],
     "transform": {
       "^.+\\.ts?$": "ts-jest"
@@ -35,13 +40,9 @@
       "jest-junit"
     ],
     "verbose": true,
-    "testPathIgnorePatterns": [
-      "/dist/",
-      "/node_modules/"
-    ],
     "collectCoverageFrom": [
-      "**/*.{js,ts}",
-      "!**/node_modules/**"
+      "**/src/**/*.{js,ts}",
+      "!**/src/etc/**"
     ]
   },
   "jest-junit": {
@@ -73,6 +74,8 @@
     "rimraf": "^2.6.3",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.2.0",
+    "ts-transformer-keys": "^0.3.5",
+    "ttypescript": "^1.5.7",
     "typescript": "^3.5.1"
   }
 }
