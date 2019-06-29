@@ -63,16 +63,16 @@ export default class APIFetcher {
         }
     }
 
-    // TODO: Unit test
     async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
-        const fetchResults = await this.fetch<T[]>(pagedRequest);
-
-        if (!fetchResults) return null;
+        let fetchResults = await this.fetch<T[]>(pagedRequest);
 
         // Fetch next elements while there is any
-        while (pagedRequest.hasNextPage()) {
-            const nextFetch = await this.graphQLClient.rawRequest(pagedRequest.query, pagedRequest.variables);
-            fetchResults.concat(pagedRequest.parseResponse(nextFetch.data));
+        while (fetchResults && pagedRequest.hasNextPage()) {
+            const nextFetchResults = await this.fetch<T[]>(pagedRequest);
+
+            if (!nextFetchResults) break;
+
+            fetchResults = fetchResults.concat(nextFetchResults);
         }
 
         return fetchResults;

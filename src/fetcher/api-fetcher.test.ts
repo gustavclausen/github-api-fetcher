@@ -3,16 +3,22 @@ import config from '../config';
 import requests from './graphql/requests/unified';
 import { getValueForFirstKey } from '../lib/object-utils';
 import { GraphQLClient } from 'graphql-request';
-import { UserProfile } from '../models';
+import { UserProfile, OrganizationProfileMinified } from '../models';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
 import { GraphQLRequest } from './graphql/utils';
 
 describe('APIFetcher', (): void => {
+    let fetcher: APIFetcher;
+
+    beforeEach((): void => {
+        fetcher = new APIFetcher('demo-access-token');
+    });
+
     describe('constructor', (): void => {
         it('should set access token from parameter if set', (): void => {
             const accessToken = 'token';
 
-            const fetcher = new APIFetcher(accessToken);
+            fetcher = new APIFetcher(accessToken);
             const setAuthorizationHeader = getValueForFirstKey(fetcher, 'Authorization');
 
             expect(setAuthorizationHeader).toBe(`Bearer ${accessToken}`);
@@ -25,7 +31,7 @@ describe('APIFetcher', (): void => {
             jest.mock('../config');
             config.apiAccessToken = accessToken;
 
-            const fetcher = new APIFetcher();
+            fetcher = new APIFetcher();
             const authorizationHeader = getValueForFirstKey(fetcher, 'Authorization');
 
             expect(authorizationHeader).toBe(`Bearer ${accessToken}`);
@@ -41,12 +47,10 @@ describe('APIFetcher', (): void => {
     });
 
     describe('fetch', (): void => {
-        let fetcher: APIFetcher;
         let request: GraphQLRequest<UserProfile>;
         let errorToThrow: EndpointResponseError | null;
 
         beforeEach((): void => {
-            fetcher = new APIFetcher('demo-access-token');
             request = new requests.UserProfile('demo-user');
             errorToThrow = null;
         });
@@ -144,6 +148,52 @@ describe('APIFetcher', (): void => {
             errorToThrow = new EndpointResponseError({});
 
             await assertThrownError(ResponseErrorType.UNKNOWN);
+        });
+    });
+
+    describe('pageFetch', (): void => {
+        it('should call fetch for each page and return a combined result of all elements', async (): Promise<void> => {
+            const request = new requests.UserOrganizationMemberships('demo-user');
+            const firstPageResult: OrganizationProfileMinified[] = [
+                {
+                    gitHubId: 'random-id-1',
+                    name: 'some-organization-name-1'
+                },
+                {
+                    gitHubId: 'random-id-2',
+                    name: 'random-organization-name-2'
+                }
+            ];
+            const secondPageResult: OrganizationProfileMinified[] = [
+                {
+                    gitHubId: 'random-id-3',
+                    name: 'random-organization-name-3'
+                }
+            ];
+
+            jest.mock('./api-fetcher');
+            APIFetcher.prototype.fetch = jest
+                .fn()
+                .mockImplementationOnce(
+                    (): Promise<OrganizationProfileMinified[] | null> => {
+                        request.pageInfo = {
+                            hasNextPage: true,
+                            nextElement: secondPageResult[0].gitHubId
+                        };
+                        return Promise.resolve(firstPageResult);
+                    }
+                )
+                .mockImplementationOnce(
+                    (): Promise<OrganizationProfileMinified[] | null> => {
+                        request.pageInfo = {
+                            hasNextPage: false,
+                            nextElement: null
+                        };
+                        return Promise.resolve(secondPageResult);
+                    }
+                );
+
+            expect(await fetcher.pageFetch(request)).toMatchObject(firstPageResult.concat(secondPageResult));
         });
     });
 });
