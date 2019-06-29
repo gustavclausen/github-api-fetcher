@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { Expose, Transform, plainToClass } from 'class-transformer';
 import { OrganizationProfile } from '../../../../models';
-import { GraphQLRequest, GraphQLFragment, GraphQLObjectField, GITHUB_OBJECT_NAMES } from '../../utils';
+import { GraphQLRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
+import { GITHUB_OBJECT_NAMES } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
 class OrganizationProfileParseModel implements OrganizationProfile {

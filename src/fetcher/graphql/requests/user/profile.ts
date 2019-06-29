@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { Expose, Transform, plainToClass } from 'class-transformer';
-import { UserProfile, OrganizationProfileMinified } from '../../../../models';
-import { GraphQLRequest, GraphQLFragment, GraphQLObjectField, GITHUB_OBJECT_NAMES } from '../../utils';
+import { UserProfile, OrganizationProfileMinified, RepositoryProfileMinified } from '../../../../models';
+import { GraphQLRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
+import { GITHUB_OBJECT_NAMES } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
 class UserProfileParseModel implements UserProfile {
@@ -25,6 +26,7 @@ class UserProfileParseModel implements UserProfile {
     @Transform((obj): object => obj['count'])
     followersCount!: number;
     organizationMemberships!: OrganizationProfileMinified[];
+    repositoryOwnerships!: RepositoryProfileMinified[];
 }
 
 const profileFragment = new GraphQLFragment('UserProfile', GITHUB_OBJECT_NAMES.User, [

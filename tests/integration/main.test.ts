@@ -1,8 +1,13 @@
 import _ from 'lodash';
 import APIFetcher from '../../src/main';
 import config from '../../src/etc/config';
-import { UserProfile, OrganizationProfile } from '../../src/models';
 import { keys } from 'ts-transformer-keys';
+import {
+    UserProfile,
+    OrganizationProfile,
+    RepositoryProfileMinified,
+    OrganizationProfileMinified
+} from '../../src/models';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fetchGitHubAPIEndpoint = async (resourceUri: string): Promise<any> => {
@@ -49,11 +54,36 @@ describe('APIFetcher', (): void => {
     });
 
     it('getUserProfile should return model with all properties set', async (): Promise<void> => {
-        const randomUsername = await getUsernameOfRandomUser();
-        const result = await fetcher.getUserProfile(randomUsername);
+        let randomUsername = await getUsernameOfRandomUser();
+        let result = await fetcher.getUserProfile(randomUsername);
 
+        // Search for user with repository ownerships and organization memberships
+        while (result && _.isEmpty(result.organizationMemberships) && _.isEmpty(result.repositoryOwnerships)) {
+            randomUsername = await getUsernameOfRandomUser();
+            result = await fetcher.getUserProfile(randomUsername);
+        }
+
+        if (!result) {
+            throw new Error('No data to test on');
+        }
+
+        // Verify all properties set on user profile model
         _.forEach(keys<UserProfile>(), (key): void => {
             expect(_.get(result, key)).toBeDefined();
+        });
+
+        // Verify all properties set on nested 'organizationMemberships' model
+        _.forEach(result.organizationMemberships, (organization): void => {
+            _.forEach(keys<OrganizationProfileMinified>(), (key): void => {
+                expect(_.get(organization, key)).toBeDefined();
+            });
+        });
+
+        // Verify all properties set on nested 'repositoryOwnerships' model
+        _.forEach(result.repositoryOwnerships, (repository): void => {
+            _.forEach(keys<RepositoryProfileMinified>(), (key): void => {
+                expect(_.get(repository, key)).toBeDefined();
+            });
         });
     });
 

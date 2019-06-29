@@ -1,9 +1,11 @@
 import GetUserProfileRequest from './user/profile';
 import GetUserOrganizationMembershipsRequest from './user/organization-memberships';
 import GetOrganizationProfile from './organization/profile';
+import GetUserRepositoryOwnerships from './user/repository-ownerships';
 
 export default {
     UserProfile: GetUserProfileRequest,
     UserOrganizationMemberships: GetUserOrganizationMembershipsRequest,
-    OrganizationProfile: GetOrganizationProfile
+    OrganizationProfile: GetOrganizationProfile,
+    UserRepositoryOwnerships: GetUserRepositoryOwnerships
 };

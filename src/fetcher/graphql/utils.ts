@@ -1,11 +1,5 @@
 import { getValueForFirstKey } from '../../lib/object-utils';
 
-export const GITHUB_OBJECT_NAMES = {
-    PageInfo: 'PageInfo',
-    User: 'User',
-    Organization: 'Organization'
-};
-
 export class GraphQLObjectField {
     fieldValue!: string;
     aliasName?: string | null;
@@ -108,8 +102,3 @@ export interface PageInfo {
     hasNextPage: boolean;
     nextElement: string | null;
 }
-
-export const pageInfoFragment = new GraphQLFragment('pageInfo', GITHUB_OBJECT_NAMES.PageInfo, [
-    new GraphQLObjectField('hasNextPage'),
-    new GraphQLObjectField('endCursor', 'nextElement')
-]);

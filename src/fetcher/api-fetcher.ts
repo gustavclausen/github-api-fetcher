@@ -2,7 +2,7 @@ import _ from 'lodash';
 import config from '../etc/config';
 import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
-import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
+import { UserProfile, OrganizationProfile, OrganizationProfileMinified, RepositoryProfileMinified } from '../models';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
 
@@ -34,11 +34,21 @@ export default class APIFetcher {
             fetchedProfile.organizationMemberships = organizationMemberships;
         }
 
+        // Fetch info about repositories user owns, and add result to profile
+        const repositoryOwnerships = await this.getUserRepositoryOwnerships(username);
+        if (repositoryOwnerships) {
+            fetchedProfile.repositoryOwnerships = repositoryOwnerships;
+        }
+
         return fetchedProfile;
     }
 
     private async getUserOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
         return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
+    }
+
+    private async getUserRepositoryOwnerships(username: string): Promise<RepositoryProfileMinified[] | null> {
+        return await this.pageFetch<RepositoryProfileMinified>(new requests.UserRepositoryOwnerships(username));
     }
 
     async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {

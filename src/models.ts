@@ -9,6 +9,7 @@ export interface UserProfile {
     forHire: boolean;
     followersCount: number;
     organizationMemberships: OrganizationProfileMinified[];
+    repositoryOwnerships: RepositoryProfileMinified[];
 }
 
 export interface OrganizationProfileMinified {
@@ -22,4 +23,10 @@ export interface OrganizationProfile extends OrganizationProfileMinified {
     avatarUrl: string;
     publicUrl: string;
     membersCount: number;
+}
+
+export interface RepositoryProfileMinified {
+    gitHubId: string;
+    name: string;
+    ownerUsername: string;
 }
