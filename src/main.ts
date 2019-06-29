@@ -1,3 +1,3 @@
-import logger from './lib/logging';
+import APIFetcher from './fetcher/api-fetcher';
 
-logger.debug('Hello world');
+export default APIFetcher;
