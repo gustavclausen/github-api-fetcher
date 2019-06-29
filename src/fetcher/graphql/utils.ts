@@ -16,8 +16,12 @@ export class GraphQLFragment {
     private _graphQLObjectName!: string; // Name of GraphQL object to make fragment on
     private _fields!: GraphQLObjectField[]; // List of fields on GraphQL object to include in fragment
     private _name!: string;
+
     get name(): string {
         return this._name;
+    }
+    get fields(): GraphQLObjectField[] {
+        return this._fields;
     }
 
     constructor(name: string, graphQLObjectName: string, fields: GraphQLObjectField[]) {
