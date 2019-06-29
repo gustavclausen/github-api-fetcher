@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import config from '../config';
+import config from '../etc/config';
 import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
@@ -23,7 +23,6 @@ export default class APIFetcher {
         });
     }
 
-    // TODO: Write integration test
     async getUserProfile(username: string): Promise<UserProfile | null> {
         const fetchedProfile = await this.fetch<UserProfile>(new requests.UserProfile(username));
 
@@ -38,12 +37,10 @@ export default class APIFetcher {
         return fetchedProfile;
     }
 
-    // TODO: Write integration test
     private async getUserOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
         return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
     }
 
-    // TODO: Write integration test
     async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {
         return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
     }
@@ -103,8 +100,6 @@ export default class APIFetcher {
                                 ? `${baseErrorMessage}. Error message: ${firstResponseError.message}`
                                 : baseErrorMessage
                         );
-                    default:
-                        break;
                 }
             }
 
@@ -136,8 +131,6 @@ export default class APIFetcher {
                             ? topLevelResponseErrorMessage
                             : 'Request forbidden by GitHub endpoint. Check if abuse detection mechanism is triggered or rate limit is exceeded.'
                     );
-                default:
-                    break;
             }
         }
 

@@ -1,5 +1,5 @@
 import APIFetcher from './api-fetcher';
-import config from '../config';
+import config from '../etc/config';
 import requests from './graphql/requests/unified';
 import { getValueForFirstKey } from '../lib/object-utils';
 import { GraphQLClient } from 'graphql-request';
@@ -28,7 +28,7 @@ describe('APIFetcher', (): void => {
             const accessToken = 'accessTokenFromConfig';
 
             // Mock config where access token is set defined
-            jest.mock('../config');
+            jest.mock('../etc/config');
             config.apiAccessToken = accessToken;
 
             fetcher = new APIFetcher();
@@ -39,7 +39,7 @@ describe('APIFetcher', (): void => {
 
         it('should throw error if no access token is set', (): void => {
             // Mock config where access token is retrieved
-            jest.mock('../config');
+            jest.mock('../etc/config');
             config.apiAccessToken = undefined;
 
             expect((): APIFetcher => new APIFetcher()).toThrowError();
