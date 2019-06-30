@@ -44,50 +44,54 @@ describe('AbstractPagedRequest', (): void => {
 describe('GraphQLFragment', (): void => {
     describe('toString', (): void => {
         const onObjectName = 'GraphQLObject';
-        const whitespaceRegex = /\s/g;
+
+        let fragment: GraphQLFragment;
+        let expectedStringPresentation: string;
+
+        const validateFragment = (): void => {
+            const whitespaceRegex = /\s/g;
+            expect(fragment.toString().replace(whitespaceRegex, '')).toEqual(
+                expectedStringPresentation.replace(whitespaceRegex, '')
+            );
+        };
 
         it('should return correct string representation of simple fragment with no aliases', (): void => {
-            const fragment = new GraphQLFragment('Simple', onObjectName, [
+            fragment = new GraphQLFragment('Simple', onObjectName, [
                 new GraphQLObjectField('name'),
                 new GraphQLObjectField('birthdate')
             ]);
-
-            const expected = `
+            expectedStringPresentation = `
                 fragment ${fragment.name} on ${onObjectName} {
                     name
                     birthdate
                 }
             `;
-
-            expect(fragment.toString().replace(whitespaceRegex, '')).toEqual(expected.replace(whitespaceRegex, ''));
+            validateFragment();
         });
 
         it('should return correct string representation of simple fragment with aliases', (): void => {
-            const fragment = new GraphQLFragment('Simple', onObjectName, [
+            fragment = new GraphQLFragment('Simple', onObjectName, [
                 new GraphQLObjectField('name', 'nameAlias'),
                 new GraphQLObjectField('birthdate', 'birthdateAlias')
             ]);
-
-            const expected = `
+            expectedStringPresentation = `
                 fragment ${fragment.name} on ${onObjectName} {
                     nameAlias: name
                     birthdateAlias: birthdate
                 }
             `;
-
-            expect(fragment.toString().replace(whitespaceRegex, '')).toEqual(expected.replace(whitespaceRegex, ''));
+            validateFragment();
         });
 
         it('should return correct string representation of fragment with nested properties', (): void => {
-            const fragment = new GraphQLFragment('Simple', onObjectName, [
+            fragment = new GraphQLFragment('Simple', onObjectName, [
                 new GraphQLObjectField('persons', null, [
                     new GraphQLObjectField('name'),
                     new GraphQLObjectField('childs', null, [new GraphQLObjectField('age')])
                 ]),
                 new GraphQLObjectField('city')
             ]);
-
-            const expected = `
+            expectedStringPresentation = `
                 fragment ${fragment.name} on ${onObjectName} {
                     persons {
                         name
@@ -98,30 +102,66 @@ describe('GraphQLFragment', (): void => {
                     city
                 }
             `;
+            validateFragment();
+        });
 
-            expect(fragment.toString().replace(whitespaceRegex, '')).toEqual(expected.replace(whitespaceRegex, ''));
+        it('should return correct string representation of fragment with nested properties and argument', (): void => {
+            fragment = new GraphQLFragment('Simple', onObjectName, [
+                new GraphQLObjectField('persons', null, [new GraphQLObjectField('name')], 'last: last-element')
+            ]);
+            expectedStringPresentation = `
+                fragment ${fragment.name} on ${onObjectName} {
+                    persons(last: last-element) {
+                        name
+                    }
+                }
+            `;
+            validateFragment();
+        });
+
+        // TODO: Define arguments syntactically instead of raw string, such that nested properties and argument can be binded together
+        it('should return correct string representation of fragment with argument excluded when applied on non-nested property', (): void => {
+            fragment = new GraphQLFragment('Simple', onObjectName, [
+                new GraphQLObjectField('name', null, null, 'first: first-element')
+            ]);
+            expectedStringPresentation = `
+                fragment ${fragment.name} on ${onObjectName} {
+                    name
+                }
+            `; // I.e. not expect 'name(first: first-element)'
+            validateFragment();
         });
 
         it('should return correct string representation of fragment with nested properties with aliases', (): void => {
-            const fragment = new GraphQLFragment('Simple', onObjectName, [
+            fragment = new GraphQLFragment('Simple', onObjectName, [
                 new GraphQLObjectField('persons', 'familyMembers', [
-                    new GraphQLObjectField('name'),
                     new GraphQLObjectField('childs', 'siblings', [new GraphQLObjectField('age')])
                 ])
             ]);
-
-            const expected = `
+            expectedStringPresentation = `
                 fragment ${fragment.name} on ${onObjectName} {
                     familyMembers: persons {
-                        name
                         siblings: childs {
                             age
                         }
                     }
                 }
             `;
+            validateFragment();
+        });
 
-            expect(fragment.toString().replace(whitespaceRegex, '')).toEqual(expected.replace(whitespaceRegex, ''));
+        it('should return correct string representation of fragment with nested properties with aliases and argument', (): void => {
+            fragment = new GraphQLFragment('Simple', onObjectName, [
+                new GraphQLObjectField('persons', 'familyMembers', [new GraphQLObjectField('name')], 'first: 100')
+            ]);
+            expectedStringPresentation = `
+                fragment ${fragment.name} on ${onObjectName} {
+                    familyMembers: persons(first: 100) {
+                        name
+                    }
+                }
+            `;
+            validateFragment();
         });
     });
 });

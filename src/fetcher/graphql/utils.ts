@@ -3,12 +3,19 @@ import { getValueForFirstKey } from '../../lib/object-utils';
 export class GraphQLObjectField {
     fieldValue!: string;
     aliasName?: string | null;
-    nestedProperties?: GraphQLObjectField[];
+    nestedProperties?: GraphQLObjectField[] | null;
+    argument?: string | null; // TODO: Define arguments syntactically instead of raw string
 
-    constructor(fieldValue: string, aliasName?: string | null, nestedProperties?: GraphQLObjectField[]) {
+    constructor(
+        fieldValue: string,
+        aliasName?: string | null,
+        nestedProperties?: GraphQLObjectField[] | null,
+        argument?: string | null
+    ) {
         this.fieldValue = fieldValue;
         this.aliasName = aliasName;
         this.nestedProperties = nestedProperties;
+        this.argument = argument;
     }
 }
 
@@ -38,6 +45,10 @@ export class GraphQLFragment {
             let result = `${acc}\n${
                 curValue.aliasName ? `${curValue.aliasName}: ${curValue.fieldValue}` : `${curValue.fieldValue}`
             }`;
+
+            if (curValue.nestedProperties && curValue.argument) {
+                result += `(${curValue.argument})`;
+            }
 
             if (curValue.nestedProperties) {
                 result += `{ ${curValue.nestedProperties.reduce(reducer, '')} \n}`;
