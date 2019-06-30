@@ -2,7 +2,13 @@ import _ from 'lodash';
 import config from '../etc/config';
 import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
-import { UserProfile, OrganizationProfile, OrganizationProfileMinified, RepositoryProfileMinified } from '../models';
+import {
+    UserProfile,
+    OrganizationProfile,
+    OrganizationProfileMinified,
+    RepositoryProfileMinified,
+    RepositoryProfile
+} from '../models';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
 
@@ -53,6 +59,10 @@ export default class APIFetcher {
 
     async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {
         return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
+    }
+
+    async getRepositoryProfile(ownerUsername: string, repositoryName: string): Promise<RepositoryProfile | null> {
+        return await this.fetch<RepositoryProfile>(new requests.RepositoryProfile(ownerUsername, repositoryName));
     }
 
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
