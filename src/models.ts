@@ -27,6 +27,9 @@ export interface OrganizationProfile extends OrganizationProfileMinified {
 
 export interface ProgrammingLanguage {
     name: string;
+    /**
+     * GitHub programming language color code (hex-value)
+     */
     color: string;
 }
 
