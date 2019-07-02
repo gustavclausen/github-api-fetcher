@@ -19,14 +19,27 @@ class RepositoryProfileParseModel implements RepositoryProfile {
     @Expose()
     primaryProgrammingLanguage!: ProgrammingLanguage;
     @Expose()
-    @Transform((obj: object): AppliedProgrammingLanguage[] => {
-        const languages = _.get(obj, 'edges') as object[];
-        return languages.map(
-            (currentValue: object): AppliedProgrammingLanguage => {
+    @Transform((obj): AppliedProgrammingLanguage[] => {
+        /*
+         *  Data example:
+            "edges": [
+                {
+                    "bytesCount": 73926,
+                    "node": {
+                        "name": "Haskell",
+                        "color": "#5e5086"
+                    }
+                }
+            ]
+         */
+        const rawData = _.get(obj, 'edges') as object[];
+
+        return rawData.map(
+            (curValue): AppliedProgrammingLanguage => {
                 return {
-                    bytesCount: _.get(currentValue, 'bytesCount'),
-                    name: _.get(currentValue, 'node.name'),
-                    color: _.get(currentValue, 'node.color')
+                    bytesCount: _.get(curValue, 'bytesCount'),
+                    name: _.get(curValue, 'node.name'),
+                    color: _.get(curValue, 'node.color')
                 };
             }
         );
@@ -42,9 +55,24 @@ class RepositoryProfileParseModel implements RepositoryProfile {
     lastPushDateTime!: Date;
     @Expose()
     @Transform((obj): string[] => {
+        /*
+         * Data example:
+            "nodes": [
+                {
+                    "topic": {
+                        "name": "android"
+                    }
+                },
+                {
+                    "topic": {
+                        "name": "kotlin-android"
+                    }
+                }
+            ]
+         */
         const topics = getValueForFirstKey(obj, 'nodes') as object[];
 
-        return topics.map((curValue: object): string => {
+        return topics.map((curValue): string => {
             return _.get(curValue, 'topic.name');
         });
     })
