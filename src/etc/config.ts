@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 
+// Load environment variables
 let envConfigPath = `${__dirname}/../../`;
 switch (process.env.NODE_ENV) {
     case 'development':

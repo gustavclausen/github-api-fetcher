@@ -20,8 +20,14 @@ export class GraphQLObjectField {
 }
 
 export class GraphQLFragment {
-    private _graphQLObjectName!: string; // Name of GraphQL object to make fragment on
-    private _fields!: GraphQLObjectField[]; // List of fields on GraphQL object to include in fragment
+    /**
+     * Name of GraphQL object to make fragment on
+     */
+    private _graphQLObjectName!: string;
+    /**
+     * List of fields on GraphQL object to include in fragment
+     */
+    private _fields!: GraphQLObjectField[];
     private _name!: string;
 
     get name(): string {
@@ -68,11 +74,7 @@ export interface GraphQLRequest<TResult> {
     parseResponse(rawData: object): TResult;
 }
 
-export interface PagedGraphQLRequest<TResult> extends GraphQLRequest<TResult[]> {
-    hasNextPage(): boolean;
-}
-
-export abstract class AbstractPagedRequest<T> implements PagedGraphQLRequest<T> {
+export abstract class AbstractPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
     abstract fragment: GraphQLFragment;
     abstract query: string;
     pageInfo: PageInfo | undefined;
@@ -98,11 +100,11 @@ export abstract class AbstractPagedRequest<T> implements PagedGraphQLRequest<T> 
     }
 
     /**
-     * Updates page-info with data from response object, and returns empty result set (should be
-     * handled by derived class).
+     * Updates page-info with data from response object, and returns empty result set.
+     * Parse of data must be handled by derived class.
      * @param rawData Full response object
      */
-    parseResponse(rawData: object): T[] {
+    parseResponse(rawData: object): TResult[] {
         const pageInfo = getValueForFirstKey(rawData, 'pageInfo') as PageInfo;
         if (pageInfo) {
             this.pageInfo = pageInfo;

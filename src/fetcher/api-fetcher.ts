@@ -2,6 +2,8 @@ import _ from 'lodash';
 import config from '../etc/config';
 import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
+import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
+import { ResponseError, ResponseErrorType } from '../lib/errors';
 import {
     UserProfile,
     OrganizationProfile,
@@ -9,8 +11,6 @@ import {
     RepositoryProfileMinified,
     RepositoryProfile
 } from '../models';
-import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
-import { ResponseError, ResponseErrorType } from '../lib/errors';
 
 export default class APIFetcher {
     private graphQLClient: GraphQLClient;
@@ -68,6 +68,7 @@ export default class APIFetcher {
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
         try {
             const response = await this.graphQLClient.rawRequest(request.query, request.variables);
+
             return request.parseResponse(response.data);
         } catch (error) {
             const classifiedError = APIFetcher.classifyResponseError(error) as ResponseError;
@@ -97,7 +98,7 @@ export default class APIFetcher {
 
     private static classifyResponseError(error: Error): ResponseError {
         const responseStatusCode = _.get(error, 'response.status') as number;
-        const topLevelResponseErrorMessage = _.get(error, 'response.message');
+        const topLevelResponseErrorMessage = _.get(error, 'response.message') as string;
 
         // Finds and classifies error in nested response object
         const aux = (error: Error): ResponseError => {

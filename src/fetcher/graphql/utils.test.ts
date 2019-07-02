@@ -1,15 +1,15 @@
 import { AbstractPagedRequest, GraphQLFragment, GraphQLObjectField } from './utils';
 
 describe('AbstractPagedRequest', (): void => {
-    class StubClass extends AbstractPagedRequest<object> {
+    class StubPagedRequest extends AbstractPagedRequest<object> {
         fragment: GraphQLFragment = new GraphQLFragment('name', 'demo', []);
         query: string = '';
     }
 
     describe('parseResponse', (): void => {
-        let stub: StubClass;
+        let pagedRequest: StubPagedRequest;
 
-        beforeEach((): StubClass => (stub = new StubClass({})));
+        beforeEach((): StubPagedRequest => (pagedRequest = new StubPagedRequest({})));
 
         it('should update page-info', (): void => {
             const response = {
@@ -19,9 +19,9 @@ describe('AbstractPagedRequest', (): void => {
                 }
             };
 
-            stub.parseResponse(response);
+            pagedRequest.parseResponse(response);
 
-            expect(stub.pageInfo).toMatchObject(response.pageInfo);
+            expect(pagedRequest.pageInfo).toMatchObject(response.pageInfo);
         });
 
         it('should update variables for next request', (): void => {
@@ -32,9 +32,9 @@ describe('AbstractPagedRequest', (): void => {
                 }
             };
 
-            stub.parseResponse(response);
+            pagedRequest.parseResponse(response);
 
-            expect(stub.variables).toMatchObject({
+            expect(pagedRequest.variables).toMatchObject({
                 after: response.pageInfo.nextElement
             });
         });
@@ -50,6 +50,7 @@ describe('GraphQLFragment', (): void => {
 
         const validateFragment = (): void => {
             const whitespaceRegex = /\s/g;
+
             expect(fragment.toString().replace(whitespaceRegex, '')).toEqual(
                 expectedStringPresentation.replace(whitespaceRegex, '')
             );

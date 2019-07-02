@@ -2,17 +2,18 @@ import { Expose, plainToClass } from 'class-transformer';
 import { OrganizationProfileMinified } from '../../../../models';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
 import { AbstractPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
-import { GITHUB_OBJECT_NAMES, fragments } from '../../common/fragments';
+import { GITHUB_GRAPHQL_OBJECT_NAMES, fragments } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
 class MinOrganizationProfileParseModel implements OrganizationProfileMinified {
     @Expose()
     gitHubId!: string;
+
     @Expose()
     name!: string;
 }
 
-const profileFragment = new GraphQLFragment('minOrganizationProfile', GITHUB_OBJECT_NAMES.Organization, [
+const profileFragment = new GraphQLFragment('MinOrganizationProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Organization, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('login', 'name')
 ]);
@@ -41,21 +42,17 @@ export default class GetUserOrganizationMembershipsRequest extends AbstractPaged
         super({ name: name });
     }
 
-    /**
-     * Returns elements on current page
-     * @param rawData Raw JSON object to parse
-     */
     parseResponse(rawData: object): OrganizationProfileMinified[] {
-        super.parseResponse(rawData);
+        super.parseResponse(rawData); // Essential – updates page-info with data from response object
 
         const results = getValueForFirstKey(rawData, 'nodes') as object;
         if (!results) {
             throw new ParseError(rawData);
         }
 
-        // Parse each element in response data
+        // Parse and returns each element in response data on current page
         return Object.values(results).map(
-            (curValue: object): OrganizationProfileMinified => {
+            (curValue): OrganizationProfileMinified => {
                 return plainToClass(MinOrganizationProfileParseModel, curValue, { excludeExtraneousValues: true });
             }
         );

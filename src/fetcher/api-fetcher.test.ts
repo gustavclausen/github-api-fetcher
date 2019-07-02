@@ -48,14 +48,21 @@ describe('APIFetcher', (): void => {
 
     describe('fetch', (): void => {
         let request: GraphQLRequest<UserProfile>;
-        let errorToThrow: EndpointResponseError | null;
+        let errorToThrow: GitHubEndpointResponseError | null;
 
         beforeEach((): void => {
             request = new requests.UserProfile('demo-user');
             errorToThrow = null;
+
+            // Setup client mock
+            jest.mock('graphql-request');
+
+            GraphQLClient.prototype.rawRequest = jest
+                .fn()
+                .mockImplementation((): Promise<never> => Promise.reject(errorToThrow));
         });
 
-        class EndpointResponseError extends Error {
+        class GitHubEndpointResponseError extends Error {
             response!: object;
 
             constructor(response: object) {
@@ -63,14 +70,6 @@ describe('APIFetcher', (): void => {
                 this.response = response;
             }
         }
-
-        const setupClientMock = (): void => {
-            jest.mock('graphql-request');
-
-            GraphQLClient.prototype.rawRequest = jest
-                .fn()
-                .mockImplementation((): Promise<never> => Promise.reject(errorToThrow));
-        };
 
         const assertThrownError = async (expectedType: ResponseErrorType): Promise<void> => {
             try {
@@ -84,7 +83,7 @@ describe('APIFetcher', (): void => {
         };
 
         it('should return null when ResponseError is of NOT_FOUND type', async (): Promise<void> => {
-            errorToThrow = new EndpointResponseError({
+            errorToThrow = new GitHubEndpointResponseError({
                 errors: [
                     {
                         type: 'NOT_FOUND'
@@ -92,7 +91,6 @@ describe('APIFetcher', (): void => {
                 ],
                 status: 200
             });
-            setupClientMock();
 
             expect(await fetcher.fetch(request)).toBe(null);
         });
@@ -100,7 +98,7 @@ describe('APIFetcher', (): void => {
         it('should throw ResponseError with INSUFFICIENT_SCOPES type when response contains access token scope error', async (): Promise<
             void
         > => {
-            errorToThrow = new EndpointResponseError({
+            errorToThrow = new GitHubEndpointResponseError({
                 errors: [
                     {
                         type: 'INSUFFICIENT_SCOPES'
@@ -108,7 +106,6 @@ describe('APIFetcher', (): void => {
                 ],
                 status: 200
             });
-            setupClientMock();
 
             await assertThrownError(ResponseErrorType.INSUFFICIENT_SCOPES);
         });
@@ -116,10 +113,9 @@ describe('APIFetcher', (): void => {
         it('should throw ResponseError with BAD_CREDENTIALS type when response contains status code 401', async (): Promise<
             void
         > => {
-            errorToThrow = new EndpointResponseError({
+            errorToThrow = new GitHubEndpointResponseError({
                 status: 401
             });
-            setupClientMock();
 
             await assertThrownError(ResponseErrorType.BAD_CREDENTIALS);
         });
@@ -127,7 +123,7 @@ describe('APIFetcher', (): void => {
         it('should throw ResponseError with ACCESS_FORBIDDEN type when response contains status code 403', async (): Promise<
             void
         > => {
-            errorToThrow = new EndpointResponseError({
+            errorToThrow = new GitHubEndpointResponseError({
                 status: 403
             });
 
@@ -137,7 +133,7 @@ describe('APIFetcher', (): void => {
         it('should throw ResponseError with GITHUB_SERVER_ERROR type when response contains status code >= 500', async (): Promise<
             void
         > => {
-            errorToThrow = new EndpointResponseError({
+            errorToThrow = new GitHubEndpointResponseError({
                 status: 503
             });
 
@@ -145,7 +141,7 @@ describe('APIFetcher', (): void => {
         });
 
         it('should throw ResponseError with UNKNOWN type when error cannot be classified', async (): Promise<void> => {
-            errorToThrow = new EndpointResponseError({});
+            errorToThrow = new GitHubEndpointResponseError({});
 
             await assertThrownError(ResponseErrorType.UNKNOWN);
         });
@@ -174,6 +170,7 @@ describe('APIFetcher', (): void => {
             jest.mock('./api-fetcher');
             APIFetcher.prototype.fetch = jest
                 .fn()
+                // First result
                 .mockImplementationOnce(
                     (): Promise<OrganizationProfileMinified[] | null> => {
                         request.pageInfo = {
@@ -183,6 +180,7 @@ describe('APIFetcher', (): void => {
                         return Promise.resolve(firstPageResult);
                     }
                 )
+                // Second result
                 .mockImplementationOnce(
                     (): Promise<OrganizationProfileMinified[] | null> => {
                         request.pageInfo = {
