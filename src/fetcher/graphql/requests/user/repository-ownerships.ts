@@ -1,28 +1,32 @@
-import { Expose, plainToClass } from 'class-transformer';
-import { OrganizationProfileMinified } from '../../../../models';
+import { Expose, plainToClass, Transform } from 'class-transformer';
+import { OrganizationProfileMinified, RepositoryProfileMinified } from '../../../../models';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
 import { AbstractPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
 import { GITHUB_OBJECT_NAMES, fragments } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
-class MinOrganizationProfileParseModel implements OrganizationProfileMinified {
+class MinRepositoryProfileParseModel implements RepositoryProfileMinified {
     @Expose()
     gitHubId!: string;
     @Expose()
     name!: string;
+    @Expose()
+    @Transform((obj): string => obj['username'])
+    ownerUsername!: string;
 }
 
-const profileFragment = new GraphQLFragment('minOrganizationProfile', GITHUB_OBJECT_NAMES.Organization, [
+const minRepositoryFragment = new GraphQLFragment('minRepositoryProfile', GITHUB_OBJECT_NAMES.Repository, [
     new GraphQLObjectField('id', 'gitHubId'),
-    new GraphQLObjectField('login', 'name')
+    new GraphQLObjectField('name'),
+    new GraphQLObjectField('owner', 'ownerUsername', [new GraphQLObjectField('login', 'username')])
 ]);
 
-export default class GetUserOrganizationMembershipsRequest extends AbstractPagedRequest<OrganizationProfileMinified> {
-    fragment = profileFragment;
+export default class GetUserRespositoryOwnershipsRequest extends AbstractPagedRequest<OrganizationProfileMinified> {
+    fragment = minRepositoryFragment;
     query = `
-        query GetUserBelongingOrganizations($name: String!, $after: String) {
+        query GetUserRepositoryOwnerships($name: String!, $after: String) {
             user(login: $name) {
-                organizations(first: 100, after: $after) {
+                repositories(first: 100, after: $after, privacy: PUBLIC, affiliations: OWNER, ownerAffiliations: OWNER) {
                     nodes {
                         ...${this.fragment.name}
                     }
@@ -45,7 +49,7 @@ export default class GetUserOrganizationMembershipsRequest extends AbstractPaged
      * Returns elements on current page
      * @param rawData Raw JSON object to parse
      */
-    parseResponse(rawData: object): OrganizationProfileMinified[] {
+    parseResponse(rawData: object): RepositoryProfileMinified[] {
         super.parseResponse(rawData);
 
         const results = getValueForFirstKey(rawData, 'nodes') as object;
@@ -55,8 +59,8 @@ export default class GetUserOrganizationMembershipsRequest extends AbstractPaged
 
         // Parse each element in response data
         return Object.values(results).map(
-            (curValue: object): OrganizationProfileMinified => {
-                return plainToClass(MinOrganizationProfileParseModel, curValue, { excludeExtraneousValues: true });
+            (curValue: object): RepositoryProfileMinified => {
+                return plainToClass(MinRepositoryProfileParseModel, curValue, { excludeExtraneousValues: true });
             }
         );
     }

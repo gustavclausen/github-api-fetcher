@@ -2,7 +2,13 @@ import _ from 'lodash';
 import config from '../etc/config';
 import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
-import { UserProfile, OrganizationProfile, OrganizationProfileMinified } from '../models';
+import {
+    UserProfile,
+    OrganizationProfile,
+    OrganizationProfileMinified,
+    RepositoryProfileMinified,
+    RepositoryProfile
+} from '../models';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
 
@@ -34,6 +40,12 @@ export default class APIFetcher {
             fetchedProfile.organizationMemberships = organizationMemberships;
         }
 
+        // Fetch info about repositories user owns, and add result to profile
+        const repositoryOwnerships = await this.getUserRepositoryOwnerships(username);
+        if (repositoryOwnerships) {
+            fetchedProfile.repositoryOwnerships = repositoryOwnerships;
+        }
+
         return fetchedProfile;
     }
 
@@ -41,8 +53,16 @@ export default class APIFetcher {
         return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
     }
 
+    private async getUserRepositoryOwnerships(username: string): Promise<RepositoryProfileMinified[] | null> {
+        return await this.pageFetch<RepositoryProfileMinified>(new requests.UserRepositoryOwnerships(username));
+    }
+
     async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {
         return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
+    }
+
+    async getRepositoryProfile(ownerUsername: string, repositoryName: string): Promise<RepositoryProfile | null> {
+        return await this.fetch<RepositoryProfile>(new requests.RepositoryProfile(ownerUsername, repositoryName));
     }
 
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {

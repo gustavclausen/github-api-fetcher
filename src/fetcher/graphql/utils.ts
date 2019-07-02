@@ -1,20 +1,21 @@
 import { getValueForFirstKey } from '../../lib/object-utils';
 
-export const GITHUB_OBJECT_NAMES = {
-    PageInfo: 'PageInfo',
-    User: 'User',
-    Organization: 'Organization'
-};
-
 export class GraphQLObjectField {
     fieldValue!: string;
     aliasName?: string | null;
-    nestedProperties?: GraphQLObjectField[];
+    nestedProperties?: GraphQLObjectField[] | null;
+    argument?: string | null; // TODO: Define arguments syntactically instead of raw string
 
-    constructor(fieldValue: string, aliasName?: string | null, nestedProperties?: GraphQLObjectField[]) {
+    constructor(
+        fieldValue: string,
+        aliasName?: string | null,
+        nestedProperties?: GraphQLObjectField[] | null,
+        argument?: string | null
+    ) {
         this.fieldValue = fieldValue;
         this.aliasName = aliasName;
         this.nestedProperties = nestedProperties;
+        this.argument = argument;
     }
 }
 
@@ -22,8 +23,12 @@ export class GraphQLFragment {
     private _graphQLObjectName!: string; // Name of GraphQL object to make fragment on
     private _fields!: GraphQLObjectField[]; // List of fields on GraphQL object to include in fragment
     private _name!: string;
+
     get name(): string {
         return this._name;
+    }
+    get fields(): GraphQLObjectField[] {
+        return this._fields;
     }
 
     constructor(name: string, graphQLObjectName: string, fields: GraphQLObjectField[]) {
@@ -40,6 +45,10 @@ export class GraphQLFragment {
             let result = `${acc}\n${
                 curValue.aliasName ? `${curValue.aliasName}: ${curValue.fieldValue}` : `${curValue.fieldValue}`
             }`;
+
+            if (curValue.nestedProperties && curValue.argument) {
+                result += `(${curValue.argument})`;
+            }
 
             if (curValue.nestedProperties) {
                 result += `{ ${curValue.nestedProperties.reduce(reducer, '')} \n}`;
@@ -108,8 +117,3 @@ export interface PageInfo {
     hasNextPage: boolean;
     nextElement: string | null;
 }
-
-export const pageInfoFragment = new GraphQLFragment('pageInfo', GITHUB_OBJECT_NAMES.PageInfo, [
-    new GraphQLObjectField('hasNextPage'),
-    new GraphQLObjectField('endCursor', 'nextElement')
-]);
