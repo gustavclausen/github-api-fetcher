@@ -188,3 +188,27 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
      */
     forkCount: number;
 }
+
+/**
+ * Describes commit contribution in specific repository
+ */
+export interface CommitContributionByRepository {
+    /**
+     * Repository contributed to
+     */
+    repository: RepositoryProfileMinified;
+    /**
+     * Number of commits in repository
+     */
+    commitCount: number;
+}
+
+// TODO: Comment
+export interface YearlyCommitContribution {
+    // TODO: Comment
+    year: number;
+    // TODO: Comment
+    restrictedCommitCount: number;
+    // TODO: Comment
+    publicContributions: CommitContributionByRepository[];
+}

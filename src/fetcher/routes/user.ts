@@ -1,9 +1,17 @@
+import _ from 'lodash';
 import { Routefetcher } from './utils';
-import { UserProfile, OrganizationProfileMinified, RepositoryProfileMinified } from '../../models';
 import GetUserProfileRequest from '../graphql/requests/user/profile';
 import GetUserOrganizationMembershipsRequest from '../graphql/requests/user/organization-memberships';
 import GetUserRepositoryOwnershipsRequest from '../graphql/requests/user/repository-ownerships';
 import GetUserContributionYearsRequest from '../graphql/requests/user/contribution-years';
+import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/commit-contribution-by-repository';
+import {
+    UserProfile,
+    OrganizationProfileMinified,
+    RepositoryProfileMinified,
+    CommitContributionByRepository,
+    YearlyCommitContribution
+} from '../../models';
 
 export default class UserRoute extends Routefetcher {
     /**
@@ -28,6 +36,39 @@ export default class UserRoute extends Routefetcher {
         }
 
         return fetchedProfile;
+    }
+
+    // TODO: Comment
+    private async getYearlyCommitContributions(
+        username: string,
+        years: number[]
+    ): Promise<YearlyCommitContribution[] | null> {
+        return await Promise.all(
+            _.map(
+                years,
+                async (year: number): Promise<YearlyCommitContribution> => {
+                    const contributions = await this.fetcher.fetch<CommitContributionByRepository[]>(
+                        new GetUserCommitContributionsByRepositoryRequest(username, year)
+                    );
+                    const publicContributions = _.filter(contributions, (contribution): boolean => {
+                        return !contribution.repository.isPrivate;
+                    });
+                    const restrictedCommitCount = _.reduce(
+                        contributions,
+                        (acc: number, curValue): number => {
+                            return acc + (curValue.repository.isPrivate ? curValue.commitCount : 0);
+                        },
+                        0
+                    );
+
+                    return {
+                        year,
+                        restrictedCommitCount,
+                        publicContributions: publicContributions ? publicContributions : []
+                    };
+                }
+            )
+        );
     }
 
     /**
