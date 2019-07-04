@@ -136,6 +136,10 @@ export interface RepositoryProfileMinified {
      * The URL pointing to the repository on GitHub – e.g. 'https://github.com/torvalds/linux'
      */
     publicUrl: string;
+    /**
+     * Indicates if repository is private
+     */
+    isPrivate: boolean;
 }
 
 /**

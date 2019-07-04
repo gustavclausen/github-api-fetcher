@@ -2,7 +2,7 @@ import { Expose, plainToClass } from 'class-transformer';
 import { OrganizationProfileMinified } from '../../../../models';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
 import { GraphQLPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
-import { GITHUB_GRAPHQL_OBJECT_NAMES, fragments } from '../../common/fragments';
+import fragments, { GITHUB_GRAPHQL_OBJECT_NAMES } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
 class MinOrganizationProfileParseModel implements OrganizationProfileMinified {

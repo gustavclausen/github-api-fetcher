@@ -1,36 +1,15 @@
-import { Expose, plainToClass, Transform } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { OrganizationProfileMinified, RepositoryProfileMinified } from '../../../../models';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
-import { GraphQLPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
-import { GITHUB_GRAPHQL_OBJECT_NAMES, fragments } from '../../common/fragments';
+import { GraphQLPagedRequest } from '../../utils';
 import { ParseError } from '../../../../lib/errors';
-
-class MinRepositoryProfileParseModel implements RepositoryProfileMinified {
-    @Expose()
-    gitHubId!: string;
-
-    @Expose()
-    name!: string;
-
-    @Expose()
-    @Transform((obj): string => obj['name'])
-    ownerName!: string;
-
-    @Expose()
-    publicUrl!: string;
-}
-
-const minRepositoryFragment = new GraphQLFragment('minRepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
-    new GraphQLObjectField('id', 'gitHubId'),
-    new GraphQLObjectField('name'),
-    new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
-    new GraphQLObjectField('url', 'publicUrl')
-]);
+import { MinRepositoryProfileParseModel } from '../../common/parse-models';
+import fragments from '../../common/fragments';
 
 export default class GetPublicUserRespositoryOwnershipsRequest extends GraphQLPagedRequest<
     OrganizationProfileMinified
 > {
-    fragment = minRepositoryFragment;
+    fragment = fragments.minifiedRepository;
     query = `
         query GetUserRepositoryOwnerships($name: String!, $after: String) {
             user(login: $name) {

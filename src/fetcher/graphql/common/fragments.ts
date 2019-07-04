@@ -14,7 +14,7 @@ export const GITHUB_GRAPHQL_OBJECT_NAMES = {
 /**
  * Common GraphQL fragments to be used in requests
  */
-export const fragments = {
+export default {
     pageInfo: new GraphQLFragment('pageInfo', GITHUB_GRAPHQL_OBJECT_NAMES.PageInfo, [
         new GraphQLObjectField('hasNextPage'),
         new GraphQLObjectField('endCursor', 'nextElement')
@@ -22,5 +22,12 @@ export const fragments = {
     language: new GraphQLFragment('language', GITHUB_GRAPHQL_OBJECT_NAMES.Language, [
         new GraphQLObjectField('name'),
         new GraphQLObjectField('color')
+    ]),
+    minifiedRepository: new GraphQLFragment('minRepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
+        new GraphQLObjectField('id', 'gitHubId'),
+        new GraphQLObjectField('name'),
+        new GraphQLObjectField('isPrivate'),
+        new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
+        new GraphQLObjectField('url', 'publicUrl')
     ])
 };
