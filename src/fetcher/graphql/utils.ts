@@ -1,5 +1,9 @@
 import { getValueForFirstKey } from '../../lib/object-utils';
 
+/**
+ * Defines a field on a GraphQL object, used in queries.
+ * See: https://graphql.org/learn/queries/#fields
+ */
 export class GraphQLObjectField {
     fieldValue!: string;
     aliasName?: string | null;
@@ -19,6 +23,10 @@ export class GraphQLObjectField {
     }
 }
 
+/**
+ * Defines a GraphQL fragment, used in queries.
+ * See: https://graphql.org/learn/queries/#fragments
+ */
 export class GraphQLFragment {
     /**
      * Name of GraphQL object to make fragment on
@@ -28,11 +36,21 @@ export class GraphQLFragment {
      * List of fields on GraphQL object to include in fragment
      */
     private _fields!: GraphQLObjectField[];
+    /**
+     * The fragment's custom name
+     */
     private _name!: string;
 
+    /**
+     * Returns the fragment's custom name
+     */
     get name(): string {
         return this._name;
     }
+
+    /**
+     * Returns the fragment's fields
+     */
     get fields(): GraphQLObjectField[] {
         return this._fields;
     }
@@ -67,6 +85,10 @@ export class GraphQLFragment {
     }
 }
 
+/**
+ * Presents the GraphQL request to be sent to the endpoint.
+ * Responsible for defining the request, and parsing the response.
+ */
 export interface GraphQLRequest<TResult> {
     fragment?: GraphQLFragment;
     query: string;
@@ -74,8 +96,20 @@ export interface GraphQLRequest<TResult> {
     parseResponse(rawData: object): TResult;
 }
 
+/**
+ * Describes page info of result set returned from endpoint
+ */
+export interface PageInfo {
+    hasNextPage: boolean;
+    nextElement: string | null;
+}
+
+/**
+ * Presents a paged GraphQL request to be sent to the endpoint.
+ * Responsible for defining the requests, updating the page state, and parsing the responses.
+ */
 export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
-    abstract fragment: GraphQLFragment;
+    abstract fragment?: GraphQLFragment;
     abstract query: string;
     pageInfo: PageInfo | undefined;
     variables: object | undefined;
@@ -84,6 +118,9 @@ export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TRe
         this.variables = variables;
     }
 
+    /**
+     * Returns true if result set has a next page
+     */
     hasNextPage(): boolean {
         return this.pageInfo ? this.pageInfo.hasNextPage : false;
     }
@@ -113,9 +150,4 @@ export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TRe
 
         return [];
     }
-}
-
-export interface PageInfo {
-    hasNextPage: boolean;
-    nextElement: string | null;
 }
