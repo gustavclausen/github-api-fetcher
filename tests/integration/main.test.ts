@@ -73,23 +73,29 @@ describe('APIFetcher', (): void => {
             }
 
             // Verify all top-level properties is set on user profile model
-            _.forEach(keys<UserProfile>(), (key): void => {
-                expect(_.get(result, key)).toBeDefined();
+            _.forEach(await keys<UserProfile>(), (propKey): void => {
+                expect(_.get(result, propKey)).toBeDefined();
             });
 
             // Verify all properties set on nested 'organizationMemberships' property
-            _.forEach(result.organizationMemberships, (organization): void => {
-                _.forEach(keys<OrganizationProfileMinified>(), (propKey): void => {
-                    expect(_.get(organization, propKey)).toBeDefined();
-                });
-            });
+            _.forEach(
+                result.organizationMemberships,
+                async (organization): Promise<void> => {
+                    _.forEach(await keys<OrganizationProfileMinified>(), (propKey): void => {
+                        expect(_.get(organization, propKey)).toBeDefined();
+                    });
+                }
+            );
 
             // Verify all properties set on nested 'repositoryOwnerships' property
-            _.forEach(result.repositoryOwnerships, (repository): void => {
-                _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
-                    expect(_.get(repository, propKey)).toBeDefined();
-                });
-            });
+            _.forEach(
+                result.repositoryOwnerships,
+                async (repository): Promise<void> => {
+                    _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
+                        expect(_.get(repository, propKey)).toBeDefined();
+                    });
+                }
+            );
         }, 30000);
     });
 
@@ -108,7 +114,7 @@ describe('APIFetcher', (): void => {
             const result = await fetcher.organization.getProfile(randomOrganizationName);
 
             // Verify all top-level properties is set on organization profile model
-            _.forEach(keys<OrganizationProfile>(), (propKey): void => {
+            _.forEach(await keys<OrganizationProfile>(), (propKey): void => {
                 expect(_.get(result, propKey)).toBeDefined();
             });
         });
@@ -137,21 +143,23 @@ describe('APIFetcher', (): void => {
             }
 
             // Verify all properties set on repository profile model
-            _.forEach(keys<RepositoryProfile>(), (propKey): void => {
+            _.forEach(await keys<RepositoryProfile>(), (propKey): void => {
                 expect(_.get(result, propKey)).toBeDefined();
             });
 
             // Verify all properties set on nested 'primaryProgrammingLanguage' property
-            _.forEach(keys<ProgrammingLanguage>(), (propKey): void => {
+            _.forEach(await keys<ProgrammingLanguage>(), (propKey): void => {
                 expect(_.get(result.primaryProgrammingLanguage, propKey)).toBeDefined();
             });
 
             // Verify all properties set on nested 'appliedProgrammingLanguages' property
-            _.forEach(result.appliedProgrammingLanguages, (programmingLanguage): void => {
-                _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
-                    expect(_.get(programmingLanguage, propKey)).toBeDefined();
-                });
-            });
+            _.forEach(
+                result.appliedProgrammingLanguages, async (programmingLanguage): Promise<void> => {
+                    _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
+                        expect(_.get(programmingLanguage, propKey)).toBeDefined();
+                    });
+                }
+            );
         });
     });
 });
