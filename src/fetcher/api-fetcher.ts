@@ -1,19 +1,18 @@
 import _ from 'lodash';
 import config from '../etc/config';
-import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
-import {
-    UserProfile,
-    OrganizationProfile,
-    OrganizationProfileMinified,
-    RepositoryProfileMinified,
-    RepositoryProfile
-} from '../models';
+import UserRoute from './routes/user';
+import OrganizationRoute from './routes/organization';
+import RepositoryRoute from './routes/repository';
 
 export default class APIFetcher {
     private graphQLClient: GraphQLClient;
+
+    user = new UserRoute(this);
+    organization = new OrganizationRoute(this);
+    repository = new RepositoryRoute(this);
 
     constructor(apiAccessToken?: string) {
         // Search for API access token, and setup GraphQL client
@@ -27,42 +26,6 @@ export default class APIFetcher {
                 Authorization: `Bearer ${accessToken}`
             }
         });
-    }
-
-    async getUserProfile(username: string): Promise<UserProfile | null> {
-        const fetchedProfile = await this.fetch<UserProfile>(new requests.UserProfile(username));
-
-        if (!fetchedProfile) return null;
-
-        // Fetch info about organizations user is member of, and add result to profile
-        const organizationMemberships = await this.getUserOrganizationMemberships(username);
-        if (organizationMemberships) {
-            fetchedProfile.organizationMemberships = organizationMemberships;
-        }
-
-        // Fetch info about repositories user owns, and add result to profile
-        const repositoryOwnerships = await this.getUserRepositoryOwnerships(username);
-        if (repositoryOwnerships) {
-            fetchedProfile.repositoryOwnerships = repositoryOwnerships;
-        }
-
-        return fetchedProfile;
-    }
-
-    private async getUserOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
-        return await this.pageFetch<OrganizationProfileMinified>(new requests.UserOrganizationMemberships(username));
-    }
-
-    private async getUserRepositoryOwnerships(username: string): Promise<RepositoryProfileMinified[] | null> {
-        return await this.pageFetch<RepositoryProfileMinified>(new requests.UserRepositoryOwnerships(username));
-    }
-
-    async getOrganizationProfile(organizationName: string): Promise<OrganizationProfile | null> {
-        return await this.fetch<OrganizationProfile>(new requests.OrganizationProfile(organizationName));
-    }
-
-    async getRepositoryProfile(ownerUsername: string, repositoryName: string): Promise<RepositoryProfile | null> {
-        return await this.fetch<RepositoryProfile>(new requests.RepositoryProfile(ownerUsername, repositoryName));
     }
 
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {

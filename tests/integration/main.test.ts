@@ -40,38 +40,6 @@ const fetchGitHubAPI = async (resourceUri: string): Promise<object[]> => {
     return (await response.json()) as object[];
 };
 
-/**
- * Fetches random user and returns its username
- */
-const getUsernameOfRandomUser = async (): Promise<string> => {
-    const searchResults = _.get(await fetchGitHubAPI('search/users?q=type:user+repo:>0'), 'items'); // Fetch users with at least one repository
-    const randomUser = _.sample(searchResults) as object;
-
-    return _.get(randomUser, 'login') as string; // Get login (username) of random selected user
-};
-
-/**
- * Fetches random organization and returns its name
- */
-const getNameOfRandomOrganization = async (): Promise<string> => {
-    const randomOrganization = _.sample(await fetchGitHubAPI('organizations')) as object;
-
-    return _.get(randomOrganization, 'login') as string; // Get login (name) of random selected organization
-};
-
-/**
- * Fetches random repository, and returns username of owner (user/organization) and name of repository as tuple
- */
-const getRandomRepository = async (): Promise<[string, string]> => {
-    const searchResults = _.get(await fetchGitHubAPI('search/repositories?q=topics:>0'), 'items'); // Fetch repositories with at least one topic
-    const randomRepository = _.sample(searchResults) as object;
-
-    const repoOwnerUsername = _.get(randomRepository, 'owner.login') as string;
-    const repoName = _.get(randomRepository, 'name') as string;
-
-    return [repoOwnerUsername, repoName];
-};
-
 describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
 
@@ -79,71 +47,110 @@ describe('APIFetcher', (): void => {
         fetcher = new APIFetcher();
     });
 
-    it('getUserProfile should return model with all properties set', async (): Promise<void> => {
-        let randomUsername = await getUsernameOfRandomUser();
-        let result = await fetcher.getUserProfile(randomUsername);
+    describe('user route', (): void => {
+        /**
+         * Fetches random user and returns its username
+         */
+        const getUsernameOfRandomUser = async (): Promise<string> => {
+            const searchResults = _.get(await fetchGitHubAPI('search/users?q=type:user+repo:>0'), 'items'); // Fetch users with at least one repository
+            const randomUser = _.sample(searchResults) as object;
 
-        // Search for user with at least one organization membership
-        while (result && _.isEmpty(result.organizationMemberships)) {
-            randomUsername = await getUsernameOfRandomUser();
-            result = await fetcher.getUserProfile(randomUsername);
-        }
+            return _.get(randomUser, 'login') as string; // Get login (username) of random selected user
+        };
 
-        if (!result) {
-            throw new Error('No data to test on');
-        }
+        it('getProfile should return model with all properties set', async (): Promise<void> => {
+            let randomUsername = await getUsernameOfRandomUser();
+            let result = await fetcher.user.getProfile(randomUsername);
 
-        // Verify all top-level properties is set on user profile model
-        _.forEach(keys<UserProfile>(), (key): void => {
-            expect(_.get(result, key)).toBeDefined();
-        });
+            // Search for user with at least one organization membership
+            while (result && _.isEmpty(result.organizationMemberships)) {
+                randomUsername = await getUsernameOfRandomUser();
+                result = await fetcher.user.getProfile(randomUsername);
+            }
 
-        // Verify all properties set on nested 'organizationMemberships' property
-        _.forEach(result.organizationMemberships, (organization): void => {
-            _.forEach(keys<OrganizationProfileMinified>(), (propKey): void => {
-                expect(_.get(organization, propKey)).toBeDefined();
+            if (!result) {
+                throw new Error('No data to test on');
+            }
+
+            // Verify all top-level properties is set on user profile model
+            _.forEach(keys<UserProfile>(), (key): void => {
+                expect(_.get(result, key)).toBeDefined();
             });
-        });
 
-        // Verify all properties set on nested 'repositoryOwnerships' property
-        _.forEach(result.repositoryOwnerships, (repository): void => {
-            _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
-                expect(_.get(repository, propKey)).toBeDefined();
+            // Verify all properties set on nested 'organizationMemberships' property
+            _.forEach(result.organizationMemberships, (organization): void => {
+                _.forEach(keys<OrganizationProfileMinified>(), (propKey): void => {
+                    expect(_.get(organization, propKey)).toBeDefined();
+                });
             });
-        });
-    }, 30000);
 
-    it('getOrganizationProfile should return model with all properties set', async (): Promise<void> => {
-        const randomOrganizationName = await getNameOfRandomOrganization();
-        const result = await fetcher.getOrganizationProfile(randomOrganizationName);
+            // Verify all properties set on nested 'repositoryOwnerships' property
+            _.forEach(result.repositoryOwnerships, (repository): void => {
+                _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
+                    expect(_.get(repository, propKey)).toBeDefined();
+                });
+            });
+        }, 30000);
+    });
 
-        _.forEach(keys<OrganizationProfile>(), (propKey): void => {
-            expect(_.get(result, propKey)).toBeDefined();
+    describe('organization route', (): void => {
+        /**
+         * Fetches random organization and returns its name
+         */
+        const getNameOfRandomOrganization = async (): Promise<string> => {
+            const randomOrganization = _.sample(await fetchGitHubAPI('organizations')) as object;
+
+            return _.get(randomOrganization, 'login') as string; // Get login (name) of random selected organization
+        };
+
+        it('getProfile should return model with all properties set', async (): Promise<void> => {
+            const randomOrganizationName = await getNameOfRandomOrganization();
+            const result = await fetcher.organization.getProfile(randomOrganizationName);
+
+            // Verify all top-level properties is set on organization profile model
+            _.forEach(keys<OrganizationProfile>(), (propKey): void => {
+                expect(_.get(result, propKey)).toBeDefined();
+            });
         });
     });
 
-    it('getRepositoryProfile should return model with all properties set', async (): Promise<void> => {
-        const [randomRepoOwnerUsername, randomRepoName] = await getRandomRepository();
-        const result = await fetcher.getRepositoryProfile(randomRepoOwnerUsername, randomRepoName);
+    describe('repository route', (): void => {
+        /**
+         * Fetches random repository, and returns username of owner (user/organization) and name of repository as tuple
+         */
+        const getRandomRepository = async (): Promise<[string, string]> => {
+            const searchResults = _.get(await fetchGitHubAPI('search/repositories?q=topics:>0'), 'items'); // Fetch repositories with at least one topic
+            const randomRepository = _.sample(searchResults) as object;
 
-        if (!result) {
-            throw new Error('No data to test on');
-        }
+            const repoOwnerUsername = _.get(randomRepository, 'owner.login') as string;
+            const repoName = _.get(randomRepository, 'name') as string;
 
-        // Verify all properties set on repository profile model
-        _.forEach(keys<RepositoryProfile>(), (propKey): void => {
-            expect(_.get(result, propKey)).toBeDefined();
-        });
+            return [repoOwnerUsername, repoName];
+        };
 
-        // Verify all properties set on nested 'primaryProgrammingLanguage' property
-        _.forEach(keys<ProgrammingLanguage>(), (propKey): void => {
-            expect(_.get(result.primaryProgrammingLanguage, propKey)).toBeDefined();
-        });
+        it('getProfile should return model with all properties set', async (): Promise<void> => {
+            const [randomRepoOwnerUsername, randomRepoName] = await getRandomRepository();
+            const result = await fetcher.repository.getProfile(randomRepoOwnerUsername, randomRepoName);
 
-        // Verify all properties set on nested 'appliedProgrammingLanguages' property
-        _.forEach(result.appliedProgrammingLanguages, (programmingLanguage): void => {
-            _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
-                expect(_.get(programmingLanguage, propKey)).toBeDefined();
+            if (!result) {
+                throw new Error('No data to test on');
+            }
+
+            // Verify all properties set on repository profile model
+            _.forEach(keys<RepositoryProfile>(), (propKey): void => {
+                expect(_.get(result, propKey)).toBeDefined();
+            });
+
+            // Verify all properties set on nested 'primaryProgrammingLanguage' property
+            _.forEach(keys<ProgrammingLanguage>(), (propKey): void => {
+                expect(_.get(result.primaryProgrammingLanguage, propKey)).toBeDefined();
+            });
+
+            // Verify all properties set on nested 'appliedProgrammingLanguages' property
+            _.forEach(result.appliedProgrammingLanguages, (programmingLanguage): void => {
+                _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
+                    expect(_.get(programmingLanguage, propKey)).toBeDefined();
+                });
             });
         });
     });

@@ -1,7 +1,7 @@
+import _ from 'lodash';
 import APIFetcher from './api-fetcher';
 import config from '../etc/config';
 import requests from './graphql/requests/unified';
-import { getValueForFirstKey } from '../lib/object-utils';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfileMinified } from '../models';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
@@ -15,13 +15,15 @@ describe('APIFetcher', (): void => {
     });
 
     describe('constructor', (): void => {
+        const getClientAuthorizationHeader = (): string =>
+            _.get(fetcher, 'graphQLClient.options.headers.Authorization');
+
         it('should set access token from parameter if set', (): void => {
             const accessToken = 'token';
 
             fetcher = new APIFetcher(accessToken);
-            const setAuthorizationHeader = getValueForFirstKey(fetcher, 'Authorization');
 
-            expect(setAuthorizationHeader).toBe(`Bearer ${accessToken}`);
+            expect(getClientAuthorizationHeader()).toBe(`Bearer ${accessToken}`);
         });
 
         it('should set access token from config module if no parameter is given', (): void => {
@@ -32,9 +34,8 @@ describe('APIFetcher', (): void => {
             config.apiAccessToken = accessToken;
 
             fetcher = new APIFetcher();
-            const authorizationHeader = getValueForFirstKey(fetcher, 'Authorization');
 
-            expect(authorizationHeader).toBe(`Bearer ${accessToken}`);
+            expect(getClientAuthorizationHeader()).toBe(`Bearer ${accessToken}`);
         });
 
         it('should throw error if no access token is set', (): void => {
