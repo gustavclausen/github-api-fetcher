@@ -31,12 +31,12 @@ class UserProfileParseModel implements UserProfile {
     forHire!: boolean;
 
     @Expose()
-    @Transform((obj): object => obj['count'])
+    @Transform((obj): number => _.get(obj, 'count'))
     followersCount!: number;
 
     organizationMemberships!: OrganizationProfileMinified[];
 
-    repositoryOwnerships!: RepositoryProfileMinified[];
+    publicRepositoryOwnerships!: RepositoryProfileMinified[];
 }
 
 const profileFragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT_NAMES.User, [

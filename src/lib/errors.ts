@@ -1,3 +1,6 @@
+/**
+ * Different types of classified errors thrown by the API endpoint upon a request
+ */
 export enum ResponseErrorType {
     /**
      * The scopes provided in the access token is not sufficient to perform the request
@@ -12,11 +15,11 @@ export enum ResponseErrorType {
      */
     ACCESS_FORBIDDEN,
     /**
-     * E.g. user or organization profile not found (equal to 404)
+     * E.g. resource (e.g user or organization) not found (equal to 404)
      */
     NOT_FOUND,
     /**
-     * GitHub API server responses with an server-side error
+     * GitHub API responses with an server-side error
      */
     GITHUB_SERVER_ERROR,
     /**
@@ -25,17 +28,23 @@ export enum ResponseErrorType {
     UNKNOWN
 }
 
-export class ResponseError extends Error {
+/**
+ * Error describing failed request to API endpoint
+ */
+export class RequestError extends Error {
     type!: ResponseErrorType;
 
     constructor(type: ResponseErrorType, message: string) {
         super(message);
-        Object.setPrototypeOf(this, ResponseError.prototype); // Set the prototype explicitly
+        Object.setPrototypeOf(this, RequestError.prototype); // Set the prototype explicitly
 
         this.type = type;
     }
 }
 
+/**
+ * Error describing failure of parsing response data from endpoint according to a defined schema
+ */
 export class ParseError extends Error {
     dataToParse!: object;
 

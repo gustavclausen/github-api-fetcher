@@ -14,8 +14,8 @@ class RepositoryProfileParseModel implements RepositoryProfile {
     name!: string;
 
     @Expose()
-    @Transform((obj): string => _.get(obj, 'username'))
-    ownerUsername!: string;
+    @Transform((obj): string => _.get(obj, 'name'))
+    ownerName!: string;
 
     @Expose()
     description!: string;
@@ -103,7 +103,7 @@ class RepositoryProfileParseModel implements RepositoryProfile {
 const profileFragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('name'),
-    new GraphQLObjectField('owner', 'ownerUsername', [new GraphQLObjectField('login', 'username')]),
+    new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
     new GraphQLObjectField('description'),
     new GraphQLObjectField('primaryLanguage', 'primaryProgrammingLanguage', fragments.language.fields),
     new GraphQLObjectField(

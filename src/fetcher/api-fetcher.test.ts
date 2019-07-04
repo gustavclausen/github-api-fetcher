@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import APIFetcher from './api-fetcher';
 import config from '../etc/config';
-import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfileMinified } from '../models';
-import { ResponseError, ResponseErrorType } from '../lib/errors';
+import { RequestError, ResponseErrorType } from '../lib/errors';
 import { GraphQLRequest } from './graphql/utils';
+import GetUserProfileRequest from './graphql/requests/user/profile';
+import GetUserOrganizationMembershipsRequest from './graphql/requests/user/organization-memberships';
 
 describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
@@ -49,10 +50,10 @@ describe('APIFetcher', (): void => {
 
     describe('fetch', (): void => {
         let request: GraphQLRequest<UserProfile>;
-        let errorToThrow: GitHubEndpointResponseError | null;
+        let errorToThrow: GitHubEndpointRequestError | null;
 
         beforeEach((): void => {
-            request = new requests.UserProfile('demo-user');
+            request = new GetUserProfileRequest('demo-user');
             errorToThrow = null;
 
             // Setup client mock
@@ -63,7 +64,7 @@ describe('APIFetcher', (): void => {
                 .mockImplementation((): Promise<never> => Promise.reject(errorToThrow));
         });
 
-        class GitHubEndpointResponseError extends Error {
+        class GitHubEndpointRequestError extends Error {
             response!: object;
 
             constructor(response: object) {
@@ -76,15 +77,15 @@ describe('APIFetcher', (): void => {
             try {
                 await fetcher.fetch(request);
             } catch (error) {
-                const requestError = error as ResponseError;
+                const requestError = error as RequestError;
 
                 expect(requestError.type).toBe(expectedType);
                 expect(requestError.message).toBeDefined();
             }
         };
 
-        it('should return null when ResponseError is of NOT_FOUND type', async (): Promise<void> => {
-            errorToThrow = new GitHubEndpointResponseError({
+        it('should return null when RequestError is of NOT_FOUND type', async (): Promise<void> => {
+            errorToThrow = new GitHubEndpointRequestError({
                 errors: [
                     {
                         type: 'NOT_FOUND'
@@ -96,10 +97,10 @@ describe('APIFetcher', (): void => {
             expect(await fetcher.fetch(request)).toBe(null);
         });
 
-        it('should throw ResponseError with INSUFFICIENT_SCOPES type when response contains access token scope error', async (): Promise<
+        it('should throw RequestError with INSUFFICIENT_SCOPES type when response contains access token scope error', async (): Promise<
             void
         > => {
-            errorToThrow = new GitHubEndpointResponseError({
+            errorToThrow = new GitHubEndpointRequestError({
                 errors: [
                     {
                         type: 'INSUFFICIENT_SCOPES'
@@ -111,38 +112,38 @@ describe('APIFetcher', (): void => {
             await assertThrownError(ResponseErrorType.INSUFFICIENT_SCOPES);
         });
 
-        it('should throw ResponseError with BAD_CREDENTIALS type when response contains status code 401', async (): Promise<
+        it('should throw RequestError with BAD_CREDENTIALS type when response contains status code 401', async (): Promise<
             void
         > => {
-            errorToThrow = new GitHubEndpointResponseError({
+            errorToThrow = new GitHubEndpointRequestError({
                 status: 401
             });
 
             await assertThrownError(ResponseErrorType.BAD_CREDENTIALS);
         });
 
-        it('should throw ResponseError with ACCESS_FORBIDDEN type when response contains status code 403', async (): Promise<
+        it('should throw RequestError with ACCESS_FORBIDDEN type when response contains status code 403', async (): Promise<
             void
         > => {
-            errorToThrow = new GitHubEndpointResponseError({
+            errorToThrow = new GitHubEndpointRequestError({
                 status: 403
             });
 
             await assertThrownError(ResponseErrorType.ACCESS_FORBIDDEN);
         });
 
-        it('should throw ResponseError with GITHUB_SERVER_ERROR type when response contains status code >= 500', async (): Promise<
+        it('should throw RequestError with GITHUB_SERVER_ERROR type when response contains status code >= 500', async (): Promise<
             void
         > => {
-            errorToThrow = new GitHubEndpointResponseError({
+            errorToThrow = new GitHubEndpointRequestError({
                 status: 503
             });
 
             await assertThrownError(ResponseErrorType.GITHUB_SERVER_ERROR);
         });
 
-        it('should throw ResponseError with UNKNOWN type when error cannot be classified', async (): Promise<void> => {
-            errorToThrow = new GitHubEndpointResponseError({});
+        it('should throw RequestError with UNKNOWN type when error cannot be classified', async (): Promise<void> => {
+            errorToThrow = new GitHubEndpointRequestError({});
 
             await assertThrownError(ResponseErrorType.UNKNOWN);
         });
@@ -150,21 +151,24 @@ describe('APIFetcher', (): void => {
 
     describe('pageFetch', (): void => {
         it('should call fetch for each page and return a combined result of all elements', async (): Promise<void> => {
-            const request = new requests.UserOrganizationMemberships('demo-user');
+            const request = new GetUserOrganizationMembershipsRequest('demo-user');
             const firstPageResult: OrganizationProfileMinified[] = [
                 {
                     gitHubId: 'random-id-1',
-                    name: 'some-organization-name-1'
+                    name: 'some-organization-name-1',
+                    publicUrl: 'link-1.com'
                 },
                 {
                     gitHubId: 'random-id-2',
-                    name: 'random-organization-name-2'
+                    name: 'random-organization-name-2',
+                    publicUrl: 'link-2.com'
                 }
             ];
             const secondPageResult: OrganizationProfileMinified[] = [
                 {
                     gitHubId: 'random-id-3',
-                    name: 'random-organization-name-3'
+                    name: 'random-organization-name-3',
+                    publicUrl: 'link-3.com'
                 }
             ];
 

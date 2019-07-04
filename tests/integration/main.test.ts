@@ -47,7 +47,7 @@ describe('APIFetcher', (): void => {
         fetcher = new APIFetcher();
     });
 
-    describe('user route', (): void => {
+    describe('user', (): void => {
         /**
          * Fetches random user and returns its username
          */
@@ -84,8 +84,8 @@ describe('APIFetcher', (): void => {
                 });
             });
 
-            // Verify all properties set on nested 'repositoryOwnerships' property
-            _.forEach(result.repositoryOwnerships, (repository): void => {
+            // Verify all properties set on nested 'publicRepositoryOwnerships' property
+            _.forEach(result.publicRepositoryOwnerships, (repository): void => {
                 _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
                     expect(_.get(repository, propKey)).toBeDefined();
                 });
@@ -93,7 +93,7 @@ describe('APIFetcher', (): void => {
         }, 30000);
     });
 
-    describe('organization route', (): void => {
+    describe('organization', (): void => {
         /**
          * Fetches random organization and returns its name
          */
@@ -114,7 +114,7 @@ describe('APIFetcher', (): void => {
         });
     });
 
-    describe('repository route', (): void => {
+    describe('repository', (): void => {
         /**
          * Fetches random repository, and returns username of owner (user/organization) and name of repository as tuple
          */
