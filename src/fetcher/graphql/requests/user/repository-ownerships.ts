@@ -13,14 +13,18 @@ class MinRepositoryProfileParseModel implements RepositoryProfileMinified {
     name!: string;
 
     @Expose()
-    @Transform((obj): string => obj['username'])
-    ownerUsername!: string;
+    @Transform((obj): string => obj['name'])
+    ownerName!: string;
+
+    @Expose()
+    publicUrl!: string;
 }
 
 const minRepositoryFragment = new GraphQLFragment('minRepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('name'),
-    new GraphQLObjectField('owner', 'ownerUsername', [new GraphQLObjectField('login', 'username')])
+    new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
+    new GraphQLObjectField('url', 'publicUrl')
 ]);
 
 export default class GetUserRespositoryOwnershipsRequest extends AbstractPagedRequest<OrganizationProfileMinified> {

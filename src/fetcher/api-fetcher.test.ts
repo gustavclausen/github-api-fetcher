@@ -155,17 +155,20 @@ describe('APIFetcher', (): void => {
             const firstPageResult: OrganizationProfileMinified[] = [
                 {
                     gitHubId: 'random-id-1',
-                    name: 'some-organization-name-1'
+                    name: 'some-organization-name-1',
+                    publicUrl: 'link-1.com'
                 },
                 {
                     gitHubId: 'random-id-2',
-                    name: 'random-organization-name-2'
+                    name: 'random-organization-name-2',
+                    publicUrl: 'link-2.com'
                 }
             ];
             const secondPageResult: OrganizationProfileMinified[] = [
                 {
                     gitHubId: 'random-id-3',
-                    name: 'random-organization-name-3'
+                    name: 'random-organization-name-3',
+                    publicUrl: 'link-3.com'
                 }
             ];
 

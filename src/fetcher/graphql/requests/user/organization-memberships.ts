@@ -11,11 +11,15 @@ class MinOrganizationProfileParseModel implements OrganizationProfileMinified {
 
     @Expose()
     name!: string;
+
+    @Expose()
+    publicUrl!: string;
 }
 
 const profileFragment = new GraphQLFragment('MinOrganizationProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Organization, [
     new GraphQLObjectField('id', 'gitHubId'),
-    new GraphQLObjectField('login', 'name')
+    new GraphQLObjectField('login', 'name'),
+    new GraphQLObjectField('url', 'publicUrl')
 ]);
 
 export default class GetUserOrganizationMembershipsRequest extends AbstractPagedRequest<OrganizationProfileMinified> {
