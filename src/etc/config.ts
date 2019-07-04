@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-// Load environment variables
+// Load environment variables from .env files in project's root directory
 let envConfigPath = `${__dirname}/../../`;
 switch (process.env.NODE_ENV) {
     case 'development':
@@ -15,6 +15,9 @@ switch (process.env.NODE_ENV) {
 }
 dotenv.config({ path: envConfigPath });
 
+/**
+ * Common config
+ */
 const config = {
     apiEndpoint: 'https://api.github.com/graphql',
     apiAccessToken: process.env.GITHUB_FETCHER_API_ACCESS_TOKEN || undefined
