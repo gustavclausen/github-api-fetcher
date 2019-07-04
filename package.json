@@ -54,8 +54,7 @@
     "dotenv": "^8.0.0",
     "graphql-request": "^1.8.2",
     "lodash": "^4.17.11",
-    "reflect-metadata": "^0.1.13",
-    "winston": "^3.2.1"
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
