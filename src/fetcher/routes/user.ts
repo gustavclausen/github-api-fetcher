@@ -1,10 +1,13 @@
-import requests from '../graphql/requests/unified';
 import { Routefetcher } from './utils';
 import { UserProfile, OrganizationProfileMinified, RepositoryProfileMinified } from '../../models';
+import GetUserProfileRequest from '../graphql/requests/user/profile';
+import GetUserOrganizationMembershipsRequest from '../graphql/requests/user/organization-memberships';
+import GetUserRepositoryOwnershipsRequest from '../graphql/requests/user/repository-ownerships';
+import GetUserContributionYearsRequest from '../graphql/requests/user/contribution-years';
 
 export default class UserRoute extends Routefetcher {
     async getProfile(username: string): Promise<UserProfile | null> {
-        const fetchedProfile = await this.fetcher.fetch<UserProfile>(new requests.UserProfile(username));
+        const fetchedProfile = await this.fetcher.fetch<UserProfile>(new GetUserProfileRequest(username));
 
         if (!fetchedProfile) return null;
 
@@ -25,15 +28,17 @@ export default class UserRoute extends Routefetcher {
 
     private async getOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
         return await this.fetcher.pageFetch<OrganizationProfileMinified>(
-            new requests.UserOrganizationMemberships(username)
+            new GetUserOrganizationMembershipsRequest(username)
         );
     }
 
     private async getRepositoryOwnerships(username: string): Promise<RepositoryProfileMinified[] | null> {
-        return await this.fetcher.pageFetch<RepositoryProfileMinified>(new requests.UserRepositoryOwnerships(username));
+        return await this.fetcher.pageFetch<RepositoryProfileMinified>(
+            new GetUserRepositoryOwnershipsRequest(username)
+        );
     }
 
     private async getContributionYears(username: string): Promise<number[] | null> {
-        return await this.fetcher.fetch<number[]>(new requests.UserContributionYears(username));
+        return await this.fetcher.fetch<number[]>(new GetUserContributionYearsRequest(username));
     }
 }

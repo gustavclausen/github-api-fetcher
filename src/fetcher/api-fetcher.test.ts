@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import APIFetcher from './api-fetcher';
 import config from '../etc/config';
-import requests from './graphql/requests/unified';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfileMinified } from '../models';
 import { ResponseError, ResponseErrorType } from '../lib/errors';
 import { GraphQLRequest } from './graphql/utils';
+import GetUserProfileRequest from './graphql/requests/user/profile';
+import GetUserOrganizationMembershipsRequest from './graphql/requests/user/organization-memberships';
 
 describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
@@ -52,7 +53,7 @@ describe('APIFetcher', (): void => {
         let errorToThrow: GitHubEndpointResponseError | null;
 
         beforeEach((): void => {
-            request = new requests.UserProfile('demo-user');
+            request = new GetUserProfileRequest('demo-user');
             errorToThrow = null;
 
             // Setup client mock
@@ -150,7 +151,7 @@ describe('APIFetcher', (): void => {
 
     describe('pageFetch', (): void => {
         it('should call fetch for each page and return a combined result of all elements', async (): Promise<void> => {
-            const request = new requests.UserOrganizationMemberships('demo-user');
+            const request = new GetUserOrganizationMembershipsRequest('demo-user');
             const firstPageResult: OrganizationProfileMinified[] = [
                 {
                     gitHubId: 'random-id-1',
