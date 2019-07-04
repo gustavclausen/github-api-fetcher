@@ -68,7 +68,7 @@ export class GraphQLFragment {
 }
 
 export interface GraphQLRequest<TResult> {
-    fragment: GraphQLFragment;
+    fragment?: GraphQLFragment;
     query: string;
     variables: object | undefined;
     parseResponse(rawData: object): TResult;

@@ -32,4 +32,8 @@ export default class UserRoute extends Routefetcher {
     private async getRepositoryOwnerships(username: string): Promise<RepositoryProfileMinified[] | null> {
         return await this.fetcher.pageFetch<RepositoryProfileMinified>(new requests.UserRepositoryOwnerships(username));
     }
+
+    private async getContributionYears(username: string): Promise<number[] | null> {
+        return await this.fetcher.fetch<number[]>(new requests.UserContributionYears(username));
+    }
 }
