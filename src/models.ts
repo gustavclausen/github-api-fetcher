@@ -149,7 +149,7 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
     /**
      * The primary used programming language of the repository's code
      */
-    primaryProgrammingLanguage: ProgrammingLanguage;
+    primaryProgrammingLanguage: ProgrammingLanguage | null;
     /**
      * A list containing a breakdown of the programming language composition
      * of the repository's code

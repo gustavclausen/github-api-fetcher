@@ -119,7 +119,10 @@ describe('APIFetcher', (): void => {
          * Fetches random repository, and returns username of owner (user/organization) and name of repository as tuple
          */
         const getRandomRepository = async (): Promise<[string, string]> => {
-            const searchResults = _.get(await fetchGitHubAPI('search/repositories?q=topics:>0'), 'items'); // Fetch repositories with at least one topic
+            const searchResults = _.get(
+                await fetchGitHubAPI('search/repositories?q=topics:>0+language:typescript'),
+                'items'
+            ); // Fetch repositories with at least one topic, and has 'TypeScript' as primary programming language
             const randomRepository = _.sample(searchResults) as object;
 
             const repoOwnerUsername = _.get(randomRepository, 'owner.login') as string;

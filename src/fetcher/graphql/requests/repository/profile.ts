@@ -21,7 +21,7 @@ class RepositoryProfileParseModel implements RepositoryProfile {
     description!: string;
 
     @Expose()
-    primaryProgrammingLanguage!: ProgrammingLanguage;
+    primaryProgrammingLanguage!: ProgrammingLanguage | null;
 
     @Expose()
     @Transform((obj): AppliedProgrammingLanguage[] => {
