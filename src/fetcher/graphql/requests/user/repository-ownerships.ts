@@ -1,7 +1,7 @@
 import { Expose, plainToClass, Transform } from 'class-transformer';
 import { OrganizationProfileMinified, RepositoryProfileMinified } from '../../../../models';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
-import { AbstractPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
+import { GraphQLPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
 import { GITHUB_GRAPHQL_OBJECT_NAMES, fragments } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
@@ -27,7 +27,7 @@ const minRepositoryFragment = new GraphQLFragment('minRepositoryProfile', GITHUB
     new GraphQLObjectField('url', 'publicUrl')
 ]);
 
-export default class GetUserRespositoryOwnershipsRequest extends AbstractPagedRequest<OrganizationProfileMinified> {
+export default class GetUserRespositoryOwnershipsRequest extends GraphQLPagedRequest<OrganizationProfileMinified> {
     fragment = minRepositoryFragment;
     query = `
         query GetUserRepositoryOwnerships($name: String!, $after: String) {

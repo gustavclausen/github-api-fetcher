@@ -74,7 +74,7 @@ export interface GraphQLRequest<TResult> {
     parseResponse(rawData: object): TResult;
 }
 
-export abstract class AbstractPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
+export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
     abstract fragment: GraphQLFragment;
     abstract query: string;
     pageInfo: PageInfo | undefined;

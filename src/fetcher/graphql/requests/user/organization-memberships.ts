@@ -1,7 +1,7 @@
 import { Expose, plainToClass } from 'class-transformer';
 import { OrganizationProfileMinified } from '../../../../models';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
-import { AbstractPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
+import { GraphQLPagedRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
 import { GITHUB_GRAPHQL_OBJECT_NAMES, fragments } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 
@@ -22,7 +22,7 @@ const profileFragment = new GraphQLFragment('MinOrganizationProfile', GITHUB_GRA
     new GraphQLObjectField('url', 'publicUrl')
 ]);
 
-export default class GetUserOrganizationMembershipsRequest extends AbstractPagedRequest<OrganizationProfileMinified> {
+export default class GetUserOrganizationMembershipsRequest extends GraphQLPagedRequest<OrganizationProfileMinified> {
     fragment = profileFragment;
     query = `
         query GetUserBelongingOrganizations($name: String!, $after: String) {

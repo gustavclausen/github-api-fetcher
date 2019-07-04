@@ -1,17 +1,29 @@
 import _ from 'lodash';
 import config from '../etc/config';
 import { GraphQLClient } from 'graphql-request';
-import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
+import { GraphQLRequest, GraphQLPagedRequest } from './graphql/utils';
 import { RequestError, ResponseErrorType } from '../lib/errors';
 import UserRoute from './routes/user';
 import OrganizationRoute from './routes/organization';
 import RepositoryRoute from './routes/repository';
 
+/**
+ * Primary fetcher for GitHub API
+ */
 export default class APIFetcher {
     private graphQLClient: GraphQLClient;
 
+    /**
+     * User route
+     */
     user = new UserRoute(this);
+    /**
+     * Organization route
+     */
     organization = new OrganizationRoute(this);
+    /**
+     * Repository route
+     */
     repository = new RepositoryRoute(this);
 
     constructor(apiAccessToken?: string) {
@@ -28,13 +40,17 @@ export default class APIFetcher {
         });
     }
 
+    /**
+     * Fetches data from GitHub API according to the request taken as argument
+     * @param request GraphQL request
+     */
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
         try {
             const response = await this.graphQLClient.rawRequest(request.query, request.variables);
 
             return request.parseResponse(response.data);
         } catch (error) {
-            const classifiedError = APIFetcher.classifyResponseError(error) as RequestError;
+            const classifiedError = APIFetcher.classifyRequestError(error) as RequestError;
 
             if (classifiedError.type === ResponseErrorType.NOT_FOUND) {
                 return null;
@@ -44,7 +60,12 @@ export default class APIFetcher {
         }
     }
 
-    async pageFetch<T>(pagedRequest: AbstractPagedRequest<T>): Promise<T[] | null> {
+    /**
+     * Fetches the total data of several possible pages from GitHub API according to the
+     * request taken as argument
+     * @param pagedRequest Paged GraphQL request that includes page info
+     */
+    async pageFetch<T>(pagedRequest: GraphQLPagedRequest<T>): Promise<T[] | null> {
         let fetchResults = await this.fetch<T[]>(pagedRequest);
 
         // Fetch next elements while there is any
@@ -59,7 +80,12 @@ export default class APIFetcher {
         return fetchResults;
     }
 
-    private static classifyResponseError(error: Error): RequestError {
+    /**
+     * Classifies error received from client. Returns custom error with specific type
+     * that explains cause of error.
+     * @param error Error from client
+     */
+    private static classifyRequestError(error: Error): RequestError {
         const responseStatusCode = _.get(error, 'response.status') as number;
         const topLevelResponseErrorMessage = _.get(error, 'response.message') as string;
 

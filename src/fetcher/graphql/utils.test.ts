@@ -1,7 +1,7 @@
-import { AbstractPagedRequest, GraphQLFragment, GraphQLObjectField } from './utils';
+import { GraphQLPagedRequest, GraphQLFragment, GraphQLObjectField } from './utils';
 
-describe('AbstractPagedRequest', (): void => {
-    class StubPagedRequest extends AbstractPagedRequest<object> {
+describe('GraphQLPagedRequest', (): void => {
+    class StubPagedRequest extends GraphQLPagedRequest<object> {
         fragment: GraphQLFragment = new GraphQLFragment('name', 'demo', []);
         query: string = '';
     }
