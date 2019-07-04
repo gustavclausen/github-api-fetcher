@@ -31,7 +31,7 @@ class UserProfileParseModel implements UserProfile {
     forHire!: boolean;
 
     @Expose()
-    @Transform((obj): object => obj['count'])
+    @Transform((obj): number => _.get(obj, 'count'))
     followersCount!: number;
 
     organizationMemberships!: OrganizationProfileMinified[];
