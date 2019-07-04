@@ -84,8 +84,8 @@ describe('APIFetcher', (): void => {
                 });
             });
 
-            // Verify all properties set on nested 'repositoryOwnerships' property
-            _.forEach(result.repositoryOwnerships, (repository): void => {
+            // Verify all properties set on nested 'publicRepositoryOwnerships' property
+            _.forEach(result.publicRepositoryOwnerships, (repository): void => {
                 _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
                     expect(_.get(repository, propKey)).toBeDefined();
                 });

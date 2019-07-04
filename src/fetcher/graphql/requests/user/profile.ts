@@ -36,7 +36,7 @@ class UserProfileParseModel implements UserProfile {
 
     organizationMemberships!: OrganizationProfileMinified[];
 
-    repositoryOwnerships!: RepositoryProfileMinified[];
+    publicRepositoryOwnerships!: RepositoryProfileMinified[];
 }
 
 const profileFragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT_NAMES.User, [

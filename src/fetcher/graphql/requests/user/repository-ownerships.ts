@@ -27,7 +27,9 @@ const minRepositoryFragment = new GraphQLFragment('minRepositoryProfile', GITHUB
     new GraphQLObjectField('url', 'publicUrl')
 ]);
 
-export default class GetUserRespositoryOwnershipsRequest extends GraphQLPagedRequest<OrganizationProfileMinified> {
+export default class GetPublicUserRespositoryOwnershipsRequest extends GraphQLPagedRequest<
+    OrganizationProfileMinified
+> {
     fragment = minRepositoryFragment;
     query = `
         query GetUserRepositoryOwnerships($name: String!, $after: String) {

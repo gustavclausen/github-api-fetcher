@@ -45,9 +45,9 @@ export interface UserProfile {
      */
     organizationMemberships: OrganizationProfileMinified[];
     /**
-     * The user's own repositories
+     * The user's own public repositories
      */
-    repositoryOwnerships: RepositoryProfileMinified[];
+    publicRepositoryOwnerships: RepositoryProfileMinified[];
 }
 
 /**
