@@ -48,7 +48,14 @@ export interface RepositoryProfileMinified {
 
 export interface RepositoryProfile extends RepositoryProfileMinified {
     description: string;
-    primaryProgrammingLanguage: ProgrammingLanguage;
+    /**
+     * The primary used programming language of the repository's code
+     */
+    primaryProgrammingLanguage: ProgrammingLanguage | null;
+    /**
+     * A list containing a breakdown of the programming language composition
+     * of the repository's code
+     */
     appliedProgrammingLanguages: AppliedProgrammingLanguage[];
     isFork: boolean;
     publicUrl: string;
