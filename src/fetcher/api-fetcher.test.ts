@@ -3,7 +3,7 @@ import APIFetcher from './api-fetcher';
 import config from '../etc/config';
 import { GraphQLClient } from 'graphql-request';
 import { UserProfile, OrganizationProfileMinified } from '../models';
-import { ResponseError, ResponseErrorType } from '../lib/errors';
+import { RequestError, ResponseErrorType } from '../lib/errors';
 import { GraphQLRequest } from './graphql/utils';
 import GetUserProfileRequest from './graphql/requests/user/profile';
 import GetUserOrganizationMembershipsRequest from './graphql/requests/user/organization-memberships';
@@ -77,7 +77,7 @@ describe('APIFetcher', (): void => {
             try {
                 await fetcher.fetch(request);
             } catch (error) {
-                const requestError = error as ResponseError;
+                const requestError = error as RequestError;
 
                 expect(requestError.type).toBe(expectedType);
                 expect(requestError.message).toBeDefined();

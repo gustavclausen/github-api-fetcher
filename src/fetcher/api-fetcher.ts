@@ -2,7 +2,7 @@ import _ from 'lodash';
 import config from '../etc/config';
 import { GraphQLClient } from 'graphql-request';
 import { GraphQLRequest, AbstractPagedRequest } from './graphql/utils';
-import { ResponseError, ResponseErrorType } from '../lib/errors';
+import { RequestError, ResponseErrorType } from '../lib/errors';
 import UserRoute from './routes/user';
 import OrganizationRoute from './routes/organization';
 import RepositoryRoute from './routes/repository';
@@ -34,7 +34,7 @@ export default class APIFetcher {
 
             return request.parseResponse(response.data);
         } catch (error) {
-            const classifiedError = APIFetcher.classifyResponseError(error) as ResponseError;
+            const classifiedError = APIFetcher.classifyResponseError(error) as RequestError;
 
             if (classifiedError.type === ResponseErrorType.NOT_FOUND) {
                 return null;
@@ -59,12 +59,12 @@ export default class APIFetcher {
         return fetchResults;
     }
 
-    private static classifyResponseError(error: Error): ResponseError {
+    private static classifyResponseError(error: Error): RequestError {
         const responseStatusCode = _.get(error, 'response.status') as number;
         const topLevelResponseErrorMessage = _.get(error, 'response.message') as string;
 
         // Finds and classifies error in nested response object
-        const aux = (error: Error): ResponseError => {
+        const aux = (error: Error): RequestError => {
             const responseErrors = _.get(error, 'response.errors') as object[];
 
             if (responseErrors && !_.isEmpty(responseErrors)) {
@@ -72,13 +72,13 @@ export default class APIFetcher {
 
                 switch (firstResponseError.type) {
                     case 'NOT_FOUND':
-                        return new ResponseError(
+                        return new RequestError(
                             ResponseErrorType.NOT_FOUND,
                             firstResponseError.message ? firstResponseError.message : `Resource not found`
                         );
                     case 'INSUFFICIENT_SCOPES':
                         const baseErrorMessage = 'Insufficient scopes to perform request';
-                        return new ResponseError(
+                        return new RequestError(
                             ResponseErrorType.INSUFFICIENT_SCOPES,
                             firstResponseError.message
                                 ? `${baseErrorMessage}. Error message: ${firstResponseError.message}`
@@ -87,12 +87,12 @@ export default class APIFetcher {
                 }
             }
 
-            return new ResponseError(ResponseErrorType.UNKNOWN, error.message);
+            return new RequestError(ResponseErrorType.UNKNOWN, error.message);
         };
 
         if (responseStatusCode) {
             if (responseStatusCode >= 500) {
-                return new ResponseError(
+                return new RequestError(
                     ResponseErrorType.GITHUB_SERVER_ERROR,
                     topLevelResponseErrorMessage
                         ? topLevelResponseErrorMessage
@@ -104,12 +104,12 @@ export default class APIFetcher {
                 case 200:
                     return aux(error);
                 case 401:
-                    return new ResponseError(
+                    return new RequestError(
                         ResponseErrorType.BAD_CREDENTIALS,
                         topLevelResponseErrorMessage ? topLevelResponseErrorMessage : 'Bad credentials provided'
                     );
                 case 403:
-                    return new ResponseError(
+                    return new RequestError(
                         ResponseErrorType.ACCESS_FORBIDDEN,
                         topLevelResponseErrorMessage
                             ? topLevelResponseErrorMessage
@@ -118,6 +118,6 @@ export default class APIFetcher {
             }
         }
 
-        return new ResponseError(ResponseErrorType.UNKNOWN, error.message);
+        return new RequestError(ResponseErrorType.UNKNOWN, error.message);
     }
 }
