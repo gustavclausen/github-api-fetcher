@@ -43,7 +43,8 @@
     "collectCoverageFrom": [
       "**/src/**/*.{js,ts}",
       "!**/src/etc/**"
-    ]
+    ],
+    "cache": false
   },
   "jest-junit": {
     "outputDirectory": "./coverage",
