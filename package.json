@@ -7,7 +7,7 @@
   "scripts": {
     "prebuild": "rimraf ./dist",
     "build": "tsc",
-    "lint": "eslint ./src/**/*.ts -c .eslintrc.json",
+    "lint": "eslint **/src/**/*.ts **/tests/**/*.ts -c .eslintrc.json",
     "test": "export NODE_ENV=test && jest",
     "test:cover": "export NODE_ENV=test && jest --collectCoverage --reporters=default --reporters=jest-junit",
     "test:unit": "export NODE_ENV=test && jest --testMatch \"**/src/**/?(*.)+(spec|test).ts\"",
