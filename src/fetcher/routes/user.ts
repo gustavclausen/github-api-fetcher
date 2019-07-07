@@ -5,9 +5,9 @@ import { Routefetcher } from './utils';
 import GetUserProfileRequest from '../graphql/requests/user/profile';
 import GetUserOrganizationMembershipsRequest from '../graphql/requests/user/organization-memberships';
 import GetUserRepositoryOwnershipsRequest from '../graphql/requests/user/repository-ownerships';
-import GetUserContributionYearsRequest from '../graphql/requests/user/contribution-years';
-import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/commit-contributions-by-repository';
-import GetUserIssueContributionsByRepositoryRequest from '../graphql/requests/user/issue-contributions-by-repository';
+import GetUserContributionYearsRequest from '../graphql/requests/user/contributions/contribution-years';
+import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/contributions/commit-contributions-by-repository';
+import GetUserIssueContributionsByRepositoryRequest from '../graphql/requests/user/contributions/issue-contributions-by-repository';
 import {
     UserProfile,
     OrganizationProfileMinified,

@@ -1,6 +1,6 @@
-import { GraphQLRequest } from '../../utils';
-import { ParseError } from '../../../../lib/errors';
-import { getValueForFirstKey } from '../../../../lib/object-utils';
+import { GraphQLRequest } from '../../../utils';
+import { ParseError } from '../../../../../lib/errors';
+import { getValueForFirstKey } from '../../../../../lib/object-utils';
 
 export default class GetUserContributionYearsRequest implements GraphQLRequest<number[]> {
     query = `
