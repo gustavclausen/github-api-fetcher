@@ -167,6 +167,53 @@ describe('APIFetcher', (): void => {
                 ).toBeNull();
             });
         });
+
+        describe('getAllPullRequestReviewContributions', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = await fetcher.user.getAllPullRequestReviewContributions(userProfile.username);
+
+                modelValidation.validateYearlyContributions(result);
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getAllPullRequestReviewContributions(nonExistingUsername)).toBeNull();
+            });
+        });
+
+        describe('getPullRequestReviewsContributionsByYear', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = (await fetcher.user.getPullRequestReviewContributionsByYear(
+                    userProfile.username,
+                    randomContributionYear
+                ))!;
+
+                modelValidation.validateYearlyContributions([result]);
+            });
+
+            it('should return default object when user has done no contributions in year', async (): Promise<void> => {
+                let nonContributionYear = 2000;
+
+                const result = (await fetcher.user.getPullRequestReviewContributionsByYear(
+                    userProfile.username,
+                    nonContributionYear
+                ))!;
+
+                expect(result).toMatchObject({
+                    year: nonContributionYear,
+                    privateContributionsCount: 0,
+                    publicContributions: []
+                });
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(
+                    await fetcher.user.getPullRequestReviewContributionsByYear(
+                        nonExistingUsername,
+                        randomContributionYear
+                    )
+                ).toBeNull();
+            });
+        });
     });
 
     describe('organization', (): void => {

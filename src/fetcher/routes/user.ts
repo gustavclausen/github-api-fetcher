@@ -8,6 +8,7 @@ import GetUserRepositoryOwnershipsRequest from '../graphql/requests/user/reposit
 import GetUserContributionYearsRequest from '../graphql/requests/user/contributions/contribution-years';
 import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/contributions/commit-contributions-by-repository';
 import GetUserIssueContributionsByRepositoryRequest from '../graphql/requests/user/contributions/issue-contributions-by-repository';
+import GetUserPullRequestReviewContributionsByRepositoryRequest from '../graphql/requests/user/contributions/pull-request-review-contributions-by-repository';
 import {
     UserProfile,
     OrganizationProfileMinified,
@@ -152,6 +153,49 @@ export default class UserRoute extends Routefetcher {
         return await UserRoute.contributionsFetch(
             year,
             new GetUserIssueContributionsByRepositoryRequest(username, year),
+            this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
+        );
+    }
+
+    /**
+     * Returns all pull request reviews contributions for every contribution year of user.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     */
+    async getAllPullRequestReviewContributions(username: string): Promise<YearlyContributions[] | null> {
+        return await this.contributionsFetchForAllYears(
+            username,
+            this.getPullRequestReviewContributionsByYear,
+            this.fetcher
+        );
+    }
+
+    /**
+     * Returns all pull request reviews contributions by year for user.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     * @param year Calendar year to gather contributions from
+     */
+    async getPullRequestReviewContributionsByYear(
+        username: string,
+        year: number,
+        fetcher?: APIFetcher
+    ): Promise<YearlyContributions | null> {
+        return await UserRoute.contributionsFetch(
+            year,
+            new GetUserPullRequestReviewContributionsByRepositoryRequest(username, year),
             this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
         );
     }

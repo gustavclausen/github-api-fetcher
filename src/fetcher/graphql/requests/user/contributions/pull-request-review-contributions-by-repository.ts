@@ -7,10 +7,10 @@ export default class GetUserPullRequestReviewContributionsByRepositoryRequest
     implements GraphQLRequest<ContributionsByRepository[]> {
     fragment = fragments.minifiedRepository;
     query = `
-        query GetUserIssueContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
+        query GetUserPullRequestReviewContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
             user(login: $username) {
                 contributionsCollection(from: $from, to: $to) {
-                    issueContributionsByRepository(maxRepositories: 100) {
+                    pullRequestReviewContributionsByRepository(maxRepositories: 100) {
                         repository {
                             ...${this.fragment.name}
                         }
