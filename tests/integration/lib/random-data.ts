@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import config from '../../../src/etc/config';
+import uuid from 'uuid';
 
 /**
  * Error describing failed request to API endpoint
@@ -51,6 +52,32 @@ const getUsernameOfRandomUser = async (): Promise<string> => {
 };
 
 /**
+ * Returns username of non-existing GitHub user
+ */
+const getUsernameOfNonExistingUser = async (): Promise<string> => {
+    let nonExistingUsername: string | null = null;
+
+    while (!nonExistingUsername) {
+        const randomUUID = uuid();
+
+        try {
+            await fetchGitHubAPI(`users/${randomUUID}`);
+        } catch (error) {
+            const requestError = error as RequestError;
+
+            if (requestError.statusCode === 404) {
+                nonExistingUsername = randomUUID;
+                break;
+            } else {
+                continue;
+            }
+        }
+    }
+
+    return nonExistingUsername;
+};
+
+/**
  * Fetches random organization and returns its name
  */
 const getNameOfRandomOrganization = async (): Promise<string> => {
@@ -75,6 +102,7 @@ const getRandomRepository = async (): Promise<[string, string]> => {
 
 export default {
     getUsernameOfRandomUser,
+    getUsernameOfNonExistingUser,
     getNameOfRandomOrganization,
     getRandomRepository
 };
