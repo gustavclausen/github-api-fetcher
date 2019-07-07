@@ -14,6 +14,8 @@ describe('APIFetcher', (): void => {
 
     describe('user', (): void => {
         let userProfile: UserProfile;
+        let userContributionYears: number[];
+        let randomContributionYear: number;
         let nonExistingUsername: string;
 
         beforeAll(async (): Promise<void> => {
@@ -24,6 +26,9 @@ describe('APIFetcher', (): void => {
                 result = await fetcher.user.getProfile(randomUsername);
             }
             userProfile = result;
+            userContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
+            // Get contribution from random year in which user has done some contributions
+            randomContributionYear = _.sample(userContributionYears)!;
 
             // Find non-existing username
             nonExistingUsername = await randomData.getUsernameOfNonExistingUser();
@@ -79,7 +84,7 @@ describe('APIFetcher', (): void => {
             it('should return model with all properties set', async (): Promise<void> => {
                 const result = await fetcher.user.getAllCommitContributions(userProfile.username);
 
-                modelValidation.validateYearlyCommitContributions(result);
+                modelValidation.validateYearlyContributions(result);
             });
 
             it('should return null for non-existing user', async (): Promise<void> => {
@@ -88,28 +93,17 @@ describe('APIFetcher', (): void => {
         });
 
         describe('getCommitContributionsByYear', (): void => {
-            let userContributionYears: number[];
-
-            beforeAll(
-                async (): Promise<void> => {
-                    userContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
-                }
-            );
-
             it('should return model with all properties set', async (): Promise<void> => {
-                // Get contribution from random year in which user has done some contributions
-                const randomContributionYear = _.sample(userContributionYears)!;
-
                 const result = (await fetcher.user.getCommitContributionsByYear(
                     userProfile.username,
                     randomContributionYear
                 ))!;
 
-                modelValidation.validateYearlyCommitContributions([result]);
+                modelValidation.validateYearlyContributions([result]);
             });
 
             it('should return default object when user has done no contributions in year', async (): Promise<void> => {
-                let nonContributionYear = _.min(userContributionYears)! - 1;
+                let nonContributionYear = 2000;
 
                 const result = (await fetcher.user.getCommitContributionsByYear(
                     userProfile.username,
@@ -118,13 +112,59 @@ describe('APIFetcher', (): void => {
 
                 expect(result).toMatchObject({
                     year: nonContributionYear,
-                    privateCommitCount: 0,
+                    privateContributionsCount: 0,
                     publicContributions: []
                 });
             });
 
             it('should return null for non-existing user', async (): Promise<void> => {
-                expect(await fetcher.user.getAllCommitContributions(nonExistingUsername)).toBeNull();
+                expect(
+                    await fetcher.user.getCommitContributionsByYear(nonExistingUsername, randomContributionYear)
+                ).toBeNull();
+            });
+        });
+
+        describe('getAllIssueContributions', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = await fetcher.user.getAllIssueContributions(userProfile.username);
+
+                modelValidation.validateYearlyContributions(result);
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getAllIssueContributions(nonExistingUsername)).toBeNull();
+            });
+        });
+
+        describe('getIssueContributionsByYear', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = (await fetcher.user.getIssueContributionsByYear(
+                    userProfile.username,
+                    randomContributionYear
+                ))!;
+
+                modelValidation.validateYearlyContributions([result]);
+            });
+
+            it('should return default object when user has done no contributions in year', async (): Promise<void> => {
+                let nonContributionYear = 2000;
+
+                const result = (await fetcher.user.getIssueContributionsByYear(
+                    userProfile.username,
+                    nonContributionYear
+                ))!;
+
+                expect(result).toMatchObject({
+                    year: nonContributionYear,
+                    privateContributionsCount: 0,
+                    publicContributions: []
+                });
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(
+                    await fetcher.user.getIssueContributionsByYear(nonExistingUsername, randomContributionYear)
+                ).toBeNull();
             });
         });
     });

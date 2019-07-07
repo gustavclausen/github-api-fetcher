@@ -4,10 +4,10 @@ import { GraphQLRequest } from '../../utils';
 import { ParseError } from '../../../../lib/errors';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
 import { MinRepositoryProfileParseModel } from '../../common/parse-models';
-import { RepositoryProfileMinified, CommitContributionsByRepository } from '../../../../models';
+import { RepositoryProfileMinified, ContributionsByRepository } from '../../../../models';
 import fragments from '../../common/fragments';
 
-class CommitContributionParseModel implements CommitContributionsByRepository {
+class CommitContributionsParseModel implements ContributionsByRepository {
     @Expose()
     @Transform(
         (obj): RepositoryProfileMinified =>
@@ -15,13 +15,16 @@ class CommitContributionParseModel implements CommitContributionsByRepository {
     )
     repository!: RepositoryProfileMinified;
 
+    /**
+     * Commit count
+     */
     @Expose()
     @Transform((obj): number => _.get(obj, 'totalCount'))
-    commitCount!: number;
+    count!: number;
 }
 
 export default class GetUserCommitContributionsByRepositoryRequest
-    implements GraphQLRequest<CommitContributionsByRepository[]> {
+    implements GraphQLRequest<ContributionsByRepository[]> {
     fragment = fragments.minifiedRepository;
     query = `
         query GetUserCommitContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
@@ -31,7 +34,7 @@ export default class GetUserCommitContributionsByRepositoryRequest
                         repository {
                             ...${this.fragment.name}
                         }
-                        commitCount: contributions {
+                        count: contributions {
                             totalCount
                         }
                     }
@@ -55,7 +58,7 @@ export default class GetUserCommitContributionsByRepositoryRequest
         };
     }
 
-    parseResponse(rawData: object): CommitContributionsByRepository[] {
+    parseResponse(rawData: object): ContributionsByRepository[] {
         const results = getValueForFirstKey(rawData, 'commitContributionsByRepository');
         if (!results) {
             throw new ParseError(rawData);
@@ -63,8 +66,8 @@ export default class GetUserCommitContributionsByRepositoryRequest
 
         // Parse and returns each element in response data
         return Object.values(results).map(
-            (curValue): CommitContributionsByRepository => {
-                return plainToClass(CommitContributionParseModel, curValue, { excludeExtraneousValues: true });
+            (curValue): ContributionsByRepository => {
+                return plainToClass(CommitContributionsParseModel, curValue, { excludeExtraneousValues: true });
             }
         );
     }

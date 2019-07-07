@@ -3,8 +3,8 @@ import { keys } from 'ts-transformer-keys';
 import {
     OrganizationProfileMinified,
     RepositoryProfileMinified,
-    YearlyCommitContributions,
-    CommitContributionsByRepository,
+    YearlyContributions,
+    ContributionsByRepository,
     ProgrammingLanguage,
     AppliedProgrammingLanguage,
     RepositoryProfile,
@@ -56,11 +56,11 @@ const validateUserProfile = (profile: UserProfile | null): void => {
     validateRepositoryProfileMinified(profile.publicRepositoryOwnerships);
 };
 
-const validateCommitContributionsByRepository = (profiles: CommitContributionsByRepository[] | null): void => {
+const validateContributionsByRepository = (profiles: ContributionsByRepository[] | null): void => {
     if (!profiles) throw new Error('No data');
 
     _.forEach(profiles, (profile): void => {
-        _.forEach(keys<CommitContributionsByRepository>(), (propKey): void => {
+        _.forEach(keys<ContributionsByRepository>(), (propKey): void => {
             expect(_.get(profile, propKey)).toBeDefined();
         });
 
@@ -69,16 +69,16 @@ const validateCommitContributionsByRepository = (profiles: CommitContributionsBy
     });
 };
 
-const validateYearlyCommitContributions = (profiles: YearlyCommitContributions[] | null): void => {
+const validateYearlyContributions = (profiles: YearlyContributions[] | null): void => {
     if (!profiles) throw new Error('No data');
 
     _.forEach(profiles, (profile): void => {
-        _.forEach(keys<YearlyCommitContributions>(), (propKey): void => {
+        _.forEach(keys<YearlyContributions>(), (propKey): void => {
             expect(_.get(profile, propKey)).toBeDefined();
         });
 
         // Verify all properties set on nested 'publicContributions' property
-        validateCommitContributionsByRepository(profile.publicContributions);
+        validateContributionsByRepository(profile.publicContributions);
     });
 };
 
@@ -120,6 +120,6 @@ export default {
     validateOrganizationProfileMinified,
     validateOrganizationProfile,
     validateRepositoryProfileMinified,
-    validateYearlyCommitContributions,
+    validateYearlyContributions,
     validateRepositoryProfile
 };

@@ -1,16 +1,19 @@
 import _ from 'lodash';
+import APIFetcher from '../../main';
+import { GraphQLRequest } from '../graphql/utils';
 import { Routefetcher } from './utils';
 import GetUserProfileRequest from '../graphql/requests/user/profile';
 import GetUserOrganizationMembershipsRequest from '../graphql/requests/user/organization-memberships';
 import GetUserRepositoryOwnershipsRequest from '../graphql/requests/user/repository-ownerships';
 import GetUserContributionYearsRequest from '../graphql/requests/user/contribution-years';
-import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/commit-contribution-by-repository';
+import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/commit-contributions-by-repository';
+import GetUserIssueContributionsByRepositoryRequest from '../graphql/requests/user/issue-contributions-by-repository';
 import {
     UserProfile,
     OrganizationProfileMinified,
     RepositoryProfileMinified,
-    CommitContributionsByRepository,
-    YearlyCommitContributions
+    YearlyContributions,
+    ContributionsByRepository
 } from '../../models';
 
 export default class UserRoute extends Routefetcher {
@@ -76,7 +79,7 @@ export default class UserRoute extends Routefetcher {
     }
 
     /**
-     * Returns all commit contributions for user.
+     * Returns all commit contributions for every contribution year of user.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -86,24 +89,8 @@ export default class UserRoute extends Routefetcher {
      *
      * @param username The GitHub username of the user
      */
-    async getAllCommitContributions(username: string): Promise<YearlyCommitContributions[] | null> {
-        const contributionYears = await this.getContributionYears(username);
-        if (!contributionYears) return null;
-
-        // Collect commit contributions for each contribution year
-        return await _.reduce(
-            contributionYears,
-            async (
-                accum: Promise<YearlyCommitContributions[]>,
-                contributionYear: number
-            ): Promise<YearlyCommitContributions[]> => {
-                const yearlyContributions = await this.getCommitContributionsByYear(username, contributionYear);
-                if (!yearlyContributions) return accum;
-
-                return Promise.resolve([...(await accum), yearlyContributions]);
-            },
-            Promise.resolve([] as YearlyCommitContributions[])
-        );
+    async getAllCommitContributions(username: string): Promise<YearlyContributions[] | null> {
+        return await this.contributionsFetchForAllYears(username, this.getCommitContributionsByYear, this.fetcher);
     }
 
     /**
@@ -118,28 +105,127 @@ export default class UserRoute extends Routefetcher {
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
      */
-    async getCommitContributionsByYear(username: string, year: number): Promise<YearlyCommitContributions | null> {
-        const allContributions = await this.fetcher.fetch<CommitContributionsByRepository[]>(
-            new GetUserCommitContributionsByRepositoryRequest(username, year)
+    async getCommitContributionsByYear(
+        username: string,
+        year: number,
+        fetcher?: APIFetcher
+    ): Promise<YearlyContributions | null> {
+        return await UserRoute.contributionsFetch(
+            year,
+            new GetUserCommitContributionsByRepositoryRequest(username, year),
+            this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
         );
+    }
+
+    /**
+     * Returns all issue contributions for every contribution year of user.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     */
+    async getAllIssueContributions(username: string): Promise<YearlyContributions[] | null> {
+        return await this.contributionsFetchForAllYears(username, this.getIssueContributionsByYear, this.fetcher);
+    }
+
+    /**
+     * Returns all issue contributions by year for user.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     * @param year Calendar year to gather contributions from
+     */
+    async getIssueContributionsByYear(
+        username: string,
+        year: number,
+        fetcher?: APIFetcher
+    ): Promise<YearlyContributions | null> {
+        return await UserRoute.contributionsFetch(
+            year,
+            new GetUserIssueContributionsByRepositoryRequest(username, year),
+            this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
+        );
+    }
+
+    /**
+     * Fetches contributions according to given GraphQL request
+     *
+     * @param year Calendar year to gather contributions from
+     * @param contributionRequest GraphQL request specific to type of contribution
+     * @param fetcher APIFetcher
+     */
+    private static async contributionsFetch(
+        year: number,
+        contributionRequest: GraphQLRequest<ContributionsByRepository[]>,
+        fetcher: APIFetcher
+    ): Promise<YearlyContributions | null> {
+        const allContributions = await fetcher.fetch<ContributionsByRepository[]>(contributionRequest);
         if (!allContributions) return null; // User with given username was not found
 
-        // Filter out contributions to private repositories
+        return UserRoute.formatContributionsOfYear(year, allContributions);
+    }
+
+    /**
+     * Fetches contributions for each contribution year of user
+     *
+     * @param username The GitHub username of user
+     * @param fetcher APIFetcher
+     * @param fetchFunc Function that fetches specific type of contribution (commit, issue, PR etc.)
+     */
+    private async contributionsFetchForAllYears(
+        username: string,
+        fetchFunc: (username: string, year: number, fetcher?: APIFetcher) => Promise<YearlyContributions | null>,
+        fetcher: APIFetcher
+    ): Promise<YearlyContributions[] | null> {
+        const contributionYears = await this.getContributionYears(username);
+        if (!contributionYears) return null;
+
+        return await _.reduce(
+            contributionYears,
+            async (accum: Promise<YearlyContributions[]>, contributionYear: number): Promise<YearlyContributions[]> => {
+                const yearlyContributions = await fetchFunc(username, contributionYear, fetcher);
+                if (!yearlyContributions) return accum;
+
+                return Promise.resolve([...(await accum), yearlyContributions]);
+            },
+            Promise.resolve([] as YearlyContributions[])
+        );
+    }
+
+    /**
+     * Formats contributions in public and private contributions of year
+     *
+     * @param allContributions List of all contributions of year
+     */
+    private static formatContributionsOfYear(
+        year: number,
+        allContributions: ContributionsByRepository[]
+    ): YearlyContributions {
+        // Filter out contributions in private repositories
         const publicContributions = _.filter(allContributions, (contribution): boolean => {
             return !contribution.repository.isPrivate;
         });
-        // Gather count of commits in private repositories
-        const privateCommitCount = _.reduce(
+        // Gather count of contributions in private repositories
+        const privateContributionsCount = _.reduce(
             allContributions,
-            (acc: number, curValue: CommitContributionsByRepository): number => {
-                return acc + (curValue.repository.isPrivate ? curValue.commitCount : 0);
+            (acc: number, curValue: ContributionsByRepository): number => {
+                return acc + (curValue.repository.isPrivate ? curValue.count : 0);
             },
             0
         );
 
         return {
             year,
-            privateCommitCount,
+            privateContributionsCount,
             publicContributions: publicContributions ? publicContributions : []
         };
     }

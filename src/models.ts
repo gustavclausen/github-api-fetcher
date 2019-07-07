@@ -190,33 +190,33 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
 }
 
 /**
- * Describes yearly commit contributions
+ * Describes yearly contribution
  */
-export interface YearlyCommitContributions {
+export interface YearlyContributions {
     /**
      * Which calendar year
      */
     year: number;
     /**
-     * Number of commits in private repositories
+     * Number of contributions in private repositories
      */
-    privateCommitCount: number;
+    privateContributionsCount: number;
     /**
-     * Commit contributions to public repositories
+     * Contributions to public repositories
      */
-    publicContributions: CommitContributionsByRepository[];
+    publicContributions: ContributionsByRepository[];
 }
 
 /**
- * Describes commit contributions in specific repository
+ * Describes contributions in specific repository
  */
-export interface CommitContributionsByRepository {
+export interface ContributionsByRepository {
     /**
      * Repository contributed to
      */
     repository: RepositoryProfileMinified;
     /**
-     * Number of commits in repository
+     * Number of contributions in repository
      */
-    commitCount: number;
+    count: number;
 }
