@@ -41,7 +41,9 @@ export default class APIFetcher {
     }
 
     /**
-     * Fetches data from GitHub API according to the request taken as argument
+     * Fetches data from GitHub API according to the request taken as argument.
+     * Null is returned if a specific resource (e.g. user/organization/repository) was not found.
+     *
      * @param request GraphQL request
      */
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
@@ -62,7 +64,9 @@ export default class APIFetcher {
 
     /**
      * Fetches the total data of several possible pages from GitHub API according to the
-     * request taken as argument
+     * request taken as argument.
+     * Null is returned if a specific resource (e.g. user/organization/repository) was not found.
+     *
      * @param pagedRequest Paged GraphQL request that includes page info
      */
     async pageFetch<T>(pagedRequest: GraphQLPagedRequest<T>): Promise<T[] | null> {
@@ -83,6 +87,7 @@ export default class APIFetcher {
     /**
      * Classifies error received from client. Returns custom error with specific type
      * that explains cause of error.
+     *
      * @param error Error from client
      */
     private static classifyRequestError(error: Error): RequestError {

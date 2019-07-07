@@ -4,10 +4,10 @@ import { GraphQLRequest } from '../../utils';
 import { ParseError } from '../../../../lib/errors';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
 import { MinRepositoryProfileParseModel } from '../../common/parse-models';
-import { RepositoryProfileMinified, CommitContributionByRepository } from '../../../../models';
+import { RepositoryProfileMinified, CommitContributionsByRepository } from '../../../../models';
 import fragments from '../../common/fragments';
 
-class CommitContributionParseModel implements CommitContributionByRepository {
+class CommitContributionParseModel implements CommitContributionsByRepository {
     @Expose()
     @Transform(
         (obj): RepositoryProfileMinified =>
@@ -21,7 +21,7 @@ class CommitContributionParseModel implements CommitContributionByRepository {
 }
 
 export default class GetUserCommitContributionsByRepositoryRequest
-    implements GraphQLRequest<CommitContributionByRepository[]> {
+    implements GraphQLRequest<CommitContributionsByRepository[]> {
     fragment = fragments.minifiedRepository;
     query = `
         query GetUserCommitContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
@@ -55,7 +55,7 @@ export default class GetUserCommitContributionsByRepositoryRequest
         };
     }
 
-    parseResponse(rawData: object): CommitContributionByRepository[] {
+    parseResponse(rawData: object): CommitContributionsByRepository[] {
         const results = getValueForFirstKey(rawData, 'commitContributionsByRepository');
         if (!results) {
             throw new ParseError(rawData);
@@ -63,7 +63,7 @@ export default class GetUserCommitContributionsByRepositoryRequest
 
         // Parse and returns each element in response data
         return Object.values(results).map(
-            (curValue): CommitContributionByRepository => {
+            (curValue): CommitContributionsByRepository => {
                 return plainToClass(CommitContributionParseModel, curValue, { excludeExtraneousValues: true });
             }
         );
