@@ -87,6 +87,32 @@ const getNameOfRandomOrganization = async (): Promise<string> => {
 };
 
 /**
+ * Returns name of non-existing organization
+ */
+const getNameOfNonExistingOrganization = async (): Promise<string> => {
+    let nonExistingOrganization: string | null = null;
+
+    while (!nonExistingOrganization) {
+        const randomUUID = uuid();
+
+        try {
+            await fetchGitHubAPI(`orgs/${randomUUID}`);
+        } catch (error) {
+            const requestError = error as RequestError;
+
+            if (requestError.statusCode === 404) {
+                nonExistingOrganization = randomUUID;
+                break;
+            } else {
+                continue;
+            }
+        }
+    }
+
+    return nonExistingOrganization;
+};
+
+/**
  * Fetches random repository, and returns username of owner (user/organization) and name of repository as tuple
  */
 const getRandomRepository = async (): Promise<[string, string]> => {
@@ -100,9 +126,37 @@ const getRandomRepository = async (): Promise<[string, string]> => {
     return [repoOwnerUsername, repoName];
 };
 
+/**
+ * Returns username of owner (user/organization) and name of non-existing repository as tuple
+ */
+const getNonExistingRepository = async (): Promise<[string, string]> => {
+    let nonExistingRepository: [string, string] | null = null;
+
+    while (!nonExistingRepository) {
+        const randomUUID = uuid();
+
+        try {
+            await fetchGitHubAPI(`repos/${randomUUID}/${randomUUID}`);
+        } catch (error) {
+            const requestError = error as RequestError;
+
+            if (requestError.statusCode === 404) {
+                nonExistingRepository = [randomUUID, randomUUID];
+                break;
+            } else {
+                continue;
+            }
+        }
+    }
+
+    return nonExistingRepository;
+};
+
 export default {
     getUsernameOfRandomUser,
     getUsernameOfNonExistingUser,
     getNameOfRandomOrganization,
-    getRandomRepository
+    getNameOfNonExistingOrganization,
+    getRandomRepository,
+    getNonExistingRepository
 };

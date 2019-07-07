@@ -4,7 +4,8 @@ import GetRepositoryProfileRequest from '../graphql/requests/repository/profile'
 
 export default class RepositoryRoute extends Routefetcher {
     /**
-     * Returns repository profile
+     * Returns repository profile.
+     * Null is returned if repository with given parameters was not found.
      *
      * Example #1 (user-owned repository): getProfile('torvalds', 'linux')
      *

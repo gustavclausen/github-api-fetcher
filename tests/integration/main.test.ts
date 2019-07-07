@@ -3,14 +3,7 @@ import _ from 'lodash';
 import APIFetcher from '../../src/main';
 import randomData from './lib/random-data';
 import modelValidation from './lib/model-validation';
-import { keys } from 'ts-transformer-keys';
-import {
-    UserProfile,
-    OrganizationProfile,
-    RepositoryProfile,
-    ProgrammingLanguage,
-    AppliedProgrammingLanguage
-} from '../../src/models';
+import { UserProfile } from '../../src/models';
 
 describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
@@ -38,16 +31,7 @@ describe('APIFetcher', (): void => {
 
         describe('getProfile', (): void => {
             it('should return model with all properties set', async (): Promise<void> => {
-                // Verify all top-level properties is set on user profile model
-                _.forEach(keys<UserProfile>(), (propKey): void => {
-                    expect(_.get(userProfile, propKey)).toBeDefined();
-                });
-
-                // Verify all properties set on nested 'organizationMemberships' property
-                modelValidation.validateOrganizationProfileMinified(userProfile.organizationMemberships);
-
-                // Verify all properties set on nested 'publicRepositoryOwnerships' property
-                modelValidation.validateRepositoryProfileMinified(userProfile.publicRepositoryOwnerships);
+                modelValidation.validateUserProfile(userProfile);
             });
 
             it('should return null for non-existing user', async (): Promise<void> => {
@@ -146,41 +130,37 @@ describe('APIFetcher', (): void => {
     });
 
     describe('organization', (): void => {
-        it('getProfile should return model with all properties set', async (): Promise<void> => {
-            const randomOrganizationName = await randomData.getNameOfRandomOrganization();
-            const result = await fetcher.organization.getProfile(randomOrganizationName);
+        describe('getProfile', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const randomOrganizationName = await randomData.getNameOfRandomOrganization();
+                const result = await fetcher.organization.getProfile(randomOrganizationName);
 
-            // Verify all top-level properties is set on organization profile model
-            _.forEach(keys<OrganizationProfile>(), (propKey): void => {
-                expect(_.get(result, propKey)).toBeDefined();
+                modelValidation.validateOrganizationProfile(result);
+            });
+
+            it('should return null for non-existing organization', async (): Promise<void> => {
+                const randomOrganizationName = await randomData.getNameOfNonExistingOrganization();
+
+                expect(await fetcher.organization.getProfile(randomOrganizationName)).toBeNull();
             });
         });
     });
 
     describe('repository', (): void => {
-        it('getProfile should return model with all properties set', async (): Promise<void> => {
-            const [randomRepoOwnerUsername, randomRepoName] = await randomData.getRandomRepository();
-            const result = await fetcher.repository.getProfile(randomRepoOwnerUsername, randomRepoName);
+        describe('getProfile', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const [randomRepoOwnerUsername, randomRepoName] = await randomData.getRandomRepository();
+                const result = await fetcher.repository.getProfile(randomRepoOwnerUsername, randomRepoName);
 
-            if (!result) {
-                throw new Error('No data to test on');
-            }
-
-            // Verify all properties set on repository profile model
-            _.forEach(keys<RepositoryProfile>(), (propKey): void => {
-                expect(_.get(result, propKey)).toBeDefined();
+                modelValidation.validateRepositoryProfile(result);
             });
 
-            // Verify all properties set on nested 'primaryProgrammingLanguage' property
-            _.forEach(keys<ProgrammingLanguage>(), (propKey): void => {
-                expect(_.get(result.primaryProgrammingLanguage, propKey)).toBeDefined();
-            });
+            it('should return null for non-existing repository', async (): Promise<void> => {
+                const [nonExistingRepoOwnerUsername, nonExistingRepoName] = await randomData.getNonExistingRepository();
 
-            // Verify all properties set on nested 'appliedProgrammingLanguages' property
-            _.forEach(result.appliedProgrammingLanguages, (programmingLanguage): void => {
-                _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
-                    expect(_.get(programmingLanguage, propKey)).toBeDefined();
-                });
+                expect(
+                    await fetcher.repository.getProfile(nonExistingRepoOwnerUsername, nonExistingRepoName)
+                ).toBeNull();
             });
         });
     });

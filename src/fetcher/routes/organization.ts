@@ -4,7 +4,8 @@ import GetOrganizationProfileRequest from '../graphql/requests/organization/prof
 
 export default class OrganizationRoute extends Routefetcher {
     /**
-     * Returns organization profile
+     * Returns organization profile.
+     * Null is returned if organization with given name was not found.
      *
      * Example: getProfile('facebook')
      *
