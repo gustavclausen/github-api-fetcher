@@ -12,6 +12,14 @@ describe('APIFetcher', (): void => {
         fetcher = new APIFetcher();
     });
 
+    // 1000 timeout between each test
+    beforeEach(
+        async (): Promise<void> => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await Promise.resolve((r: (...args: any[]) => void): NodeJS.Timeout => setTimeout(r, 1000));
+        }
+    );
+
     describe('user', (): void => {
         let userProfile: UserProfile;
         let userContributionYears: number[];
@@ -85,11 +93,11 @@ describe('APIFetcher', (): void => {
                 const result = await fetcher.user.getAllCommitContributions(userProfile.username);
 
                 modelValidation.validateYearlyContributions(result);
-            });
+            }, 10000);
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(await fetcher.user.getAllCommitContributions(nonExistingUsername)).toBeNull();
-            });
+            }, 10000);
         });
 
         describe('getCommitContributionsByYear', (): void => {
@@ -100,7 +108,7 @@ describe('APIFetcher', (): void => {
                 ))!;
 
                 modelValidation.validateYearlyContributions([result]);
-            });
+            }, 10000);
 
             it('should return default object when user has done no contributions in year', async (): Promise<void> => {
                 let nonContributionYear = 2000;
@@ -115,7 +123,7 @@ describe('APIFetcher', (): void => {
                     privateContributionsCount: 0,
                     publicContributions: []
                 });
-            });
+            }, 10000);
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(
@@ -129,7 +137,7 @@ describe('APIFetcher', (): void => {
                 const result = await fetcher.user.getAllIssueContributions(userProfile.username);
 
                 modelValidation.validateYearlyContributions(result);
-            });
+            }, 10000);
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(await fetcher.user.getAllIssueContributions(nonExistingUsername)).toBeNull();
@@ -144,7 +152,7 @@ describe('APIFetcher', (): void => {
                 ))!;
 
                 modelValidation.validateYearlyContributions([result]);
-            });
+            }, 10000);
 
             it('should return default object when user has done no contributions in year', async (): Promise<void> => {
                 let nonContributionYear = 2000;
@@ -159,7 +167,7 @@ describe('APIFetcher', (): void => {
                     privateContributionsCount: 0,
                     publicContributions: []
                 });
-            });
+            }, 10000);
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(
@@ -173,7 +181,7 @@ describe('APIFetcher', (): void => {
                 const result = await fetcher.user.getAllPullRequestReviewContributions(userProfile.username);
 
                 modelValidation.validateYearlyContributions(result);
-            });
+            }, 10000);
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(await fetcher.user.getAllPullRequestReviewContributions(nonExistingUsername)).toBeNull();
@@ -188,7 +196,7 @@ describe('APIFetcher', (): void => {
                 ))!;
 
                 modelValidation.validateYearlyContributions([result]);
-            });
+            }, 10000);
 
             it('should return default object when user has done no contributions in year', async (): Promise<void> => {
                 let nonContributionYear = 2000;
@@ -203,7 +211,7 @@ describe('APIFetcher', (): void => {
                     privateContributionsCount: 0,
                     publicContributions: []
                 });
-            });
+            }, 10000);
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(
