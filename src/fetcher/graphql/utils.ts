@@ -90,7 +90,6 @@ export class GraphQLFragment {
  * Responsible for defining the request, and parsing the response.
  */
 export interface GraphQLRequest<TResult> {
-    fragment?: GraphQLFragment;
     query: string;
     variables: object | undefined;
     parseResponse(rawData: object): TResult;
@@ -109,7 +108,6 @@ export interface PageInfo {
  * Responsible for defining the requests, updating the page state, and parsing the responses.
  */
 export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
-    abstract fragment?: GraphQLFragment;
     abstract query: string;
     pageInfo: PageInfo | undefined;
     variables: object | undefined;

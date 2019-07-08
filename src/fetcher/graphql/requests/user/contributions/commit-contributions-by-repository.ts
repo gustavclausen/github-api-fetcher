@@ -5,14 +5,13 @@ import fragments from '../../../common/fragments';
 
 export default class GetUserCommitContributionsByRepositoryRequest
     implements GraphQLRequest<ContributionsByRepository[]> {
-    fragment = fragments.minifiedRepository;
     query = `
         query GetUserCommitContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
             user(login: $username) {
                 contributionsCollection(from: $from, to: $to) {
                     commitContributionsByRepository(maxRepositories: 100) {
                         repository {
-                            ...${this.fragment.name}
+                            ...${fragments.minifiedRepository.name}
                         }
                         count: contributions {
                             totalCount
@@ -22,7 +21,7 @@ export default class GetUserCommitContributionsByRepositoryRequest
             }
         }
 
-        ${this.fragment}
+        ${fragments.minifiedRepository}
     `;
     variables: object | undefined;
 

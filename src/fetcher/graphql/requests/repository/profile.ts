@@ -141,15 +141,14 @@ const profileFragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_
 ]);
 
 export default class GetRepositoryProfileRequest implements GraphQLRequest<RepositoryProfile> {
-    fragment = profileFragment;
     query = `
         query GetRepositoryProfile($ownerUsername: String!, $repositoryName: String!) {
             repository(owner: $ownerUsername, name: $repositoryName) {
-                ...${this.fragment.name}
+                ...${profileFragment.name}
             }
         }
 
-        ${this.fragment}
+        ${profileFragment}
     `;
     variables: object | undefined;
 

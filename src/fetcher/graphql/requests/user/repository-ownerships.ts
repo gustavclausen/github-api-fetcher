@@ -9,13 +9,12 @@ import fragments from '../../common/fragments';
 export default class GetPublicUserRespositoryOwnershipsRequest extends GraphQLPagedRequest<
     OrganizationProfileMinified
 > {
-    fragment = fragments.minifiedRepository;
     query = `
         query GetUserRepositoryOwnerships($name: String!, $after: String) {
             user(login: $name) {
                 repositories(first: 100, after: $after, privacy: PUBLIC, affiliations: OWNER, ownerAffiliations: OWNER) {
                     nodes {
-                        ...${this.fragment.name}
+                        ...${fragments.minifiedRepository.name}
                     }
                     pageInfo {
                         ...${fragments.pageInfo.name}
@@ -24,7 +23,7 @@ export default class GetPublicUserRespositoryOwnershipsRequest extends GraphQLPa
             }
         }
 
-        ${this.fragment}
+        ${fragments.minifiedRepository}
         ${fragments.pageInfo}
     `;
 

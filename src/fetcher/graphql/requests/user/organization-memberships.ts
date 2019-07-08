@@ -23,13 +23,12 @@ const profileFragment = new GraphQLFragment('MinOrganizationProfile', GITHUB_GRA
 ]);
 
 export default class GetUserOrganizationMembershipsRequest extends GraphQLPagedRequest<OrganizationProfileMinified> {
-    fragment = profileFragment;
     query = `
         query GetUserBelongingOrganizations($name: String!, $after: String) {
             user(login: $name) {
                 organizations(first: 100, after: $after) {
                     nodes {
-                        ...${this.fragment.name}
+                        ...${profileFragment.name}
                     }
                     pageInfo {
                         ...${fragments.pageInfo.name}
@@ -38,7 +37,7 @@ export default class GetUserOrganizationMembershipsRequest extends GraphQLPagedR
             }
         }
 
-        ${this.fragment}
+        ${profileFragment}
         ${fragments.pageInfo}
     `;
 

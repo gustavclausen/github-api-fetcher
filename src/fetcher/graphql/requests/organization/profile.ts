@@ -40,15 +40,14 @@ const profileFragment = new GraphQLFragment('OrganizationProfile', GITHUB_GRAPHQ
 ]);
 
 export default class GetOrganizationProfileRequest implements GraphQLRequest<OrganizationProfile> {
-    fragment = profileFragment;
     query = `
         query GetOrganizationProfile($name: String!) {
             organization(login: $name) {
-                ...${this.fragment.name}
+                ...${profileFragment.name}
             }
         }
 
-        ${this.fragment}
+        ${profileFragment}
     `;
     variables: object | undefined;
 

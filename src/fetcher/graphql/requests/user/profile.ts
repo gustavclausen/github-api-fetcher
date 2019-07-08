@@ -52,15 +52,14 @@ const profileFragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT
 ]);
 
 export default class GetUserProfileRequest implements GraphQLRequest<UserProfile> {
-    fragment = profileFragment;
     query = `
         query GetUserProfile($username: String!) {
             user(login: $username) {
-                ...${this.fragment.name}
+                ...${profileFragment.name}
             }
         }
 
-        ${this.fragment}
+        ${profileFragment}
     `;
     variables: object | undefined;
 

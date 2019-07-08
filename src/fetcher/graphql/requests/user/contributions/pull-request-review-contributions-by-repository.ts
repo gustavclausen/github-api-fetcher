@@ -5,14 +5,13 @@ import fragments from '../../../common/fragments';
 
 export default class GetUserPullRequestReviewContributionsByRepositoryRequest
     implements GraphQLRequest<ContributionsByRepository[]> {
-    fragment = fragments.minifiedRepository;
     query = `
         query GetUserPullRequestReviewContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
             user(login: $username) {
                 contributionsCollection(from: $from, to: $to) {
                     pullRequestReviewContributionsByRepository(maxRepositories: 100) {
                         repository {
-                            ...${this.fragment.name}
+                            ...${fragments.minifiedRepository.name}
                         }
                         count: contributions {
                             totalCount
@@ -22,7 +21,7 @@ export default class GetUserPullRequestReviewContributionsByRepositoryRequest
             }
         }
 
-        ${this.fragment}
+        ${fragments.minifiedRepository}
     `;
     variables: object | undefined;
 
