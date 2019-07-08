@@ -222,6 +222,53 @@ describe('APIFetcher', (): void => {
                 ).toBeNull();
             });
         });
+
+        // TODO: Enable when https://github.com/gustavclausen/github-api-fetcher/issues/5 is solved
+        /*
+        describe('getAllPullRequestContributions', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = await fetcher.user.getAllPullRequestContributions(userProfile.username);
+
+                modelValidation.validateYearlyPullRequestContributions(result);
+            }, 10000);
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getAllPullRequestContributions(nonExistingUsername)).toBeNull();
+            });
+        });
+        */
+
+        describe('getPullRequestContributionsByYear', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = (await fetcher.user.getPullRequestContributionsByYear(
+                    userProfile.username,
+                    randomContributionYear
+                ))!;
+
+                modelValidation.validateYearlyPullRequestContributions([result]);
+            }, 10000);
+
+            it('should return default object when user has done no contributions in year', async (): Promise<void> => {
+                let nonContributionYear = 2000;
+
+                const result = (await fetcher.user.getPullRequestContributionsByYear(
+                    userProfile.username,
+                    nonContributionYear
+                ))!;
+
+                expect(result).toMatchObject({
+                    year: nonContributionYear,
+                    privatePullRequestContributionsCount: 0,
+                    publicPullRequestContributions: []
+                });
+            }, 10000);
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(
+                    await fetcher.user.getPullRequestContributionsByYear(nonExistingUsername, randomContributionYear)
+                ).toBeNull();
+            });
+        });
     });
 
     describe('organization', (): void => {

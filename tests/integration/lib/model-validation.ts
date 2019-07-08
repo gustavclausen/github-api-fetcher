@@ -9,7 +9,10 @@ import {
     AppliedProgrammingLanguage,
     RepositoryProfile,
     OrganizationProfile,
-    UserProfile
+    UserProfile,
+    YearlyPullRequestContributions,
+    PullRequestContributionByRepository,
+    PullRequest
 } from '../../../src/models';
 
 const validateOrganizationProfileMinified = (profiles: OrganizationProfileMinified[] | null): void => {
@@ -115,11 +118,54 @@ const validateRepositoryProfile = (profile: RepositoryProfile | null): void => {
     validateAppliedProgrammingLanguage(profile.appliedProgrammingLanguages);
 };
 
+const validatePullRequest = (prs: PullRequest[] | null): void => {
+    if (!prs) throw new Error('No data');
+
+    _.forEach(prs, (pr): void => {
+        // Verify all top-level properties set on model
+        _.forEach(keys<PullRequest>(), (propKey): void => {
+            expect(_.get(pr, propKey)).toBeDefined();
+        });
+    });
+};
+
+const validatePullRequestContributionByRepository = (prcs: PullRequestContributionByRepository[] | null): void => {
+    if (!prcs) throw new Error('No data');
+
+    _.forEach(prcs, (prc): void => {
+        // Verify all top-level properties set on model
+        _.forEach(keys<YearlyPullRequestContributions>(), (propKey): void => {
+            expect(_.get(prc, propKey)).toBeDefined();
+        });
+
+        // Verify all properties set on nested 'repository' property
+        validateRepositoryProfileMinified([prc.repository]);
+
+        // Verify all properties set on nested 'pullRequestContributions' property
+        validatePullRequest(prc.pullRequestContributions);
+    });
+};
+
+const validateYearlyPullRequestContributions = (prcs: YearlyPullRequestContributions[] | null): void => {
+    if (!prcs) throw new Error('No data');
+
+    _.forEach(prcs, (prc): void => {
+        // Verify all top-level properties set on model
+        _.forEach(keys<YearlyPullRequestContributions>(), (propKey): void => {
+            expect(_.get(prc, propKey)).toBeDefined();
+        });
+
+        // Verify all properties set on nested 'publicPullRequestContributions' property
+        validatePullRequestContributionByRepository(prc.publicPullRequestContributions);
+    });
+};
+
 export default {
     validateUserProfile,
     validateOrganizationProfileMinified,
     validateOrganizationProfile,
     validateRepositoryProfileMinified,
     validateYearlyContributions,
-    validateRepositoryProfile
+    validateRepositoryProfile,
+    validateYearlyPullRequestContributions
 };

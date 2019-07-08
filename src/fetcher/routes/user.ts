@@ -203,6 +203,36 @@ export default class UserRoute extends Routefetcher {
     }
 
     /**
+     * Returns all pull request contributions for every contribution year of user.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     */
+    async getAllPullRequestContributions(username: string): Promise<YearlyPullRequestContributions[] | null> {
+        const contributionYears = await this.getContributionYears(username);
+        if (!contributionYears) return null;
+
+        return await _.reduce(
+            contributionYears,
+            async (
+                accum: Promise<YearlyPullRequestContributions[]>,
+                contributionYear: number
+            ): Promise<YearlyPullRequestContributions[]> => {
+                const yearlyContributions = await this.getPullRequestContributionsByYear(username, contributionYear);
+                if (!yearlyContributions) return accum;
+
+                return Promise.resolve([...(await accum), yearlyContributions]);
+            },
+            Promise.resolve([] as YearlyPullRequestContributions[])
+        );
+    }
+
+    /**
      * Returns all pull request contributions by year for user.
      * Null is returned if user with given username was not found.
      *
@@ -216,8 +246,7 @@ export default class UserRoute extends Routefetcher {
      */
     async getPullRequestContributionsByYear(
         username: string,
-        year: number,
-        fetcher?: APIFetcher
+        year: number
     ): Promise<YearlyPullRequestContributions | null> {
         return await this.fetcher.fetch<YearlyPullRequestContributions>(
             new GetUserPullRequestContributionsByRepositoryRequest(username, year)
