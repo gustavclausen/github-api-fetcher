@@ -9,12 +9,14 @@ import GetUserContributionYearsRequest from '../graphql/requests/user/contributi
 import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/contributions/commit-contributions-by-repository';
 import GetUserIssueContributionsByRepositoryRequest from '../graphql/requests/user/contributions/issue-contributions-by-repository';
 import GetUserPullRequestReviewContributionsByRepositoryRequest from '../graphql/requests/user/contributions/pull-request-review-contributions-by-repository';
+import GetUserPullRequestContributionsByRepositoryRequest from '../graphql/requests/user/contributions/pull-request-contributions-by-repository';
 import {
     UserProfile,
     OrganizationProfileMinified,
     RepositoryProfileMinified,
     YearlyContributions,
-    ContributionsByRepository
+    ContributionsByRepository,
+    YearlyPullRequestContributions
 } from '../../models';
 
 export default class UserRoute extends Routefetcher {
@@ -197,6 +199,28 @@ export default class UserRoute extends Routefetcher {
             year,
             new GetUserPullRequestReviewContributionsByRepositoryRequest(username, year),
             this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
+        );
+    }
+
+    /**
+     * Returns all pull request contributions by year for user.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     * @param year Calendar year to gather contributions from
+     */
+    async getPullRequestContributionsByYear(
+        username: string,
+        year: number,
+        fetcher?: APIFetcher
+    ): Promise<YearlyPullRequestContributions | null> {
+        return await this.fetcher.fetch<YearlyPullRequestContributions>(
+            new GetUserPullRequestContributionsByRepositoryRequest(username, year)
         );
     }
 

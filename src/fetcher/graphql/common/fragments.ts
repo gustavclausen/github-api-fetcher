@@ -8,7 +8,8 @@ export const GITHUB_GRAPHQL_OBJECT_NAMES = {
     User: 'User',
     Organization: 'Organization',
     Repository: 'Repository',
-    Language: 'Language'
+    Language: 'Language',
+    PullRequest: 'PullRequest'
 };
 
 /**
@@ -28,6 +29,15 @@ export default {
         new GraphQLObjectField('name'),
         new GraphQLObjectField('isPrivate'),
         new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
+        new GraphQLObjectField('url', 'publicUrl')
+    ]),
+    pullRequest: new GraphQLFragment('PullRequest', GITHUB_GRAPHQL_OBJECT_NAMES.PullRequest, [
+        new GraphQLObjectField('title'),
+        new GraphQLObjectField('createdAt', 'creationDateTime'),
+        new GraphQLObjectField('merged', 'isMerged'),
+        new GraphQLObjectField('closed', 'isClosed'),
+        new GraphQLObjectField('additions', 'additionsCount'),
+        new GraphQLObjectField('deletions', 'deletionsCount'),
         new GraphQLObjectField('url', 'publicUrl')
     ])
 };

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { RepositoryProfileMinified, ContributionsByRepository } from '../../../models';
+import { RepositoryProfileMinified, ContributionsByRepository, PullRequest } from '../../../models';
 import { Expose, Transform, plainToClass } from 'class-transformer';
 import { getValueForFirstKey } from '../../../lib/object-utils';
 import { ParseError } from '../../../lib/errors';
@@ -33,6 +33,29 @@ class ContributionsByRepositoryParseModel implements ContributionsByRepository {
     @Expose()
     @Transform((obj): number => _.get(obj, 'totalCount'))
     count!: number;
+}
+
+export class PullRequestParseModel implements PullRequest {
+    @Expose()
+    title!: string;
+
+    @Expose()
+    creationDateTime!: string;
+
+    @Expose()
+    isMerged!: boolean;
+
+    @Expose()
+    isClosed!: boolean;
+
+    @Expose()
+    additionsCount!: number;
+
+    @Expose()
+    deletionsCount!: number;
+
+    @Expose()
+    publicUrl!: string;
 }
 
 export const parseContributionsByRepository = (rawData: object, dataKey: string): ContributionsByRepository[] => {

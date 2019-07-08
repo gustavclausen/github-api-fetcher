@@ -220,3 +220,66 @@ export interface ContributionsByRepository {
      */
     count: number;
 }
+
+export interface YearlyPullRequestContributions {
+    /**
+     * Which calendar year
+     */
+    year: number;
+    /**
+     * Number of pull requests opened in private repositories
+     */
+    privatePullRequestContributionsCount: number;
+    /**
+     * Pull request contributions to public repositories
+     */
+    publicPullRequestContributions: PullRequestContributionByRepository[];
+}
+
+/**
+ * Describes pull request contributions in repository
+ */
+export interface PullRequestContributionByRepository {
+    /**
+     * Repository contributed to
+     */
+    repository: RepositoryProfileMinified;
+    /**
+     * Pull requests opened in repository
+     */
+    pullRequestContributions: PullRequest[];
+}
+
+/**
+ * Describes pull request
+ */
+export interface PullRequest {
+    /**
+     * Title of pull request
+     */
+    title: string;
+    /**
+     * When pull request was first opened
+     */
+    creationDateTime: string;
+    /**
+     * Is pull request merged
+     */
+    isMerged: boolean;
+    /**
+     * Is pull request closed
+     */
+    isClosed: boolean;
+    /**
+     * Number of additions in pull request
+     */
+    additionsCount: number;
+    /**
+     * Number of deletions in pull request
+     */
+    deletionsCount: number;
+    /**
+     * The URL pointing to the pull request on GitHub – e.g. 'https://github.com/facebook/react/pull/16002'
+     */
+    publicUrl: string;
+}
