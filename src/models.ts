@@ -190,19 +190,17 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
 }
 
 /**
- * Describes yearly contribution
+ * Describes contributions for a month
  */
-export interface YearlyContributions {
+export interface MonthlyContributions {
+    // TODO: Comment
+    month: string;
     /**
-     * Which calendar year
-     */
-    year: number;
-    /**
-     * Number of contributions in private repositories
+     * Number of contributions made in private repositories
      */
     privateContributionsCount: number;
     /**
-     * Contributions to public repositories
+     * Contributions made in public repositories
      */
     publicContributions: ContributionsByRepository[];
 }
@@ -221,11 +219,12 @@ export interface ContributionsByRepository {
     count: number;
 }
 
-export interface YearlyPullRequestContributions {
-    /**
-     * Which calendar year
-     */
-    year: number;
+/**
+ * Describes pull request contributions for a month
+ */
+export interface MonthlyPullRequestContributions {
+    // TODO: Comment
+    month: string;
     /**
      * Number of pull requests opened in private repositories
      */

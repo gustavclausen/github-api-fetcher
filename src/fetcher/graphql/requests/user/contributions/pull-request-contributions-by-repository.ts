@@ -5,15 +5,16 @@ import { getValueForFirstKey } from '../../../../../lib/object-utils';
 import { ParseError } from '../../../../../lib/errors';
 import { plainToClass } from 'class-transformer';
 import { MinRepositoryProfileParseModel, PullRequestParseModel } from '../../../common/parse-models';
+import { Month } from '../../../../../lib/date-utils';
 import {
     PullRequestContributionByRepository,
     PullRequest,
-    YearlyPullRequestContributions,
+    MonthlyPullRequestContributions,
     RepositoryProfileMinified
 } from '../../../../../models';
 
 export default class GetUserPullRequestContributionsByRepositoryRequest
-    implements GraphQLRequest<YearlyPullRequestContributions> {
+    implements GraphQLRequest<MonthlyPullRequestContributions> {
     query = `
         query GetUserPullRequestContributionsByRepository($username: String!, $from: DateTime!, $to: DateTime!) {
             user(login: $username) {
@@ -38,22 +39,22 @@ export default class GetUserPullRequestContributionsByRepositoryRequest
         ${fragments.pullRequest}
     `;
     variables: object | undefined;
-    inYear: number;
+    inMonth: string;
 
-    constructor(username: string, inYear: number) {
+    constructor(username: string, inYear: number, inMonth: Month) {
         this.variables = {
             username: username,
             /**
              * From first to last day of year.
              * Converted to ISO-8601 encoded UTC date string (compatible with DateTime type for GraphQL schema)
              */
-            from: new Date(inYear, 0, 0, 0, 0, 0).toISOString(),
-            to: new Date(inYear, 11, 31, 23, 59, 59).toISOString()
+            from: new Date(inYear, inMonth, 0, 0, 0, 0).toISOString(),
+            to: new Date(inYear, inMonth, 31, 23, 59, 59).toISOString()
         };
-        this.inYear = inYear;
+        this.inMonth = Month[inMonth];
     }
 
-    parseResponse(rawData: object): YearlyPullRequestContributions {
+    parseResponse(rawData: object): MonthlyPullRequestContributions {
         /*
         EXAMPLE DATA:
         {
@@ -139,7 +140,7 @@ export default class GetUserPullRequestContributionsByRepositoryRequest
         );
 
         return {
-            year: this.inYear,
+            month: this.inMonth,
             privatePullRequestContributionsCount,
             publicPullRequestContributions
         };

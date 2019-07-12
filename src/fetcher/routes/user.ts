@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import APIFetcher from '../../main';
+import pSeries from 'p-series';
+import { Month, allMonthNumbers } from '../../lib/date-utils';
 import { GraphQLRequest } from '../graphql/utils';
 import { Routefetcher } from './utils';
 import GetUserProfileRequest from '../graphql/requests/user/profile';
@@ -14,10 +15,14 @@ import {
     UserProfile,
     OrganizationProfileMinified,
     RepositoryProfileMinified,
-    YearlyContributions,
+    MonthlyContributions,
     ContributionsByRepository,
-    YearlyPullRequestContributions
+    MonthlyPullRequestContributions
 } from '../../models';
+
+/**
+ * TODO: Add about about: 'Make requests for a single user or client ID serially. Do not make requests for a single user or client ID concurrently.' from https://developer.github.com/v3/guides/best-practices-for-integrators/
+ */
 
 export default class UserRoute extends Routefetcher {
     /**
@@ -82,7 +87,7 @@ export default class UserRoute extends Routefetcher {
     }
 
     /**
-     * Returns all commit contributions for every contribution year of user.
+     * Returns all commit contributions from user for a specific month.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -92,52 +97,22 @@ export default class UserRoute extends Routefetcher {
      *
      * @param username The GitHub username of the user
      */
-    async getAllCommitContributions(username: string): Promise<YearlyContributions[] | null> {
-        return await this.contributionsFetchForAllYears(username, this.getCommitContributionsByYear, this.fetcher);
+    async getCommitContributionsInMonth(
+        username: string,
+        inYear: number,
+        inMonth: Month
+    ): Promise<MonthlyContributions | null> {
+        return await this.monthlyContributionsFetch(
+            inMonth,
+            new GetUserCommitContributionsByRepositoryRequest(username, inYear, inMonth)
+        );
     }
 
     /**
      * Returns all commit contributions by year for user.
      * Null is returned if user with given username was not found.
      *
-     * NOTE:
-     * Might include contributions to private repositories depending on GitHub settings
-     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
-     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
-     *
-     * @param username The GitHub username of the user
-     * @param year Calendar year to gather contributions from
-     */
-    async getCommitContributionsByYear(
-        username: string,
-        year: number,
-        fetcher?: APIFetcher
-    ): Promise<YearlyContributions | null> {
-        return await UserRoute.contributionsFetch(
-            year,
-            new GetUserCommitContributionsByRepositoryRequest(username, year),
-            this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
-        );
-    }
-
-    /**
-     * Returns all issue contributions for every contribution year of user.
-     * Null is returned if user with given username was not found.
-     *
-     * NOTE:
-     * Might include contributions to private repositories depending on GitHub settings
-     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
-     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
-     *
-     * @param username The GitHub username of the user
-     */
-    async getAllIssueContributions(username: string): Promise<YearlyContributions[] | null> {
-        return await this.contributionsFetchForAllYears(username, this.getIssueContributionsByYear, this.fetcher);
-    }
-
-    /**
-     * Returns all issue contributions by year for user.
-     * Null is returned if user with given username was not found.
+     * TODO: Slow performance comment
      *
      * NOTE:
      * Might include contributions to private repositories depending on GitHub settings
@@ -147,20 +122,13 @@ export default class UserRoute extends Routefetcher {
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
      */
-    async getIssueContributionsByYear(
-        username: string,
-        year: number,
-        fetcher?: APIFetcher
-    ): Promise<YearlyContributions | null> {
-        return await UserRoute.contributionsFetch(
-            year,
-            new GetUserIssueContributionsByRepositoryRequest(username, year),
-            this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
-        );
+    async getCommitContributionsInYear(username: string, inYear: number): Promise<MonthlyContributions[] | null> {
+        // Partially applied function (missing month)
+        return this.yearlyContributionsFetch(_.bind(this.getCommitContributionsInMonth, this, username, inYear));
     }
 
     /**
-     * Returns all pull request reviews contributions for every contribution year of user.
+     * Returns all issue contributions from user for a specific month.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -170,16 +138,19 @@ export default class UserRoute extends Routefetcher {
      *
      * @param username The GitHub username of the user
      */
-    async getAllPullRequestReviewContributions(username: string): Promise<YearlyContributions[] | null> {
-        return await this.contributionsFetchForAllYears(
-            username,
-            this.getPullRequestReviewContributionsByYear,
-            this.fetcher
+    async getIssueContributionsInMonth(
+        username: string,
+        inYear: number,
+        inMonth: Month
+    ): Promise<MonthlyContributions | null> {
+        return await this.monthlyContributionsFetch(
+            inMonth,
+            new GetUserIssueContributionsByRepositoryRequest(username, inYear, inMonth)
         );
     }
 
     /**
-     * Returns all pull request reviews contributions by year for user.
+     * Returns all issue contributions from user for a specific year.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -190,20 +161,13 @@ export default class UserRoute extends Routefetcher {
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
      */
-    async getPullRequestReviewContributionsByYear(
-        username: string,
-        year: number,
-        fetcher?: APIFetcher
-    ): Promise<YearlyContributions | null> {
-        return await UserRoute.contributionsFetch(
-            year,
-            new GetUserPullRequestReviewContributionsByRepositoryRequest(username, year),
-            this ? this.fetcher : fetcher ? fetcher : new APIFetcher()
-        );
+    async getIssueContributionsInYear(username: string, year: number): Promise<MonthlyContributions[] | null> {
+        // Partially applied function (missing month)
+        return this.yearlyContributionsFetch(_.bind(this.getIssueContributionsInMonth, this, username, year));
     }
 
     /**
-     * Returns all pull request contributions for every contribution year of user.
+     * Returns all pull request reviews contributions from user in a specific month.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -213,27 +177,19 @@ export default class UserRoute extends Routefetcher {
      *
      * @param username The GitHub username of the user
      */
-    async getAllPullRequestContributions(username: string): Promise<YearlyPullRequestContributions[] | null> {
-        const contributionYears = await this.getContributionYears(username);
-        if (!contributionYears) return null;
-
-        return await _.reduce(
-            contributionYears,
-            async (
-                accum: Promise<YearlyPullRequestContributions[]>,
-                contributionYear: number
-            ): Promise<YearlyPullRequestContributions[]> => {
-                const yearlyContributions = await this.getPullRequestContributionsByYear(username, contributionYear);
-                if (!yearlyContributions) return accum;
-
-                return Promise.resolve([...(await accum), yearlyContributions]);
-            },
-            Promise.resolve([] as YearlyPullRequestContributions[])
+    async getPullRequestReviewContributionsInMonth(
+        username: string,
+        inYear: number,
+        inMonth: Month
+    ): Promise<MonthlyContributions | null> {
+        return await this.monthlyContributionsFetch(
+            inMonth,
+            new GetUserPullRequestReviewContributionsByRepositoryRequest(username, inYear, inMonth)
         );
     }
 
     /**
-     * Returns all pull request contributions by year for user.
+     * Returns all pull request reviews contributions from user for a specific year.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -244,69 +200,114 @@ export default class UserRoute extends Routefetcher {
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
      */
-    async getPullRequestContributionsByYear(
+    async getPullRequestReviewContributionsInYear(
         username: string,
-        year: number
-    ): Promise<YearlyPullRequestContributions | null> {
-        return await this.fetcher.fetch<YearlyPullRequestContributions>(
-            new GetUserPullRequestContributionsByRepositoryRequest(username, year)
+        inYear: number
+    ): Promise<MonthlyContributions[] | null> {
+        // Partially applied function (missing month)
+        return this.yearlyContributionsFetch(
+            _.bind(this.getPullRequestReviewContributionsInMonth, this, username, inYear)
         );
     }
 
     /**
-     * Fetches contributions according to given GraphQL request
+     * Returns all pull request contributions from user in a specific month.
+     * Null is returned if user with given username was not found.
      *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
+     */
+    async getPullRequestContributionsInMonth(
+        username: string,
+        inYear: number,
+        inMonth: Month
+    ): Promise<MonthlyPullRequestContributions | null> {
+        return await this.fetcher.fetch<MonthlyPullRequestContributions>(
+            new GetUserPullRequestContributionsByRepositoryRequest(username, inYear, inMonth)
+        );
+    }
+
+    /**
+     * Returns all pull request contributions from user for a specific year.
+     * Null is returned if user with given username was not found.
+     *
+     * NOTE:
+     * Might include contributions to private repositories depending on GitHub settings
+     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     *
+     * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
-     * @param contributionRequest GraphQL request specific to type of contribution
-     * @param fetcher APIFetcher
      */
-    private static async contributionsFetch(
-        year: number,
-        contributionRequest: GraphQLRequest<ContributionsByRepository[]>,
-        fetcher: APIFetcher
-    ): Promise<YearlyContributions | null> {
-        const allContributions = await fetcher.fetch<ContributionsByRepository[]>(contributionRequest);
-        if (!allContributions) return null; // User with given username was not found
-
-        return UserRoute.formatContributionsOfYear(year, allContributions);
-    }
-
-    /**
-     * Fetches contributions for each contribution year of user
-     *
-     * @param username The GitHub username of user
-     * @param fetcher APIFetcher
-     * @param fetchFunc Function that fetches specific type of contribution (commit, issue, PR etc.)
-     */
-    private async contributionsFetchForAllYears(
+    async getPullRequestContributionsInYear(
         username: string,
-        fetchFunc: (username: string, year: number, fetcher?: APIFetcher) => Promise<YearlyContributions | null>,
-        fetcher: APIFetcher
-    ): Promise<YearlyContributions[] | null> {
-        const contributionYears = await this.getContributionYears(username);
-        if (!contributionYears) return null;
-
-        return await _.reduce(
-            contributionYears,
-            async (accum: Promise<YearlyContributions[]>, contributionYear: number): Promise<YearlyContributions[]> => {
-                const yearlyContributions = await fetchFunc(username, contributionYear, fetcher);
-                if (!yearlyContributions) return accum;
-
-                return Promise.resolve([...(await accum), yearlyContributions]);
-            },
-            Promise.resolve([] as YearlyContributions[])
+        inYear: number
+    ): Promise<MonthlyPullRequestContributions[] | null> {
+        const monthlyContributionMap = allMonthNumbers.map(
+            (monthNumber: number): (() => Promise<MonthlyPullRequestContributions | null>) => {
+                return (): Promise<MonthlyPullRequestContributions | null> => {
+                    return this.getPullRequestContributionsInMonth(username, inYear, monthNumber);
+                };
+            }
         );
+        /*
+         * Runs promise operations serially to avoid triggering abuse mechanism. This results in slower performance,
+         * but avoids failures.
+         */
+        const yearlyContributions = await pSeries(monthlyContributionMap);
+
+        // No contributions found for username, thus return null
+        if (_.some(yearlyContributions, (contribution): boolean => _.isNull(contribution))) return null;
+
+        return yearlyContributions as MonthlyPullRequestContributions[];
+    }
+
+    // TODO: Comment
+    private async monthlyContributionsFetch(
+        inMonth: Month,
+        request: GraphQLRequest<ContributionsByRepository[] | null>
+    ): Promise<MonthlyContributions | null> {
+        const contributions = await this.fetcher.fetch(request);
+        if (!contributions) return null;
+
+        return UserRoute.categorizeContributions(inMonth, contributions);
+    }
+
+    // TODO: Comment
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private async yearlyContributionsFetch(contributionsRequest: any): Promise<MonthlyContributions[] | null> {
+        const monthlyContributionMap = allMonthNumbers.map(
+            (monthNumber: number): (() => Promise<MonthlyContributions | null>) => {
+                return (): Promise<MonthlyContributions | null> => {
+                    return contributionsRequest(monthNumber) as Promise<MonthlyContributions | null>;
+                };
+            }
+        );
+        /*
+         * Runs promise operations serially to avoid triggering abuse mechanism. This results in slower performance,
+         * but avoids failures.
+         */
+        const yearlyContributions = await pSeries(monthlyContributionMap);
+
+        // No contributions found for username, thus return null
+        if (_.some(yearlyContributions, (contribution): boolean => _.isNull(contribution))) return null;
+
+        return yearlyContributions as MonthlyContributions[];
     }
 
     /**
-     * Formats contributions in public and private contributions of year
+     * Categorizes monthly contributions in public and private contributions
      *
-     * @param allContributions List of all contributions of year
+     * @param allContributions List of all contributions
      */
-    private static formatContributionsOfYear(
-        year: number,
+    private static categorizeContributions(
+        inMonth: Month,
         allContributions: ContributionsByRepository[]
-    ): YearlyContributions {
+    ): MonthlyContributions {
         // Filter out contributions in private repositories
         const publicContributions = _.filter(allContributions, (contribution): boolean => {
             return !contribution.repository.isPrivate;
@@ -321,7 +322,7 @@ export default class UserRoute extends Routefetcher {
         );
 
         return {
-            year,
+            month: Month[inMonth],
             privateContributionsCount,
             publicContributions: publicContributions ? publicContributions : []
         };
