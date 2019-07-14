@@ -3,16 +3,16 @@ import { keys } from 'ts-transformer-keys';
 import {
     OrganizationProfileMinified,
     RepositoryProfileMinified,
-    YearlyContributions,
     ContributionsByRepository,
     ProgrammingLanguage,
     AppliedProgrammingLanguage,
     RepositoryProfile,
     OrganizationProfile,
     UserProfile,
-    YearlyPullRequestContributions,
     PullRequestContributionByRepository,
-    PullRequest
+    PullRequest,
+    MonthlyContributions,
+    MonthlyPullRequestContributions
 } from '../../../src/models';
 
 const validateOrganizationProfileMinified = (profiles: OrganizationProfileMinified[] | null): void => {
@@ -59,29 +59,29 @@ const validateUserProfile = (profile: UserProfile | null): void => {
     validateRepositoryProfileMinified(profile.publicRepositoryOwnerships);
 };
 
-const validateContributionsByRepository = (profiles: ContributionsByRepository[] | null): void => {
-    if (!profiles) throw new Error('No data');
+const validateContributionsByRepository = (contributions: ContributionsByRepository[] | null): void => {
+    if (!contributions) throw new Error('No data');
 
-    _.forEach(profiles, (profile): void => {
+    _.forEach(contributions, (contribution): void => {
         _.forEach(keys<ContributionsByRepository>(), (propKey): void => {
-            expect(_.get(profile, propKey)).toBeDefined();
+            expect(_.get(contribution, propKey)).toBeDefined();
         });
 
         // Verify all properties set on nested 'repository' property
-        validateRepositoryProfileMinified([profile.repository]);
+        validateRepositoryProfileMinified([contribution.repository]);
     });
 };
 
-const validateYearlyContributions = (profiles: YearlyContributions[] | null): void => {
-    if (!profiles) throw new Error('No data');
+const validateMonthlyContributions = (contributions: MonthlyContributions[] | null): void => {
+    if (!contributions) throw new Error('No data');
 
-    _.forEach(profiles, (profile): void => {
-        _.forEach(keys<YearlyContributions>(), (propKey): void => {
-            expect(_.get(profile, propKey)).toBeDefined();
+    _.forEach(contributions, (contribution): void => {
+        _.forEach(keys<MonthlyContributions>(), (propKey): void => {
+            expect(_.get(contribution, propKey)).toBeDefined();
         });
 
         // Verify all properties set on nested 'publicContributions' property
-        validateContributionsByRepository(profile.publicContributions);
+        validateContributionsByRepository(contribution.publicContributions);
     });
 };
 
@@ -134,7 +134,7 @@ const validatePullRequestContributionByRepository = (prcs: PullRequestContributi
 
     _.forEach(prcs, (prc): void => {
         // Verify all top-level properties set on model
-        _.forEach(keys<YearlyPullRequestContributions>(), (propKey): void => {
+        _.forEach(keys<PullRequestContributionByRepository>(), (propKey): void => {
             expect(_.get(prc, propKey)).toBeDefined();
         });
 
@@ -146,12 +146,12 @@ const validatePullRequestContributionByRepository = (prcs: PullRequestContributi
     });
 };
 
-const validateYearlyPullRequestContributions = (prcs: YearlyPullRequestContributions[] | null): void => {
+const validateMonthlyPullRequestContributions = (prcs: MonthlyPullRequestContributions[] | null): void => {
     if (!prcs) throw new Error('No data');
 
     _.forEach(prcs, (prc): void => {
         // Verify all top-level properties set on model
-        _.forEach(keys<YearlyPullRequestContributions>(), (propKey): void => {
+        _.forEach(keys<MonthlyPullRequestContributions>(), (propKey): void => {
             expect(_.get(prc, propKey)).toBeDefined();
         });
 
@@ -165,7 +165,7 @@ export default {
     validateOrganizationProfileMinified,
     validateOrganizationProfile,
     validateRepositoryProfileMinified,
-    validateYearlyContributions,
+    validateMonthlyContributions,
     validateRepositoryProfile,
-    validateYearlyPullRequestContributions
+    validateMonthlyPullRequestContributions
 };
