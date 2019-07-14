@@ -30,6 +30,9 @@ jobs:
           command: npm run test:cover
           environment:
             JEST_JUNIT_OUTPUT: "coverage/junit-results.xml"
+      - run:
+          name: Upload test cover report to coveralls
+          command: npm run coveralls 
       - store_test_results:
           path: coverage/
       - store_artifacts:
