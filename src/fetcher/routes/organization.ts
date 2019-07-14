@@ -1,6 +1,6 @@
 import { Routefetcher } from './utils';
 import { OrganizationProfile } from '../../models';
-import GetOrganizationProfileRequest from '../graphql/requests/organization/profile';
+import OrganizationRequests from '../graphql/requests/organization';
 
 export default class OrganizationRoute extends Routefetcher {
     /**
@@ -12,6 +12,6 @@ export default class OrganizationRoute extends Routefetcher {
      * @param organizationName GitHub name of organization (e.g. 'facebook')
      */
     async getProfile(organizationName: string): Promise<OrganizationProfile | null> {
-        return await this.fetcher.fetch<OrganizationProfile>(new GetOrganizationProfileRequest(organizationName));
+        return await this.fetcher.fetch<OrganizationProfile>(new OrganizationRequests.Profile(organizationName));
     }
 }

@@ -1,16 +1,9 @@
 import _ from 'lodash';
 import pSeries from 'p-series';
+import UserRequests from '../graphql/requests/user';
 import { Month, allMonthNumbers } from '../../lib/date-utils';
 import { GraphQLRequest } from '../graphql/utils';
 import { Routefetcher } from './utils';
-import GetUserProfileRequest from '../graphql/requests/user/profile';
-import GetUserOrganizationMembershipsRequest from '../graphql/requests/user/organization-memberships';
-import GetUserRepositoryOwnershipsRequest from '../graphql/requests/user/repository-ownerships';
-import GetUserContributionYearsRequest from '../graphql/requests/user/contributions/contribution-years';
-import GetUserCommitContributionsByRepositoryRequest from '../graphql/requests/user/contributions/commit-contributions-by-repository';
-import GetUserIssueContributionsByRepositoryRequest from '../graphql/requests/user/contributions/issue-contributions-by-repository';
-import GetUserPullRequestReviewContributionsByRepositoryRequest from '../graphql/requests/user/contributions/pull-request-review-contributions-by-repository';
-import GetUserPullRequestContributionsByRepositoryRequest from '../graphql/requests/user/contributions/pull-request-contributions-by-repository';
 import {
     UserProfile,
     OrganizationProfileMinified,
@@ -32,7 +25,7 @@ export default class UserRoute extends Routefetcher {
      * @param username The GitHub username of the user
      */
     async getProfile(username: string): Promise<UserProfile | null> {
-        const fetchedProfile = await this.fetcher.fetch<UserProfile>(new GetUserProfileRequest(username));
+        const fetchedProfile = await this.fetcher.fetch<UserProfile>(new UserRequests.Profile(username));
 
         if (!fetchedProfile) return null;
 
@@ -59,7 +52,7 @@ export default class UserRoute extends Routefetcher {
      */
     async getOrganizationMemberships(username: string): Promise<OrganizationProfileMinified[] | null> {
         return await this.fetcher.pageFetch<OrganizationProfileMinified>(
-            new GetUserOrganizationMembershipsRequest(username)
+            new UserRequests.OrganizationMemberships(username)
         );
     }
 
@@ -71,7 +64,7 @@ export default class UserRoute extends Routefetcher {
      */
     async getPublicRepositoryOwnerships(username: string): Promise<RepositoryProfileMinified[] | null> {
         return await this.fetcher.pageFetch<RepositoryProfileMinified>(
-            new GetUserRepositoryOwnershipsRequest(username)
+            new UserRequests.PublicRespositoryOwnerships(username)
         );
     }
 
@@ -83,7 +76,7 @@ export default class UserRoute extends Routefetcher {
      * @param username The GitHub username of the user
      */
     async getContributionYears(username: string): Promise<number[] | null> {
-        return await this.fetcher.fetch<number[]>(new GetUserContributionYearsRequest(username));
+        return await this.fetcher.fetch<number[]>(new UserRequests.Contributions.ContributionYears(username));
     }
 
     /**
@@ -104,7 +97,7 @@ export default class UserRoute extends Routefetcher {
     ): Promise<MonthlyContributions | null> {
         return await this.monthlyContributionsFetch(
             inMonth,
-            new GetUserCommitContributionsByRepositoryRequest(username, inYear, inMonth)
+            new UserRequests.Contributions.CommitContributionsByRepository(username, inYear, inMonth)
         );
     }
 
@@ -145,7 +138,7 @@ export default class UserRoute extends Routefetcher {
     ): Promise<MonthlyContributions | null> {
         return await this.monthlyContributionsFetch(
             inMonth,
-            new GetUserIssueContributionsByRepositoryRequest(username, inYear, inMonth)
+            new UserRequests.Contributions.IssueContributionsByRepository(username, inYear, inMonth)
         );
     }
 
@@ -184,7 +177,7 @@ export default class UserRoute extends Routefetcher {
     ): Promise<MonthlyContributions | null> {
         return await this.monthlyContributionsFetch(
             inMonth,
-            new GetUserPullRequestReviewContributionsByRepositoryRequest(username, inYear, inMonth)
+            new UserRequests.Contributions.PullRequestReviewContributionsByRepository(username, inYear, inMonth)
         );
     }
 
@@ -227,7 +220,7 @@ export default class UserRoute extends Routefetcher {
         inMonth: Month
     ): Promise<MonthlyPullRequestContributions | null> {
         return await this.fetcher.fetch<MonthlyPullRequestContributions>(
-            new GetUserPullRequestContributionsByRepositoryRequest(username, inYear, inMonth)
+            new UserRequests.Contributions.PullRequestContributionsByRepository(username, inYear, inMonth)
         );
     }
 

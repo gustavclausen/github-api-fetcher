@@ -1,6 +1,6 @@
 import { Routefetcher } from './utils';
 import { RepositoryProfile } from '../../models';
-import GetRepositoryProfileRequest from '../graphql/requests/repository/profile';
+import RepositoryRequests from '../graphql/requests/repository';
 
 export default class RepositoryRoute extends Routefetcher {
     /**
@@ -17,7 +17,7 @@ export default class RepositoryRoute extends Routefetcher {
      */
     async getProfile(ownerUsername: string, repositoryName: string): Promise<RepositoryProfile | null> {
         return await this.fetcher.fetch<RepositoryProfile>(
-            new GetRepositoryProfileRequest(ownerUsername, repositoryName)
+            new RepositoryRequests.Profile(ownerUsername, repositoryName)
         );
     }
 }
