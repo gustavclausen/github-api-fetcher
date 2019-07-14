@@ -7,7 +7,7 @@ import { plainToClass } from 'class-transformer';
 import { MinRepositoryProfileParseModel, PullRequestParseModel } from '../../../common/parse-models';
 import { Month } from '../../../../../lib/date-utils';
 import {
-    PullRequestContributionByRepository,
+    PullRequestContributionsByRepository,
     PullRequest,
     MonthlyPullRequestContributions,
     RepositoryProfileMinified
@@ -108,7 +108,7 @@ export default class GetUserPullRequestContributionsByRepositoryRequest
         });
         // Format contributions as 'PullRequestContributionByRepository' type
         const publicPullRequestContributions = Object.values(publicContributions).map(
-            (curValue): PullRequestContributionByRepository => {
+            (curValue): PullRequestContributionsByRepository => {
                 const repository = getRepository(curValue);
                 const pullRequestContributions = Object.values(getValueForFirstKey(curValue, 'nodes') as object[]).map(
                     (node): PullRequest => {

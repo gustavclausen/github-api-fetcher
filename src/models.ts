@@ -151,7 +151,8 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
      */
     description: string;
     /**
-     * The primary used programming language of the repository's code
+     * The primary used programming language of the repository's code.
+     * Is null if repository does not contain any source code.
      */
     primaryProgrammingLanguage: ProgrammingLanguage | null;
     /**
@@ -176,11 +177,11 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
      */
     topics: string[];
     /**
-     * Number of users who've starred the repository
+     * Number of users who have starred the repository
      */
     starsCount: number;
     /**
-     * Number of users watching the repository
+     * Number of users who is watching the repository
      */
     watchersCount: number;
     /**
@@ -190,10 +191,12 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
 }
 
 /**
- * Describes contributions for a month
+ * Describes a user's contributions (commits, issues or pull request reviews) on a monthly basis
  */
 export interface MonthlyContributions {
-    // TODO: Comment
+    /**
+     * Which month of the year the contributions were made in
+     */
     month: string;
     /**
      * Number of contributions made in private repositories
@@ -206,7 +209,7 @@ export interface MonthlyContributions {
 }
 
 /**
- * Describes contributions in specific repository
+ * Describes a user's contributions (commits, issues or pull request reviews) in a specific repository
  */
 export interface ContributionsByRepository {
     /**
@@ -220,10 +223,12 @@ export interface ContributionsByRepository {
 }
 
 /**
- * Describes pull request contributions for a month
+ * Describes a user's pull request contributions on a monthly basis
  */
 export interface MonthlyPullRequestContributions {
-    // TODO: Comment
+    /**
+     * Which month of the year the contributions were made in
+     */
     month: string;
     /**
      * Number of pull requests opened in private repositories
@@ -232,13 +237,13 @@ export interface MonthlyPullRequestContributions {
     /**
      * Pull request contributions to public repositories
      */
-    publicPullRequestContributions: PullRequestContributionByRepository[];
+    publicPullRequestContributions: PullRequestContributionsByRepository[];
 }
 
 /**
  * Describes pull request contributions in repository
  */
-export interface PullRequestContributionByRepository {
+export interface PullRequestContributionsByRepository {
     /**
      * Repository contributed to
      */
@@ -270,11 +275,11 @@ export interface PullRequest {
      */
     isClosed: boolean;
     /**
-     * Number of additions in pull request
+     * Number of code additions in pull request
      */
     additionsCount: number;
     /**
-     * Number of deletions in pull request
+     * Number of code deletions in pull request
      */
     deletionsCount: number;
     /**

@@ -9,7 +9,7 @@ import {
     RepositoryProfile,
     OrganizationProfile,
     UserProfile,
-    PullRequestContributionByRepository,
+    PullRequestContributionsByRepository,
     PullRequest,
     MonthlyContributions,
     MonthlyPullRequestContributions
@@ -129,12 +129,12 @@ const validatePullRequest = (prs: PullRequest[] | null): void => {
     });
 };
 
-const validatePullRequestContributionByRepository = (prcs: PullRequestContributionByRepository[] | null): void => {
+const validatePullRequestContributionsByRepository = (prcs: PullRequestContributionsByRepository[] | null): void => {
     if (!prcs) throw new Error('No data');
 
     _.forEach(prcs, (prc): void => {
         // Verify all top-level properties set on model
-        _.forEach(keys<PullRequestContributionByRepository>(), (propKey): void => {
+        _.forEach(keys<PullRequestContributionsByRepository>(), (propKey): void => {
             expect(_.get(prc, propKey)).toBeDefined();
         });
 
@@ -156,7 +156,7 @@ const validateMonthlyPullRequestContributions = (prcs: MonthlyPullRequestContrib
         });
 
         // Verify all properties set on nested 'publicPullRequestContributions' property
-        validatePullRequestContributionByRepository(prc.publicPullRequestContributions);
+        validatePullRequestContributionsByRepository(prc.publicPullRequestContributions);
     });
 };
 
