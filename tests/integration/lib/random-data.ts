@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import config from '../../../src/etc/config';
 import uuid from 'uuid';
+import { Month } from '../../../src/lib/date-utils';
 
 /**
  * Error describing failed request to API endpoint
@@ -29,7 +30,7 @@ const fetchGitHubAPI = async (resourceUri: string): Promise<object[]> => {
     const response = await fetch(`https://api.github.com/${resourceUri}`, {
         headers: {
             Authorization: `Bearer ${config.apiAccessToken}`,
-            Accept: 'application/vnd.github.v3+json',
+            Accept: 'application/vnd.github.v3+json application/vnd.github.cloak-preview',
             'Content-Type': 'application/json'
         }
     });
@@ -75,6 +76,68 @@ const getUsernameOfNonExistingUser = async (): Promise<string> => {
     }
 
     return nonExistingUsername;
+};
+
+// TODO: Comment
+const getTimeOfSearchResultObject = async (
+    searchResults: object[],
+    dateTimeObjectKey: string
+): Promise<[number, Month]> => {
+    const randomSearchResultObject = _.sample(searchResults) as object;
+
+    const objectDateTime = new Date(_.get(randomSearchResultObject, dateTimeObjectKey));
+    const month = Month[objectDateTime.getMonth()];
+    const year = objectDateTime.getFullYear();
+
+    return [year, Month[month as keyof typeof Month]];
+};
+
+// TODO: Comment
+const getRandomCommitContributionTime = async (username: string): Promise<[number, Month]> => {
+    const searchResults = _.get(
+        await fetchGitHubAPI(
+            `search/commits?q=committer:${username}+is:public&sort=committer-date&order=desc&per_page=10&type=Commits`
+        ),
+        'items'
+    ) as object[];
+
+    return getTimeOfSearchResultObject(searchResults, 'commit.committer.date');
+};
+
+// TODO: Comment
+const getRandomIssueContributionTime = async (username: string): Promise<[number, Month]> => {
+    const searchResults = _.get(
+        await fetchGitHubAPI(
+            `search/issues?q=author:${username}+type:issue+is:public&sort=created&order=desc&per_page=10`
+        ),
+        'items'
+    ) as object[];
+
+    return getTimeOfSearchResultObject(searchResults, 'created_at');
+};
+
+// TODO: Comment
+const getRandomPRReviewContributionTime = async (username: string): Promise<[number, Month]> => {
+    const searchResults = _.get(
+        await fetchGitHubAPI(
+            `search/issues?q=reviewed-by:${username}+type:pr+is:public&sort=created&order=desc&per_page=10`
+        ),
+        'items'
+    ) as object[];
+
+    return getTimeOfSearchResultObject(searchResults, 'updated_at');
+};
+
+// TODO: Comment
+const getRandomPRContributionTime = async (username: string): Promise<[number, Month]> => {
+    const searchResults = _.get(
+        await fetchGitHubAPI(
+            `search/issues?q=author:${username}+type:pr+is:public&sort=created&order=desc&per_page=10`
+        ),
+        'items'
+    ) as object[];
+
+    return getTimeOfSearchResultObject(searchResults, 'created_at');
 };
 
 /**
@@ -155,6 +218,10 @@ const getNonExistingRepository = async (): Promise<[string, string]> => {
 export default {
     getUsernameOfRandomUser,
     getUsernameOfNonExistingUser,
+    getRandomCommitContributionTime,
+    getRandomIssueContributionTime,
+    getRandomPRReviewContributionTime,
+    getRandomPRContributionTime,
     getNameOfRandomOrganization,
     getNameOfNonExistingOrganization,
     getRandomRepository,
