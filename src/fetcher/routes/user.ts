@@ -13,10 +13,6 @@ import {
     MonthlyPullRequestContributions
 } from '../../models';
 
-/**
- * TODO: Add about about: 'Make requests for a single user or client ID serially. Do not make requests for a single user or client ID concurrently.' from https://developer.github.com/v3/guides/best-practices-for-integrators/
- */
-
 export default class UserRoute extends Routefetcher {
     /**
      * Returns user profile.
@@ -69,7 +65,7 @@ export default class UserRoute extends Routefetcher {
     }
 
     /**
-     * Returns all years that the user has contributed code in repositories on GitHub – e.g.
+     * Returns all years in which the user has contributed code in repositories on GitHub – e.g.
      * [2019, 2018, 2016, 2015, 2011].
      * Null is returned if user with given username was not found.
      *
@@ -105,18 +101,22 @@ export default class UserRoute extends Routefetcher {
      * Returns all commit contributions by year for user.
      * Null is returned if user with given username was not found.
      *
-     * TODO: Slow performance comment
      *
      * NOTE:
-     * Might include contributions to private repositories depending on GitHub settings
-     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
-     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     * - Might take several seconds to fetch data, as data has to be fetched serially month by month. This is due to
+     *   GitHub's requirement of not making requests for a single user concurrently. This results in slower performance,
+     *   but avoids failures.
+     *   See: https://developer.github.com/v3/guides/best-practices-for-integrators/#dealing-with-abuse-rate-limits
+     *
+     * - Might include contributions to private repositories depending on GitHub settings
+     *   (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     *   and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
      *
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
      */
     async getCommitContributionsInYear(username: string, inYear: number): Promise<MonthlyContributions[] | null> {
-        // Partially applied function (missing month)
+        // Partially applied function (waiting for month argument)
         return this.yearlyContributionsFetch(_.bind(this.getCommitContributionsInMonth, this, username, inYear));
     }
 
@@ -147,20 +147,25 @@ export default class UserRoute extends Routefetcher {
      * Null is returned if user with given username was not found.
      *
      * NOTE:
-     * Might include contributions to private repositories depending on GitHub settings
-     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
-     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     * - Might take several seconds to fetch data, as data has to be fetched serially month by month. This is due to
+     *   GitHub's requirement of not making requests for a single user concurrently. This results in slower performance,
+     *   but avoids failures.
+     *   See: https://developer.github.com/v3/guides/best-practices-for-integrators/#dealing-with-abuse-rate-limits
+     *
+     * - Might include contributions to private repositories depending on GitHub settings
+     *   (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     *   and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
      *
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
      */
     async getIssueContributionsInYear(username: string, year: number): Promise<MonthlyContributions[] | null> {
-        // Partially applied function (missing month)
+        // Partially applied function (waiting for month argument)
         return this.yearlyContributionsFetch(_.bind(this.getIssueContributionsInMonth, this, username, year));
     }
 
     /**
-     * Returns all pull request reviews contributions from user in a specific month.
+     * Returns all pull request reviews contributions from user for a specific month.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -186,9 +191,14 @@ export default class UserRoute extends Routefetcher {
      * Null is returned if user with given username was not found.
      *
      * NOTE:
-     * Might include contributions to private repositories depending on GitHub settings
-     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
-     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     * - Might take several seconds to fetch data, as data has to be fetched serially month by month. This is due to
+     *   GitHub's requirement of not making requests for a single user concurrently. This results in slower performance,
+     *   but avoids failures.
+     *   See: https://developer.github.com/v3/guides/best-practices-for-integrators/#dealing-with-abuse-rate-limits
+     *
+     * - Might include contributions to private repositories depending on GitHub settings
+     *   (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     *   and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
      *
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
@@ -197,14 +207,14 @@ export default class UserRoute extends Routefetcher {
         username: string,
         inYear: number
     ): Promise<MonthlyContributions[] | null> {
-        // Partially applied function (missing month)
+        // Partially applied function (waiting for month argument)
         return this.yearlyContributionsFetch(
             _.bind(this.getPullRequestReviewContributionsInMonth, this, username, inYear)
         );
     }
 
     /**
-     * Returns all pull request contributions from user in a specific month.
+     * Returns all pull request contributions from user for a specific month.
      * Null is returned if user with given username was not found.
      *
      * NOTE:
@@ -229,9 +239,14 @@ export default class UserRoute extends Routefetcher {
      * Null is returned if user with given username was not found.
      *
      * NOTE:
-     * Might include contributions to private repositories depending on GitHub settings
-     * (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
-     * and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+     * - Might take several seconds to fetch data, as data has to be fetched serially month by month. This is due to
+     *   GitHub's requirement of not making requests for a single user concurrently. This results in slower performance,
+     *   but avoids failures.
+     *   See: https://developer.github.com/v3/guides/best-practices-for-integrators/#dealing-with-abuse-rate-limits
+     *
+     * - Might include contributions to private repositories depending on GitHub settings
+     *   (see: https://help.github.com/en/articles/publicizing-or-hiding-your-private-contributions-on-your-profile)
+     *   and access token scopes (see: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
      *
      * @param username The GitHub username of the user
      * @param year Calendar year to gather contributions from
@@ -240,6 +255,7 @@ export default class UserRoute extends Routefetcher {
         username: string,
         inYear: number
     ): Promise<MonthlyPullRequestContributions[] | null> {
+        // Runs promise operations serially to avoid triggering abuse mechanism
         const monthlyContributionMap = allMonthNumbers.map(
             (monthNumber: number): (() => Promise<MonthlyPullRequestContributions | null>) => {
                 return (): Promise<MonthlyPullRequestContributions | null> => {
@@ -247,10 +263,6 @@ export default class UserRoute extends Routefetcher {
                 };
             }
         );
-        /*
-         * Runs promise operations serially to avoid triggering abuse mechanism. This results in slower performance,
-         * but avoids failures.
-         */
         const yearlyContributions = await pSeries(monthlyContributionMap);
 
         // No contributions found for username, thus return null
@@ -259,7 +271,6 @@ export default class UserRoute extends Routefetcher {
         return yearlyContributions as MonthlyPullRequestContributions[];
     }
 
-    // TODO: Comment
     private async monthlyContributionsFetch(
         inMonth: Month,
         request: GraphQLRequest<ContributionsByRepository[] | null>
@@ -270,9 +281,9 @@ export default class UserRoute extends Routefetcher {
         return UserRoute.categorizeContributions(inMonth, contributions);
     }
 
-    // TODO: Comment
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async yearlyContributionsFetch(contributionsRequest: any): Promise<MonthlyContributions[] | null> {
+        // Runs promise operations serially to avoid triggering abuse mechanism
         const monthlyContributionMap = allMonthNumbers.map(
             (monthNumber: number): (() => Promise<MonthlyContributions | null>) => {
                 return (): Promise<MonthlyContributions | null> => {
@@ -280,10 +291,6 @@ export default class UserRoute extends Routefetcher {
                 };
             }
         );
-        /*
-         * Runs promise operations serially to avoid triggering abuse mechanism. This results in slower performance,
-         * but avoids failures.
-         */
         const yearlyContributions = await pSeries(monthlyContributionMap);
 
         // No contributions found for username, thus return null
