@@ -8,7 +8,7 @@ export class GraphQLObjectField {
     fieldValue!: string;
     aliasName?: string | null;
     nestedProperties?: GraphQLObjectField[] | null;
-    argument?: string | null; // TODO: Define arguments syntactically instead of raw string
+    argument?: string | null;
 
     constructor(
         fieldValue: string,
@@ -90,7 +90,6 @@ export class GraphQLFragment {
  * Responsible for defining the request, and parsing the response.
  */
 export interface GraphQLRequest<TResult> {
-    fragment?: GraphQLFragment;
     query: string;
     variables: object | undefined;
     parseResponse(rawData: object): TResult;
@@ -105,11 +104,10 @@ export interface PageInfo {
 }
 
 /**
- * Presents a paged GraphQL request to be sent to the endpoint.
+ * Presents a paged, stateful GraphQL request to be sent to the endpoint.
  * Responsible for defining the requests, updating the page state, and parsing the responses.
  */
 export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
-    abstract fragment?: GraphQLFragment;
     abstract query: string;
     pageInfo: PageInfo | undefined;
     variables: object | undefined;
@@ -139,6 +137,7 @@ export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TRe
     /**
      * Updates page-info with data from response object, and returns empty result set.
      * Parse of data must be handled by derived class.
+     *
      * @param rawData Full response object
      */
     parseResponse(rawData: object): TResult[] {

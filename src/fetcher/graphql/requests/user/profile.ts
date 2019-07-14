@@ -34,12 +34,12 @@ class UserProfileParseModel implements UserProfile {
     @Transform((obj): number => _.get(obj, 'count'))
     followersCount!: number;
 
-    organizationMemberships!: OrganizationProfileMinified[];
+    organizationMemberships!: OrganizationProfileMinified[]; // To be set later with data from another request
 
-    publicRepositoryOwnerships!: RepositoryProfileMinified[];
+    publicRepositoryOwnerships!: RepositoryProfileMinified[]; // To be set later with data from another request
 }
 
-const profileFragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT_NAMES.User, [
+const fragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT_NAMES.User, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('login', 'username'),
     new GraphQLObjectField('name', 'displayName'),
@@ -52,15 +52,14 @@ const profileFragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT
 ]);
 
 export default class GetUserProfileRequest implements GraphQLRequest<UserProfile> {
-    fragment = profileFragment;
     query = `
         query GetUserProfile($username: String!) {
             user(login: $username) {
-                ...${this.fragment.name}
+                ...${fragment.name}
             }
         }
 
-        ${this.fragment}
+        ${fragment}
     `;
     variables: object | undefined;
 

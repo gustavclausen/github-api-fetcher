@@ -29,7 +29,7 @@ class OrganizationProfileParseModel implements OrganizationProfile {
     membersCount!: number;
 }
 
-const profileFragment = new GraphQLFragment('OrganizationProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Organization, [
+const fragment = new GraphQLFragment('OrganizationProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Organization, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('login', 'name'),
     new GraphQLObjectField('name', 'displayName'),
@@ -40,15 +40,14 @@ const profileFragment = new GraphQLFragment('OrganizationProfile', GITHUB_GRAPHQ
 ]);
 
 export default class GetOrganizationProfileRequest implements GraphQLRequest<OrganizationProfile> {
-    fragment = profileFragment;
     query = `
         query GetOrganizationProfile($name: String!) {
             organization(login: $name) {
-                ...${this.fragment.name}
+                ...${fragment.name}
             }
         }
 
-        ${this.fragment}
+        ${fragment}
     `;
     variables: object | undefined;
 

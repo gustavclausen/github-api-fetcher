@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Expose, Transform, plainToClass } from 'class-transformer';
 import { RepositoryProfile, ProgrammingLanguage, AppliedProgrammingLanguage } from '../../../../models';
 import { GraphQLRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
-import { GITHUB_GRAPHQL_OBJECT_NAMES, fragments } from '../../common/fragments';
+import fragments, { GITHUB_GRAPHQL_OBJECT_NAMES } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
 import { getValueForFirstKey } from '../../../../lib/object-utils';
 
@@ -19,6 +19,9 @@ class RepositoryProfileParseModel implements RepositoryProfile {
 
     @Expose()
     description!: string;
+
+    @Expose()
+    isPrivate!: boolean;
 
     @Expose()
     primaryProgrammingLanguage!: ProgrammingLanguage | null;
@@ -100,11 +103,12 @@ class RepositoryProfileParseModel implements RepositoryProfile {
     forkCount!: number;
 }
 
-const profileFragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
+const fragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('name'),
     new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
     new GraphQLObjectField('description'),
+    new GraphQLObjectField('isPrivate'),
     new GraphQLObjectField('primaryLanguage', 'primaryProgrammingLanguage', fragments.language.fields),
     new GraphQLObjectField(
         'languages',
@@ -137,15 +141,14 @@ const profileFragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_
 ]);
 
 export default class GetRepositoryProfileRequest implements GraphQLRequest<RepositoryProfile> {
-    fragment = profileFragment;
     query = `
         query GetRepositoryProfile($ownerUsername: String!, $repositoryName: String!) {
             repository(owner: $ownerUsername, name: $repositoryName) {
-                ...${this.fragment.name}
+                ...${fragment.name}
             }
         }
 
-        ${this.fragment}
+        ${fragment}
     `;
     variables: object | undefined;
 

@@ -136,6 +136,10 @@ export interface RepositoryProfileMinified {
      * The URL pointing to the repository on GitHub – e.g. 'https://github.com/torvalds/linux'
      */
     publicUrl: string;
+    /**
+     * Indicates if repository is private
+     */
+    isPrivate: boolean;
 }
 
 /**
@@ -147,7 +151,8 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
      */
     description: string;
     /**
-     * The primary used programming language of the repository's code
+     * The primary used programming language of the repository's code.
+     * Is null if repository does not contain any source code.
      */
     primaryProgrammingLanguage: ProgrammingLanguage | null;
     /**
@@ -172,15 +177,113 @@ export interface RepositoryProfile extends RepositoryProfileMinified {
      */
     topics: string[];
     /**
-     * Number of users who've starred the repository
+     * Number of users who have starred the repository
      */
     starsCount: number;
     /**
-     * Number of users watching the repository
+     * Number of users who is watching the repository
      */
     watchersCount: number;
     /**
      * Number of direct forked repositories
      */
     forkCount: number;
+}
+
+/**
+ * Describes a user's contributions (commits, issues or pull request reviews) on a monthly basis
+ */
+export interface MonthlyContributions {
+    /**
+     * Which month of the year the contributions were made in
+     */
+    month: string;
+    /**
+     * Number of contributions made in private repositories
+     */
+    privateContributionsCount: number;
+    /**
+     * Contributions made in public repositories
+     */
+    publicContributions: ContributionsByRepository[];
+}
+
+/**
+ * Describes a user's contributions (commits, issues or pull request reviews) in a specific repository
+ */
+export interface ContributionsByRepository {
+    /**
+     * Repository contributed to
+     */
+    repository: RepositoryProfileMinified;
+    /**
+     * Number of contributions in repository
+     */
+    count: number;
+}
+
+/**
+ * Describes a user's pull request contributions on a monthly basis
+ */
+export interface MonthlyPullRequestContributions {
+    /**
+     * Which month of the year the contributions were made in
+     */
+    month: string;
+    /**
+     * Number of pull requests opened in private repositories
+     */
+    privatePullRequestContributionsCount: number;
+    /**
+     * Pull request contributions to public repositories
+     */
+    publicPullRequestContributions: PullRequestContributionsByRepository[];
+}
+
+/**
+ * Describes pull request contributions in repository
+ */
+export interface PullRequestContributionsByRepository {
+    /**
+     * Repository contributed to
+     */
+    repository: RepositoryProfileMinified;
+    /**
+     * Pull requests opened in repository
+     */
+    pullRequestContributions: PullRequest[];
+}
+
+/**
+ * Describes pull request
+ */
+export interface PullRequest {
+    /**
+     * Title of pull request
+     */
+    title: string;
+    /**
+     * When pull request was first opened
+     */
+    creationDateTime: string;
+    /**
+     * Is pull request merged
+     */
+    isMerged: boolean;
+    /**
+     * Is pull request closed
+     */
+    isClosed: boolean;
+    /**
+     * Number of code additions in pull request
+     */
+    additionsCount: number;
+    /**
+     * Number of code deletions in pull request
+     */
+    deletionsCount: number;
+    /**
+     * The URL pointing to the pull request on GitHub – e.g. 'https://github.com/facebook/react/pull/16002'
+     */
+    publicUrl: string;
 }

@@ -120,7 +120,6 @@ describe('GraphQLFragment', (): void => {
             validateFragment();
         });
 
-        // TODO: Define arguments syntactically instead of raw string, such that nested properties and argument can be binded together
         it('should return correct string representation of fragment with argument excluded when applied on non-nested property', (): void => {
             fragment = new GraphQLFragment('Simple', onObjectName, [
                 new GraphQLObjectField('name', null, null, 'first: first-element')

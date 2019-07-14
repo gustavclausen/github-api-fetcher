@@ -1,96 +1,410 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import _ from 'lodash';
 import APIFetcher from '../../src/main';
-import { keys } from 'ts-transformer-keys';
 import randomData from './lib/random-data';
-import {
-    UserProfile,
-    OrganizationProfile,
-    RepositoryProfileMinified,
-    OrganizationProfileMinified,
-    RepositoryProfile,
-    ProgrammingLanguage,
-    AppliedProgrammingLanguage
-} from '../../src/models';
+import modelValidation from './lib/model-validation';
+import { UserProfile } from '../../src/models';
+import { Month } from '../../src/lib/date-utils';
 
 describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
 
-    beforeEach((): void => {
-        fetcher = new APIFetcher();
+    beforeAll((): void => {
+        fetcher = new APIFetcher(); // NOTE: Access token is loaded from environment variables
     });
 
     describe('user', (): void => {
-        it('getProfile should return model with all properties set', async (): Promise<void> => {
-            let randomUsername = await randomData.getUsernameOfRandomUser();
-            let result = await fetcher.user.getProfile(randomUsername);
+        let userProfile: UserProfile;
+        let usersContributionYears: number[];
+        let randomContributionYearOfUser: number;
+        let nonExistingUsername: string;
 
-            // Search for user with at least one organization membership
-            while (result && _.isEmpty(result.organizationMemberships)) {
-                randomUsername = await randomData.getUsernameOfRandomUser();
+        beforeAll(async (): Promise<void> => {
+            // Find eligible user profile with at least one organization membership
+            let result: UserProfile | null = null;
+
+            while (!result || _.isEmpty(result.organizationMemberships)) {
+                const randomUsername = await randomData.getUsernameOfRandomUser();
                 result = await fetcher.user.getProfile(randomUsername);
             }
 
-            if (!result) {
-                throw new Error('No data to test on');
-            }
+            userProfile = result;
+            usersContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
+            // Get random year in which user has done some contributions
+            randomContributionYearOfUser = _.sample(usersContributionYears)!;
 
-            // Verify all top-level properties is set on user profile model
-            _.forEach(keys<UserProfile>(), (propKey): void => {
-                expect(_.get(result, propKey)).toBeDefined();
+            // Find non-existing username
+            nonExistingUsername = await randomData.getUsernameOfNonExistingUser();
+        }, 30000); // Tries for 30 seconds, and fails with error if timeout is exceeded
+
+        describe('getProfile', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                modelValidation.validateUserProfile(userProfile);
             });
 
-            // Verify all properties set on nested 'organizationMemberships' property
-            _.forEach(result.organizationMemberships, (organization): void => {
-                _.forEach(keys<OrganizationProfileMinified>(), (propKey): void => {
-                    expect(_.get(organization, propKey)).toBeDefined();
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getProfile(nonExistingUsername)).toBeNull();
+            });
+        });
+
+        describe('getOrganizationMemberships', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = await fetcher.user.getOrganizationMemberships(userProfile.username);
+
+                modelValidation.validateOrganizationProfileMinified(result);
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getOrganizationMemberships(nonExistingUsername)).toBeNull();
+            });
+        });
+
+        describe('getPublicRepositoryOwnerships', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = await fetcher.user.getPublicRepositoryOwnerships(userProfile.username);
+
+                modelValidation.validateRepositoryProfileMinified(result);
+            }, 20000); // 20 seconds is hard limit
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getPublicRepositoryOwnerships(nonExistingUsername)).toBeNull();
+            });
+        });
+
+        describe('getContributionYears', (): void => {
+            it('should return number array', async (): Promise<void> => {
+                const result = (await fetcher.user.getContributionYears(userProfile.username))!;
+
+                expect(Array.isArray(result)).toBe(true);
+                // Expect array to be filled. Found user will have contributed for one or more years.
+                expect(result.length).toBeGreaterThan(0);
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getContributionYears(nonExistingUsername)).toBeNull();
+            });
+        });
+
+        describe('Commit contributions', (): void => {
+            // Random time in which user has contributed with a commit
+            let [commitContributionYear, commitContributionMonth]: [number, Month] = [0, 0];
+
+            beforeAll(
+                async (): Promise<void> => {
+                    [
+                        commitContributionYear,
+                        commitContributionMonth
+                    ] = await randomData.getRandomCommitContributionTime(userProfile.username);
+                }
+            );
+
+            describe('getCommitContributionsInMonth', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getCommitContributionsInMonth(
+                        userProfile.username,
+                        commitContributionYear,
+                        commitContributionMonth
+                    ))!;
+
+                    modelValidation.validateMonthlyContributions([result]);
+                });
+
+                it('should return default object when user has done no contributions in month', async (): Promise<
+                    void
+                > => {
+                    let nonContributionYear = 2000;
+                    let nonContributionMonth = Month.JANUARY;
+
+                    const result = (await fetcher.user.getCommitContributionsInMonth(
+                        userProfile.username,
+                        nonContributionYear,
+                        nonContributionMonth
+                    ))!;
+
+                    expect(result).toMatchObject({
+                        month: Month[nonContributionMonth],
+                        privateContributionsCount: 0,
+                        publicContributions: []
+                    });
+                });
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getCommitContributionsInMonth(nonExistingUsername, 2010, Month.JANUARY)
+                    ).toBeNull();
                 });
             });
 
-            // Verify all properties set on nested 'publicRepositoryOwnerships' property
-            _.forEach(result.publicRepositoryOwnerships, (repository): void => {
-                _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
-                    expect(_.get(repository, propKey)).toBeDefined();
+            describe('getCommitContributionsInYear', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getCommitContributionsInYear(
+                        userProfile.username,
+                        commitContributionYear
+                    ))!;
+
+                    modelValidation.validateMonthlyContributions(result);
+                }, 20000); // 20 seconds is hard limit
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getCommitContributionsInYear(
+                            nonExistingUsername,
+                            randomContributionYearOfUser
+                        )
+                    ).toBeNull();
                 });
             });
-        }, 30000);
+        });
+
+        describe('Issue contributions', (): void => {
+            // Random time in which user has contributed with an issue
+            let [issueContributionYear, issueContributionMonth]: [number, Month] = [0, 0];
+
+            beforeAll(
+                async (): Promise<void> => {
+                    [issueContributionYear, issueContributionMonth] = await randomData.getRandomIssueContributionTime(
+                        userProfile.username
+                    );
+                }
+            );
+
+            describe('getIssueContributionsInMonth', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getIssueContributionsInMonth(
+                        userProfile.username,
+                        issueContributionYear,
+                        issueContributionMonth
+                    ))!;
+
+                    modelValidation.validateMonthlyContributions([result]);
+                });
+
+                it('should return default object when user has done no contributions in month', async (): Promise<
+                    void
+                > => {
+                    let nonContributionYear = 2000;
+                    let nonContributionMonth = Month.JANUARY;
+
+                    const result = (await fetcher.user.getIssueContributionsInMonth(
+                        userProfile.username,
+                        nonContributionYear,
+                        nonContributionMonth
+                    ))!;
+
+                    expect(result).toMatchObject({
+                        month: Month[nonContributionMonth],
+                        privateContributionsCount: 0,
+                        publicContributions: []
+                    });
+                });
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getCommitContributionsInMonth(nonExistingUsername, 2000, Month.JANUARY)
+                    ).toBeNull();
+                });
+            });
+
+            describe('getIssueContributionsInYear', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getIssueContributionsInYear(
+                        userProfile.username,
+                        issueContributionYear
+                    ))!;
+
+                    modelValidation.validateMonthlyContributions(result);
+                }, 20000); // 20 seconds is hard limit
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getIssueContributionsInYear(
+                            nonExistingUsername,
+                            randomContributionYearOfUser
+                        )
+                    ).toBeNull();
+                });
+            });
+        });
+
+        describe('Pull request review contributions', (): void => {
+            // Random time in which user has contributed with a PR review
+            let [PRReviewContributionYear, PRReviewContributionMonth]: [number, Month] = [0, 0];
+
+            beforeAll(
+                async (): Promise<void> => {
+                    [
+                        PRReviewContributionYear,
+                        PRReviewContributionMonth
+                    ] = await randomData.getRandomPRReviewContributionTime(userProfile.username);
+                }
+            );
+
+            describe('getPullRequestReviewContributionsInMonth', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getPullRequestReviewContributionsInMonth(
+                        userProfile.username,
+                        PRReviewContributionYear,
+                        PRReviewContributionMonth
+                    ))!;
+
+                    modelValidation.validateMonthlyContributions([result]);
+                });
+
+                it('should return default object when user has done no contributions in month', async (): Promise<
+                    void
+                > => {
+                    let nonContributionYear = 2000;
+                    let nonContributionMonth = Month.JANUARY;
+
+                    const result = (await fetcher.user.getPullRequestReviewContributionsInMonth(
+                        userProfile.username,
+                        nonContributionYear,
+                        nonContributionMonth
+                    ))!;
+
+                    expect(result).toMatchObject({
+                        month: Month[nonContributionMonth],
+                        privateContributionsCount: 0,
+                        publicContributions: []
+                    });
+                });
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getPullRequestReviewContributionsInMonth(
+                            nonExistingUsername,
+                            2000,
+                            Month.JANUARY
+                        )
+                    ).toBeNull();
+                });
+            });
+
+            describe('getPullRequestReviewsContributionsInYear', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getPullRequestReviewContributionsInYear(
+                        userProfile.username,
+                        PRReviewContributionYear
+                    ))!;
+
+                    modelValidation.validateMonthlyContributions(result);
+                }, 20000); // 20 seconds is hard limit
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getPullRequestReviewContributionsInYear(
+                            nonExistingUsername,
+                            randomContributionYearOfUser
+                        )
+                    ).toBeNull();
+                });
+            });
+        });
+
+        describe('Pull request contributions', (): void => {
+            // Random time in which user has contributed with a PR
+            let [PRContributionYear, PRContributionMonth]: [number, Month] = [0, 0];
+
+            beforeAll(
+                async (): Promise<void> => {
+                    [PRContributionYear, PRContributionMonth] = await randomData.getRandomPRContributionTime(
+                        userProfile.username
+                    );
+                }
+            );
+
+            describe('getPullRequestContributionsInMonth', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getPullRequestContributionsInMonth(
+                        userProfile.username,
+                        PRContributionYear,
+                        PRContributionMonth
+                    ))!;
+
+                    modelValidation.validateMonthlyPullRequestContributions([result]);
+                });
+
+                it('should return default object when user has done no contributions in month', async (): Promise<
+                    void
+                > => {
+                    let nonContributionYear = 2000;
+                    let nonContributionMonth = Month.JANUARY;
+
+                    const result = (await fetcher.user.getPullRequestContributionsInMonth(
+                        userProfile.username,
+                        nonContributionYear,
+                        nonContributionMonth
+                    ))!;
+
+                    expect(result).toMatchObject({
+                        month: Month[nonContributionMonth],
+                        privatePullRequestContributionsCount: 0,
+                        publicPullRequestContributions: []
+                    });
+                });
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getPullRequestContributionsInMonth(nonExistingUsername, 2000, Month.JANUARY)
+                    ).toBeNull();
+                });
+            });
+
+            describe('getPullRequestContributionsInYear', (): void => {
+                it('should return model with all properties set', async (): Promise<void> => {
+                    const result = (await fetcher.user.getPullRequestContributionsInYear(
+                        userProfile.username,
+                        PRContributionYear
+                    ))!;
+
+                    modelValidation.validateMonthlyPullRequestContributions(result);
+                }, 20000); // 20 seconds is hard limit
+
+                it('should return null for non-existing user', async (): Promise<void> => {
+                    expect(
+                        await fetcher.user.getPullRequestContributionsInYear(
+                            nonExistingUsername,
+                            randomContributionYearOfUser
+                        )
+                    ).toBeNull();
+                });
+            });
+        });
     });
 
     describe('organization', (): void => {
-        it('getProfile should return model with all properties set', async (): Promise<void> => {
-            const randomOrganizationName = await randomData.getNameOfRandomOrganization();
-            const result = await fetcher.organization.getProfile(randomOrganizationName);
+        describe('getProfile', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const randomOrganizationName = await randomData.getNameOfRandomOrganization();
+                const result = await fetcher.organization.getProfile(randomOrganizationName);
 
-            // Verify all top-level properties is set on organization profile model
-            _.forEach(keys<OrganizationProfile>(), (propKey): void => {
-                expect(_.get(result, propKey)).toBeDefined();
+                modelValidation.validateOrganizationProfile(result);
+            });
+
+            it('should return null for non-existing organization', async (): Promise<void> => {
+                const nonExistingOrganizationName = await randomData.getNameOfNonExistingOrganization();
+
+                expect(await fetcher.organization.getProfile(nonExistingOrganizationName)).toBeNull();
             });
         });
     });
 
     describe('repository', (): void => {
-        it('getProfile should return model with all properties set', async (): Promise<void> => {
-            const [randomRepoOwnerUsername, randomRepoName] = await randomData.getRandomRepository();
-            const result = await fetcher.repository.getProfile(randomRepoOwnerUsername, randomRepoName);
+        describe('getProfile', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const [randomRepoOwnerUsername, randomRepoName] = await randomData.getRandomRepository();
+                const result = await fetcher.repository.getProfile(randomRepoOwnerUsername, randomRepoName);
 
-            if (!result) {
-                throw new Error('No data to test on');
-            }
-
-            // Verify all properties set on repository profile model
-            _.forEach(keys<RepositoryProfile>(), (propKey): void => {
-                expect(_.get(result, propKey)).toBeDefined();
+                modelValidation.validateRepositoryProfile(result);
             });
 
-            // Verify all properties set on nested 'primaryProgrammingLanguage' property
-            _.forEach(keys<ProgrammingLanguage>(), (propKey): void => {
-                expect(_.get(result.primaryProgrammingLanguage, propKey)).toBeDefined();
-            });
+            it('should return null for non-existing repository', async (): Promise<void> => {
+                const [nonExistingRepoOwnerUsername, nonExistingRepoName] = await randomData.getNonExistingRepository();
 
-            // Verify all properties set on nested 'appliedProgrammingLanguages' property
-            _.forEach(result.appliedProgrammingLanguages, (programmingLanguage): void => {
-                _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
-                    expect(_.get(programmingLanguage, propKey)).toBeDefined();
-                });
+                expect(
+                    await fetcher.repository.getProfile(nonExistingRepoOwnerUsername, nonExistingRepoName)
+                ).toBeNull();
             });
         });
     });
