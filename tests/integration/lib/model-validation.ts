@@ -15,125 +15,134 @@ import {
     MonthlyPullRequestContributions
 } from '../../../src/models';
 
-const validateOrganizationProfileMinified = (profiles: OrganizationProfileMinified[] | null): void => {
+function validateOrganizationProfileMinified(profiles: OrganizationProfileMinified[] | null): void {
     if (!profiles) throw new Error('No data');
 
     _.forEach(profiles, (profile): void => {
+        // Verify all top-level properties is set on OrganizationProfileMinified model
         _.forEach(keys<OrganizationProfileMinified>(), (propKey): void => {
             expect(_.get(profile, propKey)).toBeDefined();
         });
     });
-};
+}
 
-const validateOrganizationProfile = (profile: OrganizationProfile | null): void => {
+function validateOrganizationProfile(profile: OrganizationProfile | null): void {
     if (!profile) throw new Error('No data');
 
-    // Verify all top-level properties is set on organization profile model
+    // Verify all top-level properties is set on OrganizationProfile model
     _.forEach(keys<OrganizationProfile>(), (propKey): void => {
         expect(_.get(profile, propKey)).toBeDefined();
     });
-};
+}
 
-const validateRepositoryProfileMinified = (profiles: RepositoryProfileMinified[] | null): void => {
+function validateRepositoryProfileMinified(profiles: RepositoryProfileMinified[] | null): void {
     if (!profiles) throw new Error('No data');
 
     _.forEach(profiles, (profile): void => {
+        // Verify all top-level properties is set on RepositoryProfileMinified model
         _.forEach(keys<RepositoryProfileMinified>(), (propKey): void => {
             expect(_.get(profile, propKey)).toBeDefined();
         });
     });
-};
+}
 
-const validateUserProfile = (profile: UserProfile | null): void => {
+function validateUserProfile(profile: UserProfile | null): void {
     if (!profile) throw new Error('No data');
 
-    // Verify all top-level properties is set on user profile model
+    // Verify all top-level properties is set on UserProfile model
     _.forEach(keys<UserProfile>(), (propKey): void => {
         expect(_.get(profile, propKey)).toBeDefined();
     });
 
-    // Verify all properties set on nested 'organizationMemberships' property
+    // Verify all properties set on 'organizationMemberships' property
     validateOrganizationProfileMinified(profile.organizationMemberships);
 
-    // Verify all properties set on nested 'publicRepositoryOwnerships' property
+    // Verify all properties set on 'publicRepositoryOwnerships' property
     validateRepositoryProfileMinified(profile.publicRepositoryOwnerships);
-};
+}
 
-const validateContributionsByRepository = (contributions: ContributionsByRepository[] | null): void => {
+function validateContributionsByRepository(contributions: ContributionsByRepository[] | null): void {
     if (!contributions) throw new Error('No data');
 
     _.forEach(contributions, (contribution): void => {
+        // Verify all top-level properties is set on ContributionsByRepository model
         _.forEach(keys<ContributionsByRepository>(), (propKey): void => {
             expect(_.get(contribution, propKey)).toBeDefined();
         });
 
-        // Verify all properties set on nested 'repository' property
+        // Verify all properties set on 'repository' property
         validateRepositoryProfileMinified([contribution.repository]);
     });
-};
+}
 
-const validateMonthlyContributions = (contributions: MonthlyContributions[] | null): void => {
+function validateMonthlyContributions(contributions: MonthlyContributions[] | null): void {
     if (!contributions) throw new Error('No data');
 
     _.forEach(contributions, (contribution): void => {
+        // Verify all top-level properties is set on MonthlyContributions model
         _.forEach(keys<MonthlyContributions>(), (propKey): void => {
             expect(_.get(contribution, propKey)).toBeDefined();
         });
 
-        // Verify all properties set on nested 'publicContributions' property
+        // Verify all properties set on 'publicContributions' property
         validateContributionsByRepository(contribution.publicContributions);
     });
-};
+}
 
-const validateProgrammingLanguage = (pl: ProgrammingLanguage | null): void => {
+function validateProgrammingLanguage(pl: ProgrammingLanguage | null): void {
     if (!pl) throw new Error('No data');
 
+    // Verify all top-level properties is set on ProgrammingLanguage model
     _.forEach(keys<ProgrammingLanguage>(), (propKey): void => {
         expect(_.get(pl, propKey)).toBeDefined();
     });
-};
+}
 
-const validateAppliedProgrammingLanguage = (apls: AppliedProgrammingLanguage[] | null): void => {
+function validateAppliedProgrammingLanguage(apls: AppliedProgrammingLanguage[] | null): void {
     if (!apls) throw new Error('No data');
 
     _.forEach(apls, (apl): void => {
+        // Verify all top-level properties is set on AppliedProgrammingLanguage model
         _.forEach(keys<AppliedProgrammingLanguage>(), (propKey): void => {
             expect(_.get(apl, propKey)).toBeDefined();
         });
     });
-};
+}
 
-const validateRepositoryProfile = (profile: RepositoryProfile | null): void => {
+function validateRepositoryProfile(profile: RepositoryProfile | null): void {
     if (!profile) throw new Error('No data');
 
-    // Verify all top-level properties set on repository profile model
+    // Verify all top-level properties set on RepositoryProfile model
     _.forEach(keys<RepositoryProfile>(), (propKey): void => {
         expect(_.get(profile, propKey)).toBeDefined();
     });
+
+    // Expect topics array to be filled
+    expect(profile.topics.length).toBeGreaterThan(0);
 
     // Verify all properties set on nested 'primaryProgrammingLanguage' property
     validateProgrammingLanguage(profile.primaryProgrammingLanguage);
 
     // Verify all properties set on nested 'appliedProgrammingLanguages' property
     validateAppliedProgrammingLanguage(profile.appliedProgrammingLanguages);
-};
+}
 
-const validatePullRequest = (prs: PullRequest[] | null): void => {
+function validatePullRequest(prs: PullRequest[] | null): void {
     if (!prs) throw new Error('No data');
 
     _.forEach(prs, (pr): void => {
-        // Verify all top-level properties set on model
+        // Verify all top-level properties set on PullRequest model
         _.forEach(keys<PullRequest>(), (propKey): void => {
             expect(_.get(pr, propKey)).toBeDefined();
         });
     });
-};
+}
 
-const validatePullRequestContributionsByRepository = (prcs: PullRequestContributionsByRepository[] | null): void => {
+function validatePullRequestContributionsByRepository(prcs: PullRequestContributionsByRepository[] | null): void {
     if (!prcs) throw new Error('No data');
 
     _.forEach(prcs, (prc): void => {
-        // Verify all top-level properties set on model
+        // Verify all top-level properties set on PullRequestContributionsByRepository model
         _.forEach(keys<PullRequestContributionsByRepository>(), (propKey): void => {
             expect(_.get(prc, propKey)).toBeDefined();
         });
@@ -144,13 +153,13 @@ const validatePullRequestContributionsByRepository = (prcs: PullRequestContribut
         // Verify all properties set on nested 'pullRequestContributions' property
         validatePullRequest(prc.pullRequestContributions);
     });
-};
+}
 
-const validateMonthlyPullRequestContributions = (prcs: MonthlyPullRequestContributions[] | null): void => {
+function validateMonthlyPullRequestContributions(prcs: MonthlyPullRequestContributions[] | null): void {
     if (!prcs) throw new Error('No data');
 
     _.forEach(prcs, (prc): void => {
-        // Verify all top-level properties set on model
+        // Verify all top-level properties set on MonthlyPullRequestContributions model
         _.forEach(keys<MonthlyPullRequestContributions>(), (propKey): void => {
             expect(_.get(prc, propKey)).toBeDefined();
         });
@@ -158,7 +167,7 @@ const validateMonthlyPullRequestContributions = (prcs: MonthlyPullRequestContrib
         // Verify all properties set on nested 'publicPullRequestContributions' property
         validatePullRequestContributionsByRepository(prc.publicPullRequestContributions);
     });
-};
+}
 
 export default {
     validateUserProfile,

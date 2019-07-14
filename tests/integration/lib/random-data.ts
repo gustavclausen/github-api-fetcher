@@ -20,9 +20,9 @@ class RequestError extends Error {
 /**
  * Fetches GitHub REST V3 API for test data
  *
- * @param resourceUri resource path
+ * @param resourceUri resource path on GitHub API
  */
-const fetchGitHubAPI = async (resourceUri: string): Promise<object[]> => {
+async function fetchGitHubAPI(resourceUri: string): Promise<object[]> {
     if (!config.apiAccessToken) {
         throw new Error('API access token not set');
     }
@@ -40,16 +40,16 @@ const fetchGitHubAPI = async (resourceUri: string): Promise<object[]> => {
     }
 
     return (await response.json()) as object[];
-};
+}
 
 /**
  * Returns username of non-existing GitHub user
  */
-const getUsernameOfNonExistingUser = async (): Promise<string> => {
+async function getUsernameOfNonExistingUser(): Promise<string> {
     let nonExistingUsername: string | null = null;
 
     while (!nonExistingUsername) {
-        const randomUUID = uuid();
+        const randomUUID = uuid(); // Generate random ID
 
         try {
             await fetchGitHubAPI(`users/${randomUUID}`);
@@ -66,24 +66,33 @@ const getUsernameOfNonExistingUser = async (): Promise<string> => {
     }
 
     return nonExistingUsername;
-};
+}
 
-// TODO: Comment
-const getTimeOfSearchResultObject = async (
-    searchResults: object[],
-    dateTimeObjectKey: string
-): Promise<[number, Month]> => {
-    const randomSearchResultObject = _.sample(searchResults) as object;
+/**
+ * Picks a random object from the list of objects taken as argument, and returns the date-time property
+ * of that object according to the key path taken as argument.
+ * Month and year of the date-time property is returned as a tuple: [year, month].
+ *
+ * @param objs Objects containing date-time properties
+ * @param dateTimeKeyPath The key path where the date-time can be retrieved
+ */
+function getDateTimeOfRandomObject(objs: object[], dateTimeKeyPath: string): [number, Month] {
+    const randomObject = _.sample(objs) as object;
 
-    const objectDateTime = new Date(_.get(randomSearchResultObject, dateTimeObjectKey));
-    const month = Month[objectDateTime.getMonth()];
-    const year = objectDateTime.getFullYear();
+    const dateTimeValue = new Date(_.get(randomObject, dateTimeKeyPath));
+    const month = Month[dateTimeValue.getMonth()];
+    const year = dateTimeValue.getFullYear();
 
     return [year, Month[month as keyof typeof Month]];
-};
+}
 
-// TODO: Comment
-const getRandomCommitContributionTime = async (username: string): Promise<[number, Month]> => {
+/**
+ * Returns a random month of a year where the user has contributed with a commit.
+ * Return type is: [year, month]
+ *
+ * @param username The GitHub username of the user
+ */
+async function getRandomCommitContributionTime(username: string): Promise<[number, Month]> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/commits?q=committer:${username}+is:public&sort=committer-date&order=desc&per_page=10&type=Commits`
@@ -91,11 +100,16 @@ const getRandomCommitContributionTime = async (username: string): Promise<[numbe
         'items'
     ) as object[];
 
-    return getTimeOfSearchResultObject(searchResults, 'commit.committer.date');
-};
+    return getDateTimeOfRandomObject(searchResults, 'commit.committer.date');
+}
 
-// TODO: Comment
-const getRandomIssueContributionTime = async (username: string): Promise<[number, Month]> => {
+/**
+ * Returns a random month of a year where the user has contributed with an issue.
+ * Return type is: [year, month]
+ *
+ * @param username The GitHub username of the user
+ */
+async function getRandomIssueContributionTime(username: string): Promise<[number, Month]> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/issues?q=author:${username}+type:issue+is:public&sort=created&order=desc&per_page=10`
@@ -103,11 +117,16 @@ const getRandomIssueContributionTime = async (username: string): Promise<[number
         'items'
     ) as object[];
 
-    return getTimeOfSearchResultObject(searchResults, 'created_at');
-};
+    return getDateTimeOfRandomObject(searchResults, 'created_at');
+}
 
-// TODO: Comment
-const getRandomPRReviewContributionTime = async (username: string): Promise<[number, Month]> => {
+/**
+ * Returns a random month of a year where the user has contributed with a pull request review.
+ * Return type is: [year, month]
+ *
+ * @param username The GitHub username of the user
+ */
+async function getRandomPRReviewContributionTime(username: string): Promise<[number, Month]> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/issues?q=reviewed-by:${username}+type:pr+is:public&sort=created&order=desc&per_page=10`
@@ -115,11 +134,16 @@ const getRandomPRReviewContributionTime = async (username: string): Promise<[num
         'items'
     ) as object[];
 
-    return getTimeOfSearchResultObject(searchResults, 'updated_at');
-};
+    return getDateTimeOfRandomObject(searchResults, 'updated_at');
+}
 
-// TODO: Comment
-const getRandomPRContributionTime = async (username: string): Promise<[number, Month]> => {
+/**
+ * Returns a random month of a year where the user has contributed with a pull request.
+ * Return type is: [year, month]
+ *
+ * @param username The GitHub username of the user
+ */
+async function getRandomPRContributionTime(username: string): Promise<[number, Month]> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/issues?q=author:${username}+type:pr+is:public&sort=created&order=desc&per_page=10`
@@ -127,13 +151,13 @@ const getRandomPRContributionTime = async (username: string): Promise<[number, M
         'items'
     ) as object[];
 
-    return getTimeOfSearchResultObject(searchResults, 'created_at');
-};
+    return getDateTimeOfRandomObject(searchResults, 'created_at');
+}
 
 /**
- * Fetches random user with multiple contributions, and returns its username
+ * Fetches random user with multiple types of contributions, and returns its username
  */
-const getUsernameOfRandomUser = async (): Promise<string> => {
+async function getUsernameOfRandomUser(): Promise<string> {
     let randomUsername: string | null = null;
 
     while (!randomUsername) {
@@ -141,41 +165,41 @@ const getUsernameOfRandomUser = async (): Promise<string> => {
         const randomUser = _.sample(searchResults) as object;
         const username = _.get(randomUser, 'login') as string; // Get login (username) of random selected user
 
-        // Check that user has contributed with commits, issues, PRs and PR reviews
+        // Checks that user has contributed with commits, issues, PRs and PR reviews
         const hasContributed = (contributionTime: [number, Month]): boolean =>
             !_.isNil(contributionTime[0] && !_.isNil(contributionTime[1]));
 
         const hasCommitContribution = hasContributed(await getRandomCommitContributionTime(username));
         const hasIssueContribution = hasContributed(await getRandomIssueContributionTime(username));
-        const hasPrReviewContribution = hasContributed(await getRandomPRReviewContributionTime(username));
-        const hasPrContribution = hasContributed(await getRandomPRContributionTime(username));
+        const hasPRReviewContribution = hasContributed(await getRandomPRReviewContributionTime(username));
+        const hasPRContribution = hasContributed(await getRandomPRContributionTime(username));
 
-        // User does not meet requirement as mentioned above
-        if (!hasCommitContribution || !hasIssueContribution || !hasPrReviewContribution || !hasPrContribution) continue;
+        // User does not meet requirement as mentioned above, thus find new profile
+        if (!hasCommitContribution || !hasIssueContribution || !hasPRReviewContribution || !hasPRContribution) continue;
 
         randomUsername = username;
     }
 
     return randomUsername;
-};
+}
 
 /**
  * Fetches random organization and returns its name
  */
-const getNameOfRandomOrganization = async (): Promise<string> => {
+async function getNameOfRandomOrganization(): Promise<string> {
     const randomOrganization = _.sample(await fetchGitHubAPI('organizations')) as object;
 
     return _.get(randomOrganization, 'login') as string; // Get login (name) of random selected organization
-};
+}
 
 /**
  * Returns name of non-existing organization
  */
-const getNameOfNonExistingOrganization = async (): Promise<string> => {
+async function getNameOfNonExistingOrganization(): Promise<string> {
     let nonExistingOrganization: string | null = null;
 
     while (!nonExistingOrganization) {
-        const randomUUID = uuid();
+        const randomUUID = uuid(); // Generate random ID
 
         try {
             await fetchGitHubAPI(`orgs/${randomUUID}`);
@@ -192,12 +216,12 @@ const getNameOfNonExistingOrganization = async (): Promise<string> => {
     }
 
     return nonExistingOrganization;
-};
+}
 
 /**
- * Fetches random repository, and returns username of owner (user/organization) and name of repository as tuple
+ * Fetches random repository, and returns username of owner (user/organization) and name of the repository as tuple
  */
-const getRandomRepository = async (): Promise<[string, string]> => {
+async function getRandomRepository(): Promise<[string, string]> {
     // Fetch repositories with at least one topic, and has 'TypeScript' as primary programming language
     const searchResults = _.get(await fetchGitHubAPI('search/repositories?q=topics:>0+language:typescript'), 'items');
     const randomRepository = _.sample(searchResults) as object;
@@ -206,16 +230,16 @@ const getRandomRepository = async (): Promise<[string, string]> => {
     const repoName = _.get(randomRepository, 'name') as string;
 
     return [repoOwnerUsername, repoName];
-};
+}
 
 /**
  * Returns username of owner (user/organization) and name of non-existing repository as tuple
  */
-const getNonExistingRepository = async (): Promise<[string, string]> => {
+async function getNonExistingRepository(): Promise<[string, string]> {
     let nonExistingRepository: [string, string] | null = null;
 
     while (!nonExistingRepository) {
-        const randomUUID = uuid();
+        const randomUUID = uuid(); // Generate random ID
 
         try {
             await fetchGitHubAPI(`repos/${randomUUID}/${randomUUID}`);
@@ -232,7 +256,7 @@ const getNonExistingRepository = async (): Promise<[string, string]> => {
     }
 
     return nonExistingRepository;
-};
+}
 
 export default {
     getUsernameOfRandomUser,
