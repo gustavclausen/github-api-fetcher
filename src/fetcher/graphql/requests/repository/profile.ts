@@ -103,7 +103,7 @@ class RepositoryProfileParseModel implements RepositoryProfile {
     forkCount!: number;
 }
 
-const profileFragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
+const fragment = new GraphQLFragment('RepositoryProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Repository, [
     new GraphQLObjectField('id', 'gitHubId'),
     new GraphQLObjectField('name'),
     new GraphQLObjectField('owner', 'ownerName', [new GraphQLObjectField('login', 'name')]),
@@ -144,11 +144,11 @@ export default class GetRepositoryProfileRequest implements GraphQLRequest<Repos
     query = `
         query GetRepositoryProfile($ownerUsername: String!, $repositoryName: String!) {
             repository(owner: $ownerUsername, name: $repositoryName) {
-                ...${profileFragment.name}
+                ...${fragment.name}
             }
         }
 
-        ${profileFragment}
+        ${fragment}
     `;
     variables: object | undefined;
 

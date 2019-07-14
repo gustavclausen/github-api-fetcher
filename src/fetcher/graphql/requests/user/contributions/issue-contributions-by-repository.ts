@@ -30,7 +30,7 @@ export default class GetUserIssueContributionsByRepositoryRequest
         this.variables = {
             username: username,
             /**
-             * From first to last day of year.
+             * From first to last day of month.
              * Converted to ISO-8601 encoded UTC date string (compatible with DateTime type for GraphQL schema)
              */
             from: new Date(inYear, inMonth, 0, 0, 0, 0).toISOString(),
