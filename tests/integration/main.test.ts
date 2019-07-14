@@ -11,13 +11,13 @@ describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
 
     beforeAll((): void => {
-        fetcher = new APIFetcher();
+        fetcher = new APIFetcher(); // NOTE: Access token is loaded from environment variables
     });
 
     describe('user', (): void => {
         let userProfile: UserProfile;
-        let userContributionYears: number[];
-        let randomContributionYear: number;
+        let usersContributionYears: number[];
+        let randomContributionYearOfUser: number;
         let nonExistingUsername: string;
 
         beforeAll(async (): Promise<void> => {
@@ -30,9 +30,9 @@ describe('APIFetcher', (): void => {
             }
 
             userProfile = result;
-            userContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
-            // Get contribution from random year in which user has done some contributions
-            randomContributionYear = _.sample(userContributionYears)!;
+            usersContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
+            // Get random year in which user has done some contributions
+            randomContributionYearOfUser = _.sample(usersContributionYears)!;
 
             // Find non-existing username
             nonExistingUsername = await randomData.getUsernameOfNonExistingUser();
@@ -65,7 +65,7 @@ describe('APIFetcher', (): void => {
                 const result = await fetcher.user.getPublicRepositoryOwnerships(userProfile.username);
 
                 modelValidation.validateRepositoryProfileMinified(result);
-            });
+            }, 20000); // 20 seconds is hard limit
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(await fetcher.user.getPublicRepositoryOwnerships(nonExistingUsername)).toBeNull();
@@ -74,9 +74,11 @@ describe('APIFetcher', (): void => {
 
         describe('getContributionYears', (): void => {
             it('should return number array', async (): Promise<void> => {
-                const result = await fetcher.user.getContributionYears(userProfile.username);
+                const result = (await fetcher.user.getContributionYears(userProfile.username))!;
 
                 expect(Array.isArray(result)).toBe(true);
+                // Expect array to be filled. Found user will have contributed for one or more years.
+                expect(result.length).toBeGreaterThan(0);
             });
 
             it('should return null for non-existing user', async (): Promise<void> => {
@@ -85,13 +87,15 @@ describe('APIFetcher', (): void => {
         });
 
         describe('Commit contributions', (): void => {
-            let randomCommitContributionTime: [number, Month]; // [year, month]
+            // Random time in which user has contributed with a commit
+            let [commitContributionYear, commitContributionMonth]: [number, Month] = [0, 0];
 
             beforeAll(
                 async (): Promise<void> => {
-                    randomCommitContributionTime = await randomData.getRandomCommitContributionTime(
-                        userProfile.username
-                    );
+                    [
+                        commitContributionYear,
+                        commitContributionMonth
+                    ] = await randomData.getRandomCommitContributionTime(userProfile.username);
                 }
             );
 
@@ -99,12 +103,12 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getCommitContributionsInMonth(
                         userProfile.username,
-                        randomCommitContributionTime[0], // Year
-                        randomCommitContributionTime[1] // Month
+                        commitContributionYear,
+                        commitContributionMonth
                     ))!;
 
                     modelValidation.validateMonthlyContributions([result]);
-                }, 10000);
+                });
 
                 it('should return default object when user has done no contributions in month', async (): Promise<
                     void
@@ -123,39 +127,45 @@ describe('APIFetcher', (): void => {
                         privateContributionsCount: 0,
                         publicContributions: []
                     });
-                }, 10000);
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
                         await fetcher.user.getCommitContributionsInMonth(nonExistingUsername, 2010, Month.JANUARY)
                     ).toBeNull();
-                }, 10000);
+                });
             });
 
             describe('getCommitContributionsInYear', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getCommitContributionsInYear(
                         userProfile.username,
-                        randomCommitContributionTime[1] // Year
+                        commitContributionYear
                     ))!;
 
                     modelValidation.validateMonthlyContributions(result);
-                }, 10000);
+                }, 20000); // 20 seconds is hard limit
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
-                        await fetcher.user.getCommitContributionsInYear(nonExistingUsername, randomContributionYear)
+                        await fetcher.user.getCommitContributionsInYear(
+                            nonExistingUsername,
+                            randomContributionYearOfUser
+                        )
                     ).toBeNull();
                 });
             });
         });
 
         describe('Issue contributions', (): void => {
-            let randomIssueContributionTime: [number, Month]; // [year, month]
+            // Random time in which user has contributed with an issue
+            let [issueContributionYear, issueContributionMonth]: [number, Month] = [0, 0];
 
             beforeAll(
                 async (): Promise<void> => {
-                    randomIssueContributionTime = await randomData.getRandomIssueContributionTime(userProfile.username);
+                    [issueContributionYear, issueContributionMonth] = await randomData.getRandomIssueContributionTime(
+                        userProfile.username
+                    );
                 }
             );
 
@@ -163,12 +173,12 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getIssueContributionsInMonth(
                         userProfile.username,
-                        randomIssueContributionTime[0], // Year
-                        randomIssueContributionTime[1] // Month
+                        issueContributionYear,
+                        issueContributionMonth
                     ))!;
 
                     modelValidation.validateMonthlyContributions([result]);
-                }, 10000);
+                });
 
                 it('should return default object when user has done no contributions in month', async (): Promise<
                     void
@@ -187,7 +197,7 @@ describe('APIFetcher', (): void => {
                         privateContributionsCount: 0,
                         publicContributions: []
                     });
-                }, 10000);
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
@@ -200,28 +210,33 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getIssueContributionsInYear(
                         userProfile.username,
-                        randomIssueContributionTime[1] // Year
+                        issueContributionYear
                     ))!;
 
                     modelValidation.validateMonthlyContributions(result);
-                }, 10000);
+                }, 20000); // 20 seconds is hard limit
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
-                        await fetcher.user.getIssueContributionsInYear(nonExistingUsername, randomContributionYear)
+                        await fetcher.user.getIssueContributionsInYear(
+                            nonExistingUsername,
+                            randomContributionYearOfUser
+                        )
                     ).toBeNull();
                 });
             });
         });
 
         describe('Pull request review contributions', (): void => {
-            let randomPRReviewContributionTime: [number, Month]; // [year, month]
+            // Random time in which user has contributed with a PR review
+            let [PRReviewContributionYear, PRReviewContributionMonth]: [number, Month] = [0, 0];
 
             beforeAll(
                 async (): Promise<void> => {
-                    randomPRReviewContributionTime = await randomData.getRandomPRReviewContributionTime(
-                        userProfile.username
-                    );
+                    [
+                        PRReviewContributionYear,
+                        PRReviewContributionMonth
+                    ] = await randomData.getRandomPRReviewContributionTime(userProfile.username);
                 }
             );
 
@@ -229,12 +244,12 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getPullRequestReviewContributionsInMonth(
                         userProfile.username,
-                        randomPRReviewContributionTime[0], // Year
-                        randomPRReviewContributionTime[1] // Month
+                        PRReviewContributionYear,
+                        PRReviewContributionMonth
                     ))!;
 
                     modelValidation.validateMonthlyContributions([result]);
-                }, 10000);
+                });
 
                 it('should return default object when user has done no contributions in month', async (): Promise<
                     void
@@ -253,7 +268,7 @@ describe('APIFetcher', (): void => {
                         privateContributionsCount: 0,
                         publicContributions: []
                     });
-                }, 10000);
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
@@ -270,17 +285,17 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getPullRequestReviewContributionsInYear(
                         userProfile.username,
-                        randomPRReviewContributionTime[1] // Year
+                        PRReviewContributionYear
                     ))!;
 
                     modelValidation.validateMonthlyContributions(result);
-                }, 10000);
+                }, 20000); // 20 seconds is hard limit
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
                         await fetcher.user.getPullRequestReviewContributionsInYear(
                             nonExistingUsername,
-                            randomContributionYear
+                            randomContributionYearOfUser
                         )
                     ).toBeNull();
                 });
@@ -288,11 +303,14 @@ describe('APIFetcher', (): void => {
         });
 
         describe('Pull request contributions', (): void => {
-            let randomPRContributionTime: [number, Month]; // [year, month]
+            // Random time in which user has contributed with a PR
+            let [PRContributionYear, PRContributionMonth]: [number, Month] = [0, 0];
 
             beforeAll(
                 async (): Promise<void> => {
-                    randomPRContributionTime = await randomData.getRandomPRContributionTime(userProfile.username);
+                    [PRContributionYear, PRContributionMonth] = await randomData.getRandomPRContributionTime(
+                        userProfile.username
+                    );
                 }
             );
 
@@ -300,12 +318,12 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getPullRequestContributionsInMonth(
                         userProfile.username,
-                        randomPRContributionTime[0], // Year
-                        randomPRContributionTime[1] // Month
+                        PRContributionYear,
+                        PRContributionMonth
                     ))!;
 
                     modelValidation.validateMonthlyPullRequestContributions([result]);
-                }, 10000);
+                });
 
                 it('should return default object when user has done no contributions in month', async (): Promise<
                     void
@@ -324,7 +342,7 @@ describe('APIFetcher', (): void => {
                         privatePullRequestContributionsCount: 0,
                         publicPullRequestContributions: []
                     });
-                }, 10000);
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
@@ -337,17 +355,17 @@ describe('APIFetcher', (): void => {
                 it('should return model with all properties set', async (): Promise<void> => {
                     const result = (await fetcher.user.getPullRequestContributionsInYear(
                         userProfile.username,
-                        randomPRContributionTime[1] // Year
+                        PRContributionYear
                     ))!;
 
                     modelValidation.validateMonthlyPullRequestContributions(result);
-                }, 10000);
+                }, 20000); // 20 seconds is hard limit
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
                         await fetcher.user.getPullRequestContributionsInYear(
                             nonExistingUsername,
-                            randomContributionYear
+                            randomContributionYearOfUser
                         )
                     ).toBeNull();
                 });
@@ -365,9 +383,9 @@ describe('APIFetcher', (): void => {
             });
 
             it('should return null for non-existing organization', async (): Promise<void> => {
-                const randomOrganizationName = await randomData.getNameOfNonExistingOrganization();
+                const nonExistingOrganizationName = await randomData.getNameOfNonExistingOrganization();
 
-                expect(await fetcher.organization.getProfile(randomOrganizationName)).toBeNull();
+                expect(await fetcher.organization.getProfile(nonExistingOrganizationName)).toBeNull();
             });
         });
     });
