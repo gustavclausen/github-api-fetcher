@@ -1,5 +1,5 @@
 /**
- * Different types of classified errors thrown by the API endpoint upon a request
+ * Different types of classified errors thrown by the GitHub API endpoint upon a request
  */
 export enum ResponseErrorType {
     /**
@@ -15,21 +15,21 @@ export enum ResponseErrorType {
      */
     ACCESS_FORBIDDEN,
     /**
-     * E.g. resource (e.g user or organization) not found (equal to 404)
+     * E.g. resource (e.g user or organization) not found (equal to HTTP status code 404)
      */
     NOT_FOUND,
     /**
-     * GitHub API responses with an server-side error
+     * GitHub API replies with an server-side error
      */
     GITHUB_SERVER_ERROR,
     /**
-     * Arbitrary, unknown error – typically syntax error in GraphQL query set to endpoint
+     * Arbitrary, unknown error – typically syntax error in GraphQL query sent to endpoint
      */
     UNKNOWN
 }
 
 /**
- * Error describing failed request to API endpoint
+ * Error describing failed request to GitHub API endpoint
  */
 export class RequestError extends Error {
     type!: ResponseErrorType;
@@ -43,7 +43,7 @@ export class RequestError extends Error {
 }
 
 /**
- * Error describing failure of parsing response data from endpoint according to a defined schema
+ * Error describing failure of parsing response data from GitHub API endpoint according to a defined schema
  */
 export class ParseError extends Error {
     dataToParse!: object;
