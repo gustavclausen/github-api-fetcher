@@ -9,6 +9,7 @@
     "build": "tsc",
     "lint": "eslint **/src/**/*.ts **/tests/**/*.ts -c .eslintrc.json",
     "test": "export NODE_ENV=test && jest",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "test:cover": "export NODE_ENV=test && jest --collectCoverage --reporters=default --reporters=jest-junit",
     "test:unit": "export NODE_ENV=test && jest --testMatch \"**/src/**/?(*.)+(spec|test).ts\"",
     "test:integration": "export NODE_ENV=test && jest --testMatch \"**/tests/integration/**/?(*.)+(spec|test).ts\""
@@ -65,6 +66,7 @@
     "@types/uuid": "^3.4.5",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
+    "coveralls": "^3.0.5",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-import": "^2.17.3",
