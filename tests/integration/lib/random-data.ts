@@ -43,16 +43,6 @@ const fetchGitHubAPI = async (resourceUri: string): Promise<object[]> => {
 };
 
 /**
- * Fetches random user and returns its username
- */
-const getUsernameOfRandomUser = async (): Promise<string> => {
-    const searchResults = _.get(await fetchGitHubAPI('search/users?q=type:user+repo:>0'), 'items'); // Fetch users with at least one repository
-    const randomUser = _.sample(searchResults) as object;
-
-    return _.get(randomUser, 'login') as string; // Get login (username) of random selected user
-};
-
-/**
  * Returns username of non-existing GitHub user
  */
 const getUsernameOfNonExistingUser = async (): Promise<string> => {
@@ -138,6 +128,35 @@ const getRandomPRContributionTime = async (username: string): Promise<[number, M
     ) as object[];
 
     return getTimeOfSearchResultObject(searchResults, 'created_at');
+};
+
+/**
+ * Fetches random user with multiple contributions, and returns its username
+ */
+const getUsernameOfRandomUser = async (): Promise<string> => {
+    let randomUsername: string | null = null;
+
+    while (!randomUsername) {
+        const searchResults = _.get(await fetchGitHubAPI('search/users?q=type:user+repo:>0'), 'items'); // Fetch users with at least one repository
+        const randomUser = _.sample(searchResults) as object;
+        const username = _.get(randomUser, 'login') as string; // Get login (username) of random selected user
+
+        // Check that user has contributed with commits, issues, PRs and PR reviews
+        const hasContributed = (contributionTime: [number, Month]): boolean =>
+            !_.isNil(contributionTime[0] && !_.isNil(contributionTime[1]));
+
+        const hasCommitContribution = hasContributed(await getRandomCommitContributionTime(username));
+        const hasIssueContribution = hasContributed(await getRandomIssueContributionTime(username));
+        const hasPrReviewContribution = hasContributed(await getRandomPRReviewContributionTime(username));
+        const hasPrContribution = hasContributed(await getRandomPRContributionTime(username));
+
+        // User does not meet requirement as mentioned above
+        if (!hasCommitContribution || !hasIssueContribution || !hasPrReviewContribution || !hasPrContribution) continue;
+
+        randomUsername = username;
+    }
+
+    return randomUsername;
 };
 
 /**
