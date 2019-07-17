@@ -76,10 +76,13 @@ async function getUsernameOfNonExistingUser(): Promise<string> {
  * @param objs Objects containing date-time properties
  * @param dateTimeKeyPath The key path where the date-time can be retrieved
  */
-function getDateTimeOfRandomObject(objs: object[], dateTimeKeyPath: string): [number, Month] {
+function getDateTimeOfRandomObject(objs: object[], dateTimeKeyPath: string): [number, Month] | null {
     const randomObject = _.sample(objs) as object;
+    if (!randomObject) return null;
 
     const dateTimeValue = new Date(_.get(randomObject, dateTimeKeyPath));
+    if (!dateTimeValue) return null;
+
     const month = Month[dateTimeValue.getMonth()];
     const year = dateTimeValue.getFullYear();
 
@@ -92,7 +95,7 @@ function getDateTimeOfRandomObject(objs: object[], dateTimeKeyPath: string): [nu
  *
  * @param username The GitHub username of the user
  */
-async function getRandomCommitContributionTime(username: string): Promise<[number, Month]> {
+async function getRandomCommitContributionTime(username: string): Promise<[number, Month] | null> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/commits?q=committer:${username}+is:public&sort=committer-date&order=desc&per_page=10&type=Commits`
@@ -109,7 +112,7 @@ async function getRandomCommitContributionTime(username: string): Promise<[numbe
  *
  * @param username The GitHub username of the user
  */
-async function getRandomIssueContributionTime(username: string): Promise<[number, Month]> {
+async function getRandomIssueContributionTime(username: string): Promise<[number, Month] | null> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/issues?q=author:${username}+type:issue+is:public&sort=created&order=desc&per_page=10`
@@ -126,7 +129,7 @@ async function getRandomIssueContributionTime(username: string): Promise<[number
  *
  * @param username The GitHub username of the user
  */
-async function getRandomPRReviewContributionTime(username: string): Promise<[number, Month]> {
+async function getRandomPRReviewContributionTime(username: string): Promise<[number, Month] | null> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/issues?q=reviewed-by:${username}+type:pr+is:public&sort=created&order=desc&per_page=10`
@@ -143,7 +146,7 @@ async function getRandomPRReviewContributionTime(username: string): Promise<[num
  *
  * @param username The GitHub username of the user
  */
-async function getRandomPRContributionTime(username: string): Promise<[number, Month]> {
+async function getRandomPRContributionTime(username: string): Promise<[number, Month] | null> {
     const searchResults = _.get(
         await fetchGitHubAPI(
             `search/issues?q=author:${username}+type:pr+is:public&sort=created&order=desc&per_page=10`
@@ -166,16 +169,13 @@ async function getUsernameOfRandomUser(): Promise<string> {
         const username = _.get(randomUser, 'login') as string; // Get login (username) of random selected user
 
         // Checks that user has contributed with commits, issues, PRs and PR reviews
-        const hasContributed = (contributionTime: [number, Month]): boolean =>
-            !_.isNil(contributionTime[0] && !_.isNil(contributionTime[1]));
-
-        const hasCommitContribution = hasContributed(await getRandomCommitContributionTime(username));
-        const hasIssueContribution = hasContributed(await getRandomIssueContributionTime(username));
-        const hasPRReviewContribution = hasContributed(await getRandomPRReviewContributionTime(username));
-        const hasPRContribution = hasContributed(await getRandomPRContributionTime(username));
+        const commitContribution = await getRandomCommitContributionTime(username);
+        const issueContribution = await getRandomIssueContributionTime(username);
+        const PRReviewContribution = await getRandomPRReviewContributionTime(username);
+        const PRContribution = await getRandomPRContributionTime(username);
 
         // User does not meet requirement as mentioned above, thus find new profile
-        if (!hasCommitContribution || !hasIssueContribution || !hasPRReviewContribution || !hasPRContribution) continue;
+        if (!commitContribution || !issueContribution || !PRReviewContribution || !PRContribution) continue;
 
         randomUsername = username;
     }

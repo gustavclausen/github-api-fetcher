@@ -99,7 +99,7 @@ describe('APIFetcher', (): void => {
                     [
                         commitContributionYear,
                         commitContributionMonth
-                    ] = await randomData.getRandomCommitContributionTime(userProfile.username);
+                    ] = (await randomData.getRandomCommitContributionTime(userProfile.username))!;
                 }
             );
 
@@ -167,9 +167,9 @@ describe('APIFetcher', (): void => {
 
             beforeAll(
                 async (): Promise<void> => {
-                    [issueContributionYear, issueContributionMonth] = await randomData.getRandomIssueContributionTime(
+                    [issueContributionYear, issueContributionMonth] = (await randomData.getRandomIssueContributionTime(
                         userProfile.username
-                    );
+                    ))!;
                 }
             );
 
@@ -240,7 +240,7 @@ describe('APIFetcher', (): void => {
                     [
                         PRReviewContributionYear,
                         PRReviewContributionMonth
-                    ] = await randomData.getRandomPRReviewContributionTime(userProfile.username);
+                    ] = (await randomData.getRandomPRReviewContributionTime(userProfile.username))!;
                 }
             );
 
@@ -312,9 +312,9 @@ describe('APIFetcher', (): void => {
 
             beforeAll(
                 async (): Promise<void> => {
-                    [PRContributionYear, PRContributionMonth] = await randomData.getRandomPRContributionTime(
+                    [PRContributionYear, PRContributionMonth] = (await randomData.getRandomPRContributionTime(
                         userProfile.username
-                    );
+                    ))!;
                 }
             );
 
