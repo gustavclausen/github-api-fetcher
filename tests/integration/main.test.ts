@@ -7,6 +7,8 @@ import modelValidation from './lib/model-validation';
 import { UserProfile } from '../../src/models';
 import { Month } from '../../src/lib/date-utils';
 
+jest.setTimeout(60000); // 60 seconds timeout for all tests and before/after hooks. Tests fails with error if timeout is exceeded
+
 describe('APIFetcher', (): void => {
     let fetcher: APIFetcher;
 
@@ -20,23 +22,25 @@ describe('APIFetcher', (): void => {
         let randomContributionYearOfUser: number;
         let nonExistingUsername: string;
 
-        beforeAll(async (): Promise<void> => {
-            // Find eligible user profile with at least one organization membership
-            let result: UserProfile | null = null;
+        beforeAll(
+            async (): Promise<void> => {
+                // Find eligible user profile with at least one organization membership
+                let result: UserProfile | null = null;
 
-            while (!result || _.isEmpty(result.organizationMemberships)) {
-                const randomUsername = await randomData.getUsernameOfRandomUser();
-                result = await fetcher.user.getProfile(randomUsername);
+                while (!result || _.isEmpty(result.organizationMemberships)) {
+                    const randomUsername = await randomData.getUsernameOfRandomUser();
+                    result = await fetcher.user.getProfile(randomUsername);
+                }
+
+                userProfile = result;
+                usersContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
+                // Get random year in which user has done some contributions
+                randomContributionYearOfUser = _.sample(usersContributionYears)!;
+
+                // Find non-existing username
+                nonExistingUsername = await randomData.getUsernameOfNonExistingUser();
             }
-
-            userProfile = result;
-            usersContributionYears = (await fetcher.user.getContributionYears(userProfile.username))!;
-            // Get random year in which user has done some contributions
-            randomContributionYearOfUser = _.sample(usersContributionYears)!;
-
-            // Find non-existing username
-            nonExistingUsername = await randomData.getUsernameOfNonExistingUser();
-        }, 30000); // Tries for 30 seconds, and fails with error if timeout is exceeded
+        );
 
         describe('getProfile', (): void => {
             it('should return model with all properties set', async (): Promise<void> => {
@@ -65,7 +69,7 @@ describe('APIFetcher', (): void => {
                 const result = await fetcher.user.getPublicRepositoryOwnerships(userProfile.username);
 
                 modelValidation.validateRepositoryProfileMinified(result);
-            }, 20000); // 20 seconds is hard limit
+            });
 
             it('should return null for non-existing user', async (): Promise<void> => {
                 expect(await fetcher.user.getPublicRepositoryOwnerships(nonExistingUsername)).toBeNull();
@@ -144,7 +148,7 @@ describe('APIFetcher', (): void => {
                     ))!;
 
                     modelValidation.validateMonthlyContributions(result);
-                }, 20000); // 20 seconds is hard limit
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
@@ -214,7 +218,7 @@ describe('APIFetcher', (): void => {
                     ))!;
 
                     modelValidation.validateMonthlyContributions(result);
-                }, 20000); // 20 seconds is hard limit
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
@@ -289,7 +293,7 @@ describe('APIFetcher', (): void => {
                     ))!;
 
                     modelValidation.validateMonthlyContributions(result);
-                }, 20000); // 20 seconds is hard limit
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
@@ -359,7 +363,7 @@ describe('APIFetcher', (): void => {
                     ))!;
 
                     modelValidation.validateMonthlyPullRequestContributions(result);
-                }, 20000); // 20 seconds is hard limit
+                });
 
                 it('should return null for non-existing user', async (): Promise<void> => {
                     expect(
