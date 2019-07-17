@@ -1,9 +1,0 @@
-!dist
-coverage
-src
-test
-.circleci
-.eslintignore
-.eslintrc.json
-.prettierrc.json
-tsconfig.json

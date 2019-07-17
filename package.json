@@ -14,12 +14,14 @@
     "test:unit": "export NODE_ENV=test && jest --testMatch \"**/src/**/?(*.)+(spec|test).ts\"",
     "test:integration": "export NODE_ENV=test && jest --testMatch \"**/tests/integration/**/?(*.)+(spec|test).ts\""
   },
+  "files": ["dist/**/*"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gustavclausen/github-api-fetcher.git"
   },
   "author": "Gustav Kofoed Clausen <gustav@gustavclausen.com>",
   "license": "MIT",
+  "keywords": ["github", "api", "fetcher"],
   "bugs": {
     "url": "https://github.com/gustavclausen/github-api-fetcher/issues"
   },
