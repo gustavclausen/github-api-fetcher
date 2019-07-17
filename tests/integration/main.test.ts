@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import _ from 'lodash';
-import APIFetcher from '../../src/main';
+import { APIFetcher } from '../../src/main';
 import randomData from './lib/random-data';
 import modelValidation from './lib/model-validation';
 import { UserProfile } from '../../src/models';
