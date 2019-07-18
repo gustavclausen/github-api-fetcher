@@ -39,7 +39,7 @@ This project is a simplified data fetching client for [GitHub's GraphQL v4 API](
 
 * Repository profile
 
-Checkout [the docs folder](https://github.com/gustavclausen/github-api-fetcher/tree/master/docs) for a complete overview of the API and the included models.
+Check out [the documentation website](https://gustavclausen.github.io/github-api-fetcher/) for a complete overview of the API and the included models.
 
 ## Installation
 
@@ -49,10 +49,23 @@ npm i github-api-fetcher
 
 ## Configuration
 
-TODO:
+#### GitHub access token
 
-- Guide on granting GitHub access token with correct scopes
-- (Optional) set token as ENV variable for ease of use
+It's required to have a valid access token to use the client.
+You've the option to use your own personal access token (see this [guide](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)), or create an OAuth app and use the authenticated user's access token (see this [guide](https://developer.github.com/apps/building-oauth-apps/)). Personal access tokens is recommended for personal projects, while the OAuth app is more complicated and should be used for public use.
+
+##### Required scopes
+
+The following scopes is required for use all predefined requests:
+
+* repo:status
+* public_repo
+* read:org
+* read:user
+
+#### (Optional) Set access token in environment variable
+
+Instead of passing the access token as constructor argument when instantiating an `APIFetcher`, it's possible to set the access token in the environment variable: `GITHUB_FETCHER_API_ACCESS_TOKEN`. The `APIFetcher` will use this access token when no constructor arguments is given.
 
 ## Usage
 
