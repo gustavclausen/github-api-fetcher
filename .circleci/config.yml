@@ -78,6 +78,9 @@ jobs:
           fingerprints:
             - "9f:b3:fe:d0:6f:ed:6a:ff:4f:ac:57:66:f6:12:61:e7"
       - run:
+          name: Add GitHub as known host
+          command: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - run:
           name: Documentation update
           command: npm run docs-gen
       - run:
