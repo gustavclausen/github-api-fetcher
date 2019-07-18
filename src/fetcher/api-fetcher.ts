@@ -16,16 +16,19 @@ export default class APIFetcher {
     /**
      * User route
      */
-    user = new UserRoute(this);
+    user!: UserRoute;
     /**
      * Organization route
      */
-    organization = new OrganizationRoute(this);
+    organization!: OrganizationRoute;
     /**
      * Repository route
      */
-    repository = new RepositoryRoute(this);
+    repository!: RepositoryRoute;
 
+    /**
+     * @param apiAccessToken GitHub API access token
+     */
     constructor(apiAccessToken?: string) {
         // Search for API access token, and setup GraphQL client
         let accessToken = apiAccessToken ? apiAccessToken : config.apiAccessToken;
@@ -38,6 +41,10 @@ export default class APIFetcher {
                 Authorization: `Bearer ${accessToken}`
             }
         });
+
+        this.user = new UserRoute(this);
+        this.organization = new OrganizationRoute(this);
+        this.repository = new RepositoryRoute(this);
     }
 
     /**
@@ -45,6 +52,8 @@ export default class APIFetcher {
      * Null is returned if a specific resource (e.g. user/organization/repository) was not found.
      *
      * @param request GraphQL request
+     * @typeparam T Response data type
+     * @throws [[RequestError]]
      */
     async fetch<T>(request: GraphQLRequest<T>): Promise<T | null> {
         try {
@@ -68,6 +77,8 @@ export default class APIFetcher {
      * Null is returned if a specific resource (e.g. user/organization/repository) was not found.
      *
      * @param pagedRequest Paged GraphQL request that includes page info
+     * @typeparam T Response data type
+     * @throws [[RequestError]]
      */
     async pageFetch<T>(pagedRequest: GraphQLPagedRequest<T>): Promise<T[] | null> {
         let fetchResults = await this.fetch<T[]>(pagedRequest);

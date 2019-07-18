@@ -1,0 +1,14 @@
+{
+    "name": "GitHub API fetcher",
+    "out": "docs/",
+    "exclude": [
+        "src/fetcher/graphql/requests/**",
+        "src/fetcher/graphql/common/**"
+    ],
+    "excludePrivate": true,
+    "excludeNotExported": true,
+    "excludeProtected": true,
+    "excludeExternals": true,
+    "ignoreCompilerErrors": true,
+    "mode": "file"
+}

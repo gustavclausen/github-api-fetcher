@@ -88,6 +88,8 @@ export class GraphQLFragment {
 /**
  * Presents the GraphQL request to be sent to the endpoint.
  * Responsible for defining the request, and parsing the response.
+ *
+ * @typeparam TResult Response data type
  */
 export interface GraphQLRequest<TResult> {
     query: string;
@@ -106,11 +108,13 @@ export interface PageInfo {
 /**
  * Presents a paged, stateful GraphQL request to be sent to the endpoint.
  * Responsible for defining the requests, updating the page state, and parsing the responses.
+ *
+ * @typeparam TResult Response data type
  */
 export abstract class GraphQLPagedRequest<TResult> implements GraphQLRequest<TResult[]> {
     abstract query: string;
     pageInfo: PageInfo | undefined;
-    variables: object | undefined;
+    variables: object;
 
     constructor(variables: object) {
         this.variables = variables;

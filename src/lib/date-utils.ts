@@ -17,6 +17,7 @@ export enum Month {
 }
 
 /**
+ * @ignore
  * Returns each month represented by its number (starting with 0 for January)
  */
 export const allMonthNumbers: number[] = Object.values(Month).filter(

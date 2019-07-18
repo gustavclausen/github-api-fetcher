@@ -73,6 +73,22 @@ jobs:
       - run:
           name: Publish package
           command: npm publish
+      # Documentations update
+      - add_ssh_keys:
+          fingerprints:
+            - "9f:b3:fe:d0:6f:ed:6a:ff:4f:ac:57:66:f6:12:61:e7"
+      - run:
+          name: Add GitHub as known host
+          command: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - run:
+          name: Documentation update
+          command: npm run docs-gen
+      - run:
+          name: Documentation publish
+          command: |
+            git config user.email "gustav@gustavclausen.com"
+            git config user.name "ci-build"
+            git add docs/ && git commit -m "[ci skip] Update documentation" --allow-empty --quiet && git push --quiet
 
 workflows:
   version: 2
@@ -89,5 +105,9 @@ workflows:
           requires:
             - test
           filters:
+            # Ignore any commit on any branch by default
+            branches:
+              ignore: /.*/
+            # Only act on version tags
             tags:
               only: /^v.*/
