@@ -7,28 +7,39 @@
 
 ## Introduction
 
-TODO:
+This project is a simplified data fetching client for [GitHub's GraphQL v4 API](https://developer.github.com/v4/) – supporting Node.js and browsers for scripts, applications and data scraping.
 
-- What it is:
-  - Simple client to GitHub API handling errors
-  - Supporting Node and browsers for scripts or simple apps
-- Features:
-  - Promise-based API, works with async/await
-  - TypeScript support
+### Features
 
-### Requests currently supported
+* Simple, promise-based API for common requests like user/repository/organization profiles, contributions and more. Check out the next section to get a full overview of all predefined requests.
+* Full TypeScript support.
+* Simple error handling with defined error types.
+* Adheres to [GitHub's best practices](https://developer.github.com/v3/guides/best-practices-for-integrators/) – such as dealing with abuse rate limits.
+* Support for adding own GraphQL requests to send to endpoint.
 
-TODO:
+### Predefined requests
 
-- List all available (with routes)
-- Refer to contributing section with how to add wishes
+**User:**
 
-### Docs
+* User profile
+* Organization memberships
+* Public repository ownerships
+* Contributions:
+  * Years of contribution
+  * Commit contributions (monthly and yearly)
+  * Issue contributions (monthly and yearly)
+  * Pull request contributions (monthly and yearly)
+  * Pull request review contributions (monthly and yearly)
 
-TODO:
+**Organization:**
 
-- API
-- Models
+* Organization profile
+
+**Repository:**
+
+* Repository profile
+
+Checkout [the docs folder](https://github.com/gustavclausen/github-api-fetcher/tree/master/docs) for a complete overview of the API and the included models.
 
 ## Installation
 
