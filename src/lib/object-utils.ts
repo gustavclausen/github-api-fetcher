@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
 /**
+ * @ignore
  * Deep searches object for key and returns its value if it exist. Null is returned if it does not exist.
  * The search is done in levels of properties, i.e. the first occurrence of the key is prioritized over
  * the same key in a nested object.

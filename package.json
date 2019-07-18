@@ -12,16 +12,23 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "test:cover": "export NODE_ENV=test && jest --collectCoverage --reporters=default --reporters=jest-junit",
     "test:unit": "export NODE_ENV=test && jest --testMatch \"**/src/**/?(*.)+(spec|test).ts\"",
-    "test:integration": "export NODE_ENV=test && jest --testMatch \"**/tests/integration/**/?(*.)+(spec|test).ts\""
+    "test:integration": "export NODE_ENV=test && jest --testMatch \"**/tests/integration/**/?(*.)+(spec|test).ts\"",
+    "docs-gen": "typedoc"
   },
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gustavclausen/github-api-fetcher.git"
   },
   "author": "Gustav Kofoed Clausen <gustav@gustavclausen.com>",
   "license": "MIT",
-  "keywords": ["github", "api", "fetcher"],
+  "keywords": [
+    "github",
+    "api",
+    "fetcher"
+  ],
   "bugs": {
     "url": "https://github.com/gustavclausen/github-api-fetcher/issues"
   },
@@ -81,6 +88,7 @@
     "ts-node": "^8.2.0",
     "ts-transformer-keys": "^0.3.5",
     "ttypescript": "^1.5.7",
+    "typedoc": "^0.14.2",
     "typescript": "^3.5.1",
     "uuid": "^3.3.2"
   }
