@@ -125,7 +125,15 @@ Linus Torvalds
 
 ### Routes
 
-// TODO: insert routes
+You access the requests by the route properties on the client as shown in the example below:
+
+~~~~JavaScript
+const fetcher = new APIFetcher('<SECRET-ACCESS-TOKEN>');
+
+fetcher.user // User route
+fetcher.organization // Organization route
+fetcher.repository // Repository route
+~~~~
 
 ### Error handling
 
@@ -187,23 +195,24 @@ BAD_CREDENTIALS
 
 ## Modifying the project for your needs
 
-Feel free to fork this repository to add, modify, delete requests and models to best suit your needs.
+Feel free to fork this repository to add, modify, delete requests and models to suit your needs.
 
 ### Extending with your own requests
 
 You can build your own GraphQL queries following GitHub's schemas (documentation available here: https://developer.github.com/v4/).
 
-Examples for custom requests can be found in the [examples/ folder](https://github.com/gustavclausen/github-api-fetcher/blob/master/examples/). These examples illustrates how to work with single and paged requests, as well as GraphQL fragments with plain and nested fields with aliases.
+Examples for custom requests can be found in the [examples folder](https://github.com/gustavclausen/github-api-fetcher/blob/master/examples/). These examples illustrates how to work with single and paged requests, as well as GraphQL fragments with plain and nested fields with aliases.
 
 ### Modifying models and requests
 
-You can simply modify the base models and requests to add, modify or delete properties. Mulitple integration tests has been written to ensure all properties on the base models is being set upon parsing the response data. Use the NPM task, ```npm test```, to run all tests.
+You can simply modify the base models and requests to add, modify or delete properties. Mulitple integration tests has been written to ensure all properties on the base models is being set upon parsing the response data.  
+You can use the NPM task, ```npm test```, to run all tests.
 
 ## Contributing
 
 This project needs your help! :muscle:
 
-Please read this [document](https://github.com/gustavclausen/github-api-fetcher/blob/master/CONTRIBUTING.md) that explains how to contribute to this project.
+Please read [this document](https://github.com/gustavclausen/github-api-fetcher/blob/master/CONTRIBUTING.md). It explains how to contribute to this project.
 
 ## License
 
