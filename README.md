@@ -5,21 +5,19 @@
 [![Coverage Status](https://coveralls.io/repos/github/gustavclausen/github-api-fetcher/badge.svg?branch=master)](https://coveralls.io/github/gustavclausen/github-api-fetcher?branch=master)
 [![License](https://img.shields.io/github/license/gustavclausen/github-api-fetcher.svg)](https://github.com/gustavclausen/github-api-fetcher/blob/master/LICENSE)
 
-## Introduction
+GitHub API fetcher is a simplified data fetching client for [GitHub's GraphQL v4 API](https://developer.github.com/v4/) – supporting Node.js and browsers for all types of applications: websites, scripts, data scraping, plugins etc. Works seamlessly with both JavaScript and TypeScript.
 
-This project is a simplified data fetching client for [GitHub's GraphQL v4 API](https://developer.github.com/v4/) – supporting Node.js and browsers for scripts, applications and data scraping.
-
-### Features
+## Features
 
 * Simple, promise-based API for common requests like user/repository/organization profiles, contributions and more. Check out the next section to get a full overview of all predefined requests.
 * Full TypeScript support.
 * Simple error handling with defined error types.
 * Adheres to [GitHub's best practices](https://developer.github.com/v3/guides/best-practices-for-integrators/) – such as dealing with abuse rate limits.
-* Support for adding own GraphQL requests to send to endpoint.
+* Support for adding your own GraphQL requests.
 
 ### Predefined requests
 
-**User:**
+#### User
 
 * User profile
 * Organization memberships
@@ -31,13 +29,14 @@ This project is a simplified data fetching client for [GitHub's GraphQL v4 API](
   * Pull request contributions (monthly and yearly)
   * Pull request review contributions (monthly and yearly)
 
-**Organization:**
+#### Organization
 
 * Organization profile
 
-**Repository:**
+#### Repository
 
 * Repository profile
+
 
 Check out [the documentation website](https://gustavclausen.github.io/github-api-fetcher/) for a complete overview of the API and the included models.
 
@@ -51,34 +50,32 @@ npm i github-api-fetcher
 
 #### GitHub access token
 
-It's required to have a valid access token to use the client.
-You've the option to use your own personal access token (see this [guide](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)), or create an OAuth app and use the authenticated user's access token (see this [guide](https://developer.github.com/apps/building-oauth-apps/)). Personal access tokens is recommended for personal projects, while the OAuth app is more complicated and should be used for public use.
+It's required to have a valid access token to use the client and access the GitHub API.
+You've the option to use your own personal access token (see this [guide](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)), or create an OAuth app and use the authenticated user's access token (see this [guide](https://developer.github.com/apps/building-oauth-apps/)). Personal access tokens is recommended while developing since it's simple to setup, while the OAuth app setup is more complicated and should be used for public use.
 
-##### Required scopes
-
-The following scopes is required for use all predefined requests:
+The following scopes is required to use all predefined requests:
 
 * repo:status
 * public_repo
 * read:org
 * read:user
 
-#### (Optional) Set access token in environment variable
+#### (Optional) Declare access token in environment variable
 
-Instead of passing the access token as constructor argument when instantiating an `APIFetcher`, it's possible to set the access token in the environment variable: `GITHUB_FETCHER_API_ACCESS_TOKEN`. The `APIFetcher` will use this access token when no constructor arguments is given.
+Instead of passing the access token as an argument when using the client, it's possible to declare the access token in an environment variable with the name: `GITHUB_FETCHER_API_ACCESS_TOKEN`.
 
 ## Usage
 
 ### Quickstart - simple user profile request
 
-**JavaScript implementation:**
+#### JavaScript
 
 ~~~~JavaScript
 const { APIFetcher } = require('github-api-fetcher');
 
 /*
- * Pass access token as parameter in constructor, or load from environment
- * variables (see 'Configuration' section)
+ * Pass access token as argument in constructor, or load from environment
+ * variable (see 'Configuration' section)
  */
 const fetcher = new APIFetcher('SECRET-ACCESS-TOKEN');
 
@@ -95,23 +92,27 @@ Output:
 Linus Torvalds
 ```
 
-**TypeScript implementation:**
+#### TypeScript
 
 ~~~~TypeScript
 import { APIFetcher } from 'github-api-fetcher';
 
 /*
- * Pass access token as parameter in constructor, or load from environment
- * variables (see 'Configuration' section)
+ * Pass access token as argument in constructor, or load from environment
+ * variable (see 'Configuration' section)
  */
 const fetcher = new APIFetcher('SECRET-ACCESS-TOKEN');
 
 (async (): Promise<void> => {
     const userProfile = await fetcher.user.getProfile('torvalds');
+  	
+    // 'getProfile' returns null for non-existing users
+    if (!userProfile) {
+      console.log('User does not exist');
+      return;
+    }
 
-    if (!userProfile) throw new Error('User profile does not exist'); // 'getProfile' returns null for non-existing users
-
-    console.log(userProfile.displayName); // Outputs: Linus Torvalds
+    console.log(userProfile.displayName);
 })();
 ~~~~
 
@@ -121,190 +122,87 @@ Output:
 Linus Torvalds
 ```
 
-### Examples
+### Routes
 
-TODO:
+// TODO: insert routes
 
-- Error handling
+### Error handling
 
-## Extending with your own requests
-
-You can build your own GraphQL request according to the documentation available here: https://developer.github.com/v4/.
-It requires some knowledge about GraphQL queries.
-
-TODO:
-
-- Support for single and paged requests, fragments with plain and nested fields (with aliases and arguments).
-See docs for more info.
-- Extending existing requests with properties/renaming etc. (tests scales with new properties)
-
-**JavaScript implementation:**
+#### JavaScript
 
 ~~~~JavaScript
-const { APIFetcher, GraphQLRequest, GraphQLFragment, GraphQLObjectField } = require('github-api-fetcher');
+const { APIFetcher, ResponseErrorType } = require("github-api-fetcher");
 
-/*
- * Pass access token as parameter in constructor, or load from environment
- * variables (see 'Configuration' section)
- */
-const fetcher = new APIFetcher('<SECRET-ACCESS-TOKEN>');
-
-/**
-   Defines a GraphQL fragment, used in queries.
-   See: https://graphql.org/learn/queries/#fragments
-
-   Translates to the following GraphQL syntax:
-
-   fragment SimpleUserFragment on User {
-      username: login
-      name
-   }
- */
-const userFragment = new GraphQLFragment('SimpleUserFragment', 'User', [
-    // Defines fields on a GraphQL object. See: https://graphql.org/learn/queries/#fields
-    new GraphQLObjectField('login', 'username'),
-    new GraphQLObjectField('name')
-]);
-
-/**
- * Presents the GraphQL request to be sent to the endpoint.
- * Responsible for defining the request, and parsing the response.
- */
-class SimpleUserRequest {
-    constructor(username) {
-        this.query = `
-            query SimpleRequest($username: String!) {
-                user(login: $username) {
-                    ...${userFragment.name}
-                }
-            }
-
-            ${userFragment}
-        `;
-        this.variables = {
-            username
-        };
-    }
-
-    parseResponse(rawData) {
-        /**
-            Raw data format:
-
-            "user": {
-              "username": "torvalds",
-              "name": "Linus Torvalds"
-            }
-         */
-        return rawData["user"];
-    }
-}
+const fetcher = new APIFetcher('not-a-valid-token');
 
 (async () => {
-    const userProfile = await fetcher.fetch(new SimpleUserRequest('torvalds'));
-
+  try {
+    const userProfile = await fetcher.user.getProfile('torvalds');
     console.log(userProfile);
+  } catch (err) {
+    console.error(ResponseErrorType[err.type]);
+  }
 })();
 ~~~~
 
 Output:
 
 ```sh
-{ username: 'torvalds', name: 'Linus Torvalds' }
+BAD_CREDENTIALS
 ```
 
-**TypeScript implementation:**
+#### TypeScript
 
 ~~~~TypeScript
-import { APIFetcher, GraphQLRequest, GraphQLFragment, GraphQLObjectField } from 'github-api-fetcher';
+import { APIFetcher, RequestError, ResponseErrorType } from "github-api-fetcher";
 
-/*
- * Pass access token as parameter in constructor, or load from environment
- * variables (see 'Configuration' section)
- */
-const fetcher = new APIFetcher('<SECRET-ACCESS-TOKEN');
-
-interface UserProfile {
-    username: string;
-    name: string;
-}
-
-/**
-   Defines a GraphQL fragment, used in queries.
-   See: https://graphql.org/learn/queries/#fragments
-
-   Translates to the following GraphQL syntax:
-
-   fragment SimpleUserFragment on User {
-      username: login
-      name
-   }
- */
-const userFragment = new GraphQLFragment('SimpleUserFragment', 'User', [
-    // Defines fields on a GraphQL object. See: https://graphql.org/learn/queries/#fields
-    new GraphQLObjectField('login', 'username'),
-    new GraphQLObjectField('name')
-]);
-
-/**
- * Presents the GraphQL request to be sent to the endpoint.
- * Responsible for defining the request, and parsing the response.
- */
-class SimpleUserRequest implements GraphQLRequest<UserProfile> {
-    query = `
-        query SimpleRequest($username: String!) {
-            user(login: $username) {
-                ...${userFragment.name}
-            }
-        }
-
-        ${userFragment}
-    `;
-    variables: object | undefined;
-
-    constructor(username: string) {
-        this.variables = {
-            username
-        };
-    }
-
-    parseResponse(rawData: object): UserProfile {
-        /**
-            Raw data format:
-
-            "user": {
-              "username": "torvalds",
-              "name": "Linus Torvalds"
-            }
-         */
-
-        // Or transform to a class constructor with packages like: https://github.com/typestack/class-transformer (highly recommended)
-        return Object(rawData)["user"] as UserProfile;
-    }
-}
+const fetcher = new APIFetcher('not-a-valid-token');
 
 (async () => {
-    const userProfile = await fetcher.fetch(new SimpleUserRequest('torvalds'));
+  try {
+    const userProfile = await fetcher.user.getProfile('torvalds');
 
-    if (!userProfile) throw new Error('User profile not found')
+    // 'getProfile' returns null for non-existing users
+    if (!userProfile) {
+      console.log('User does not exist');
+      return;
+    }
 
-    console.log(userProfile);
+    console.log(userProfile.displayName);
+  } catch (err) {
+    const requestError = err as RequestError;
+
+    console.error(ResponseErrorType[requestError.type]);
+  }
 })();
+
 ~~~~
 
 Output:
 
 ```sh
-{ username: 'torvalds', name: 'Linus Torvalds' }
+BAD_CREDENTIALS
 ```
+
+## Modifying the project for your needs
+
+Feel free to fork this repository to add, modify, delete requests and models to best suit your needs.
+
+### Extending with your own requests
+
+You can build your own GraphQL queries following GitHub's schemas (documentation available here: https://developer.github.com/v4/).
+
+Examples for custom requests can be found in the [examples/ folder](https://github.com/gustavclausen/github-api-fetcher/blob/master/examples/). These examples illustrates how to work with single and paged requests, as well as GraphQL fragments with plain and nested fields with aliases.
+
+### Modifying models and requests
+
+You can simply modify the base models and requests to add, modify or delete properties. Mulitple integration tests has been written to ensure all properties on the base models is being set upon parsing the response data. Use the NPM task, ```npm test```, to run all tests.
 
 ## Contributing
 
-TODO:
+This project needs your help! :muscle:
 
-- Add issue with wishes
-- Open pull requests with request
-- NPM tasks
-- Code of conduct
+Please read this [document](https://github.com/gustavclausen/github-api-fetcher/blob/master/CONTRIBUTING.md) that explains how to contribute to this project.
 
 ## License
 
