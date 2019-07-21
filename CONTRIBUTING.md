@@ -8,12 +8,12 @@ If you have some modifications to contribute with, please open a pull request in
 
 Please try to follow these rules regarding pull requests:
 - Keep the changes as atomic as possible. Rather open atomic two or three pull requests than one big pull request with unrelated changes.
-- Describe the changes included in the the pull request. [This guide](https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/) explains how to write the perfect pull request.
+- Describe the changes included in the pull request. [This guide](https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/) explains how to write the perfect pull request.
 
 ## Contributing with an issue
 If possible, try to use one of the predefined templates when creating your issue.
 
 ## Code of conduct
-To make sure you've a pleasant experience, please read the [code of conduct](https://github.com/gustavclausen/github-api-fetcher/blob/master/CODE_OF_CONDUCT.md). It outlines core values, and will make working together an enjoyable experience.
+To make sure you've a pleasant experience, please read the [code of conduct documentation](https://github.com/gustavclausen/github-api-fetcher/blob/master/CODE_OF_CONDUCT.md). It outlines core values, and will make working together an enjoyable experience.
 
 Thank you so much for contributing to this project! :blush:
