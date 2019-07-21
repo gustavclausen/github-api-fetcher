@@ -4,7 +4,7 @@ import { APIFetcher, GraphQLFragment, GraphQLObjectField, GraphQLPagedRequest } 
  * Pass access token as argument in constructor, or load from environment
  * variable (see 'Configuration' section)
  */
-const fetcher = new APIFetcher('737e80ecf1db9d0098ef59e1499b69abcbc899b2');
+const fetcher = new APIFetcher('<SECRET-ACCESS-TOKEN>');
 
 // Response data model
 interface RepositoryProfile {
