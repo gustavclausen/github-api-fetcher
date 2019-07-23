@@ -38,6 +38,10 @@ GitHub API fetcher is a simplified data fetching client for [GitHub's GraphQL v4
 
 * Repository profile
 
+#### Gist
+
+* Gist profile
+
 
 Check out [the documentation website](https://gustavclausen.github.io/github-api-fetcher/) for a complete overview of the API and the included models.
 
@@ -133,6 +137,7 @@ const fetcher = new APIFetcher('<SECRET-ACCESS-TOKEN>');
 fetcher.user // User route
 fetcher.organization // Organization route
 fetcher.repository // Repository route
+fetcher.gist // Gist route
 ~~~~
 
 ### Error handling
