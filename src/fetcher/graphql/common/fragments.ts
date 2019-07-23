@@ -9,7 +9,8 @@ export const GITHUB_GRAPHQL_OBJECT_NAMES = {
     Organization: 'Organization',
     Repository: 'Repository',
     Language: 'Language',
-    PullRequest: 'PullRequest'
+    PullRequest: 'PullRequest',
+    Gist: 'Gist'
 };
 
 /**
@@ -38,6 +39,12 @@ export default {
         new GraphQLObjectField('closed', 'isClosed'),
         new GraphQLObjectField('additions', 'additionsCount'),
         new GraphQLObjectField('deletions', 'deletionsCount'),
+        new GraphQLObjectField('url', 'publicUrl')
+    ]),
+    minifiedGist: new GraphQLFragment('minGistProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Gist, [
+        new GraphQLObjectField('id', 'gitHubId'),
+        new GraphQLObjectField('name'),
+        new GraphQLObjectField('owner', 'ownerUsername', [new GraphQLObjectField('login', 'username')]),
         new GraphQLObjectField('url', 'publicUrl')
     ])
 };

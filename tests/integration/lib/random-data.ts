@@ -258,6 +258,45 @@ async function getNonExistingRepository(): Promise<[string, string]> {
     return nonExistingRepository;
 }
 
+/**
+ * Fetches random gist, and returns username of owner and name of the gist as tuple
+ */
+async function getRandomGist(): Promise<[string, string]> {
+    const randomGists = await fetchGitHubAPI('gists/public');
+    const randomGist = _.sample(randomGists) as object;
+
+    const ownerUsername = _.get(randomGist, 'owner.login') as string;
+    const gistName = _.get(randomGist, 'id') as string;
+
+    return [ownerUsername, gistName];
+}
+
+/**
+ * Returns username of owner and name of the gist of non-existing gist as tuple
+ */
+async function getNonExistingGist(): Promise<[string, string]> {
+    let nonExistingGist: [string, string] | null = null;
+
+    while (!nonExistingGist) {
+        const randomUUID = uuid(); // Generate random ID
+
+        try {
+            await fetchGitHubAPI(`gists/${randomUUID}`);
+        } catch (error) {
+            const requestError = error as RequestError;
+
+            if (requestError.statusCode === 404) {
+                nonExistingGist = [randomUUID, randomUUID];
+                break;
+            } else {
+                continue;
+            }
+        }
+    }
+
+    return nonExistingGist;
+}
+
 export default {
     getUsernameOfRandomUser,
     getUsernameOfNonExistingUser,
@@ -268,5 +307,7 @@ export default {
     getNameOfRandomOrganization,
     getNameOfNonExistingOrganization,
     getRandomRepository,
-    getNonExistingRepository
+    getNonExistingRepository,
+    getRandomGist,
+    getNonExistingGist
 };

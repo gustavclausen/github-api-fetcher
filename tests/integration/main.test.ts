@@ -412,4 +412,21 @@ describe('APIFetcher', (): void => {
             });
         });
     });
+
+    describe('gist', (): void => {
+        describe('getProfile', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const [randomOwnerUsername, randomGistName] = await randomData.getRandomGist();
+                const result = await fetcher.gist.getProfile(randomOwnerUsername, randomGistName);
+
+                modelValidation.validateGistProfile(result);
+            });
+
+            it('should return null for non-existing gist', async (): Promise<void> => {
+                const [nonExistingOwnerUsername, nonExistingGistName] = await randomData.getNonExistingGist();
+
+                expect(await fetcher.gist.getProfile(nonExistingOwnerUsername, nonExistingGistName)).toBeNull();
+            });
+        });
+    });
 });

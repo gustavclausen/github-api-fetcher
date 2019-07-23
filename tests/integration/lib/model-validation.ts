@@ -12,7 +12,8 @@ import {
     PullRequestContributionsByRepository,
     PullRequest,
     MonthlyContributions,
-    MonthlyPullRequestContributions
+    MonthlyPullRequestContributions,
+    GistProfile
 } from '../../../src/models';
 
 function validateOrganizationProfileMinified(profiles: OrganizationProfileMinified[] | null): void {
@@ -169,6 +170,18 @@ function validateMonthlyPullRequestContributions(prcs: MonthlyPullRequestContrib
     });
 }
 
+function validateGistProfile(profile: GistProfile | null): void {
+    if (!profile) throw new Error('No data');
+
+    // Verify all top-level properties set on GistProfile model
+    _.forEach(keys<GistProfile>(), (propKey): void => {
+        expect(_.get(profile, propKey)).toBeDefined();
+    });
+
+    // Verify all properties set on nested 'files' property
+    validateAppliedProgrammingLanguage(profile.files);
+}
+
 export default {
     validateUserProfile,
     validateOrganizationProfileMinified,
@@ -176,5 +189,6 @@ export default {
     validateRepositoryProfileMinified,
     validateMonthlyContributions,
     validateRepositoryProfile,
-    validateMonthlyPullRequestContributions
+    validateMonthlyPullRequestContributions,
+    validateGistProfile
 };

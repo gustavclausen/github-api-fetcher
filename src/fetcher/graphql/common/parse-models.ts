@@ -1,5 +1,10 @@
 import _ from 'lodash';
-import { RepositoryProfileMinified, ContributionsByRepository, PullRequest } from '../../../models';
+import {
+    RepositoryProfileMinified,
+    ContributionsByRepository,
+    PullRequest,
+    GistProfileMinified
+} from '../../../models';
 import { Expose, Transform, plainToClass } from 'class-transformer';
 import { getValueForFirstKey } from '../../../lib/object-utils';
 import { ParseError } from '../../../lib/errors';
@@ -53,6 +58,21 @@ export class PullRequestParseModel implements PullRequest {
 
     @Expose()
     deletionsCount!: number;
+
+    @Expose()
+    publicUrl!: string;
+}
+
+export class MinGistProfileParseModel implements GistProfileMinified {
+    @Expose()
+    gitHubId!: string;
+
+    @Expose()
+    name!: string;
+
+    @Expose()
+    @Transform((obj): string => _.get(obj, 'username'))
+    ownerUsername!: string;
 
     @Expose()
     publicUrl!: string;
