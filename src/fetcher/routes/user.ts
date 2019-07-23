@@ -10,7 +10,8 @@ import {
     RepositoryProfileMinified,
     MonthlyContributions,
     ContributionsByRepository,
-    MonthlyPullRequestContributions
+    MonthlyPullRequestContributions,
+    GistProfileMinified
 } from '../../models';
 
 export default class UserRoute extends Routefetcher {
@@ -35,6 +36,12 @@ export default class UserRoute extends Routefetcher {
         const publicRepositoryOwnerships = await this.getPublicRepositoryOwnerships(username);
         if (publicRepositoryOwnerships) {
             fetchedProfile.publicRepositoryOwnerships = publicRepositoryOwnerships;
+        }
+
+        // Fetch info about public gists that the user created, and add result to profile
+        const publicGists = await this.getPublicGists(username);
+        if (publicGists) {
+            fetchedProfile.publicGists = publicGists;
         }
 
         return fetchedProfile;
@@ -62,6 +69,16 @@ export default class UserRoute extends Routefetcher {
         return await this.fetcher.pageFetch<RepositoryProfileMinified>(
             new UserRequests.PublicRespositoryOwnerships(username)
         );
+    }
+
+    /**
+     * Returns public gists that the user has owns.
+     * Null is returned if user with given username was not found.
+     *
+     * @param username The GitHub username of the user
+     */
+    async getPublicGists(username: string): Promise<GistProfileMinified[] | null> {
+        return await this.fetcher.pageFetch<GistProfileMinified>(new UserRequests.PublicGists(username));
     }
 
     /**

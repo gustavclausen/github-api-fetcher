@@ -48,6 +48,10 @@ export interface UserProfile {
      * The user's own public repositories
      */
     publicRepositoryOwnerships: RepositoryProfileMinified[];
+    /**
+     * The user's own public gists
+     */
+    publicGists: GistProfileMinified[];
 }
 
 /**

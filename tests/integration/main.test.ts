@@ -76,6 +76,18 @@ describe('APIFetcher', (): void => {
             });
         });
 
+        describe('getPublicGists', (): void => {
+            it('should return model with all properties set', async (): Promise<void> => {
+                const result = await fetcher.user.getPublicGists(userProfile.username);
+
+                modelValidation.validateMinGistProfile(result);
+            });
+
+            it('should return null for non-existing user', async (): Promise<void> => {
+                expect(await fetcher.user.getPublicGists(nonExistingUsername)).toBeNull();
+            });
+        });
+
         describe('getContributionYears', (): void => {
             it('should return number array', async (): Promise<void> => {
                 const result = (await fetcher.user.getContributionYears(userProfile.username))!;

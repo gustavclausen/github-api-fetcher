@@ -13,7 +13,8 @@ import {
     PullRequest,
     MonthlyContributions,
     MonthlyPullRequestContributions,
-    GistProfile
+    GistProfile,
+    GistProfileMinified
 } from '../../../src/models';
 
 function validateOrganizationProfileMinified(profiles: OrganizationProfileMinified[] | null): void {
@@ -45,21 +46,6 @@ function validateRepositoryProfileMinified(profiles: RepositoryProfileMinified[]
             expect(_.get(profile, propKey)).toBeDefined();
         });
     });
-}
-
-function validateUserProfile(profile: UserProfile | null): void {
-    if (!profile) throw new Error('No data');
-
-    // Verify all top-level properties is set on UserProfile model
-    _.forEach(keys<UserProfile>(), (propKey): void => {
-        expect(_.get(profile, propKey)).toBeDefined();
-    });
-
-    // Verify all properties set on 'organizationMemberships' property
-    validateOrganizationProfileMinified(profile.organizationMemberships);
-
-    // Verify all properties set on 'publicRepositoryOwnerships' property
-    validateRepositoryProfileMinified(profile.publicRepositoryOwnerships);
 }
 
 function validateContributionsByRepository(contributions: ContributionsByRepository[] | null): void {
@@ -170,6 +156,17 @@ function validateMonthlyPullRequestContributions(prcs: MonthlyPullRequestContrib
     });
 }
 
+function validateMinGistProfile(profiles: GistProfileMinified[] | null): void {
+    if (!profiles) throw new Error('No data');
+
+    _.forEach(profiles, (profile): void => {
+        // Verify all top-level properties set on GistProfileMinified model
+        _.forEach(keys<GistProfileMinified>(), (propKey): void => {
+            expect(_.get(profile, propKey)).toBeDefined();
+        });
+    });
+}
+
 function validateGistProfile(profile: GistProfile | null): void {
     if (!profile) throw new Error('No data');
 
@@ -182,6 +179,24 @@ function validateGistProfile(profile: GistProfile | null): void {
     validateAppliedProgrammingLanguage(profile.files);
 }
 
+function validateUserProfile(profile: UserProfile | null): void {
+    if (!profile) throw new Error('No data');
+
+    // Verify all top-level properties is set on UserProfile model
+    _.forEach(keys<UserProfile>(), (propKey): void => {
+        expect(_.get(profile, propKey)).toBeDefined();
+    });
+
+    // Verify all properties set on 'organizationMemberships' property
+    validateOrganizationProfileMinified(profile.organizationMemberships);
+
+    // Verify all properties set on 'publicRepositoryOwnerships' property
+    validateRepositoryProfileMinified(profile.publicRepositoryOwnerships);
+
+    // Verify all properties set on 'publicGists' property
+    validateMinGistProfile(profile.publicGists);
+}
+
 export default {
     validateUserProfile,
     validateOrganizationProfileMinified,
@@ -190,5 +205,6 @@ export default {
     validateMonthlyContributions,
     validateRepositoryProfile,
     validateMonthlyPullRequestContributions,
+    validateMinGistProfile,
     validateGistProfile
 };
