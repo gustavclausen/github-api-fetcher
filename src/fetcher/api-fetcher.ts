@@ -6,6 +6,7 @@ import { RequestError, ResponseErrorType } from '../lib/errors';
 import UserRoute from './routes/user';
 import OrganizationRoute from './routes/organization';
 import RepositoryRoute from './routes/repository';
+import GistRoute from './routes/gist';
 
 /**
  * Primary fetcher for GitHub API
@@ -25,6 +26,10 @@ export default class APIFetcher {
      * Repository route
      */
     repository!: RepositoryRoute;
+    /**
+     * Gist route
+     */
+    gist!: GistRoute;
 
     /**
      * @param apiAccessToken GitHub API access token
@@ -45,6 +50,7 @@ export default class APIFetcher {
         this.user = new UserRoute(this);
         this.organization = new OrganizationRoute(this);
         this.repository = new RepositoryRoute(this);
+        this.gist = new GistRoute(this);
     }
 
     /**

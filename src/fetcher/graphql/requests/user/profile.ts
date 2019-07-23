@@ -1,9 +1,14 @@
 import _ from 'lodash';
 import { Expose, Transform, plainToClass } from 'class-transformer';
-import { UserProfile, OrganizationProfileMinified, RepositoryProfileMinified } from '../../../../models';
 import { GraphQLRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
 import { GITHUB_GRAPHQL_OBJECT_NAMES } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
+import {
+    UserProfile,
+    OrganizationProfileMinified,
+    RepositoryProfileMinified,
+    GistProfileMinified
+} from '../../../../models';
 
 class UserProfileParseModel implements UserProfile {
     @Expose()
@@ -37,6 +42,8 @@ class UserProfileParseModel implements UserProfile {
     organizationMemberships!: OrganizationProfileMinified[]; // To be set later with data from another request
 
     publicRepositoryOwnerships!: RepositoryProfileMinified[]; // To be set later with data from another request
+
+    publicGists!: GistProfileMinified[]; // To be set later with data from another request
 }
 
 const fragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT_NAMES.User, [

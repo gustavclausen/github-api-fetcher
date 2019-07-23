@@ -48,6 +48,10 @@ export interface UserProfile {
      * The user's own public repositories
      */
     publicRepositoryOwnerships: RepositoryProfileMinified[];
+    /**
+     * The user's own public gists
+     */
+    publicGists: GistProfileMinified[];
 }
 
 /**
@@ -102,7 +106,7 @@ export interface ProgrammingLanguage {
     /**
      * GitHub's color code (i.e. hex-value) for the programming language – e.g. '#5e5086'
      */
-    color: string;
+    color: string | null;
 }
 
 /**
@@ -286,4 +290,65 @@ export interface PullRequest {
      * The URL pointing to the pull request on GitHub – e.g. 'https://github.com/facebook/react/pull/16002'
      */
     publicUrl: string;
+}
+
+/**
+ * Minified model used to reference GistProfile which contains more details
+ */
+export interface GistProfileMinified {
+    /**
+     * GitHub's own id for gist
+     */
+    gitHubId: string;
+    /**
+     * Name of gist
+     */
+    name: string;
+    /**
+     * GitHub username of owner of gist
+     */
+    ownerUsername: string;
+    /**
+     * The URL pointing to the gist on GitHub – e.g. 'https://gist.github.com/staltz/868e7e9bc2a7b8c1f754'
+     */
+    publicUrl: string;
+}
+
+/**
+ * Public profile of gist
+ */
+export interface GistProfile extends GistProfileMinified {
+    /**
+     * Description of gist
+     */
+    description: string;
+    /**
+     * Indicates if the gist is forked
+     */
+    isFork: boolean;
+    /**
+     * When the gist was created on GitHub
+     */
+    creationDateTime: Date;
+    /**
+     * The last time a commit was pushed to the gist
+     */
+    lastPushDateTime: Date;
+    /**
+     * Number of direct forked gists
+     */
+    forksCount: number;
+    /**
+     * Number of users who have starred the repository
+     */
+    starsCount: number;
+    /**
+     * A list containing a breakdown of the programming language composition
+     * of the gist's code
+     */
+    files: AppliedProgrammingLanguage[];
+    /**
+     * Number of comments made to gist
+     */
+    commentsCount: number;
 }
