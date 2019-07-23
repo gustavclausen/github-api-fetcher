@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RepositoryProfileMinified | GitHub API fetcher</title>
+	<title>GistProfileMinified | GitHub API fetcher</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="repositoryprofileminified.html">RepositoryProfileMinified</a>
+					<a href="gistprofileminified.html">GistProfileMinified</a>
 				</li>
 			</ul>
-			<h1>Interface RepositoryProfileMinified</h1>
+			<h1>Interface GistProfileMinified</h1>
 		</div>
 	</div>
 </header>
@@ -65,7 +65,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Minified model used to reference RepositoryProfile which contains more details</p>
+						<p>Minified model used to reference GistProfile which contains more details</p>
 					</div>
 				</div>
 			</section>
@@ -73,10 +73,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">RepositoryProfileMinified</span>
+						<span class="target">GistProfileMinified</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="repositoryprofile.html" class="tsd-signature-type">RepositoryProfile</a>
+								<a href="gistprofile.html" class="tsd-signature-type">GistProfile</a>
 							</li>
 						</ul>
 					</li>
@@ -89,11 +89,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#isprivate" class="tsd-kind-icon">is<wbr>Private</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#ownername" class="tsd-kind-icon">owner<wbr>Name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofileminified.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofileminified.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofileminified.html#ownerusername" class="tsd-kind-icon">owner<wbr>Username</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofileminified.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a></li>
 							</ul>
 						</section>
 					</div>
@@ -107,27 +106,12 @@
 					<div class="tsd-signature tsd-kind-icon">git<wbr>Hub<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L129">models.ts:129</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L302">models.ts:302</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>GitHub&#39;s own id for repository</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="isprivate" class="tsd-anchor"></a>
-					<h3>is<wbr>Private</h3>
-					<div class="tsd-signature tsd-kind-icon">is<wbr>Private<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L146">models.ts:146</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Indicates if repository is private</p>
+							<p>GitHub&#39;s own id for gist</p>
 						</div>
 					</div>
 				</section>
@@ -137,28 +121,27 @@
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L133">models.ts:133</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L306">models.ts:306</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Name of the repository – e.g. &#39;linux&#39;</p>
+							<p>Name of gist</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="ownername" class="tsd-anchor"></a>
-					<h3>owner<wbr>Name</h3>
-					<div class="tsd-signature tsd-kind-icon">owner<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="ownerusername" class="tsd-anchor"></a>
+					<h3>owner<wbr>Username</h3>
+					<div class="tsd-signature tsd-kind-icon">owner<wbr>Username<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L138">models.ts:138</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L310">models.ts:310</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Name of the owner of the repository – that can either be the username of a user,
-							or the name of a organization</p>
+							<p>GitHub username of owner of gist</p>
 						</div>
 					</div>
 				</section>
@@ -168,12 +151,12 @@
 					<div class="tsd-signature tsd-kind-icon">public<wbr>Url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L142">models.ts:142</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L314">models.ts:314</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The URL pointing to the repository on GitHub – e.g. &#39;<a href="https://github.com/torvalds/linux&#39;">https://github.com/torvalds/linux&#39;</a></p>
+							<p>The URL pointing to the gist on GitHub – e.g. &#39;<a href="https://gist.github.com/staltz/868e7e9bc2a7b8c1f754&#39;">https://gist.github.com/staltz/868e7e9bc2a7b8c1f754&#39;</a></p>
 						</div>
 					</div>
 				</section>
@@ -234,9 +217,27 @@
 					<li class=" tsd-kind-interface">
 						<a href="gistprofile.html" class="tsd-kind-icon">Gist<wbr>Profile</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="gistprofileminified.html" class="tsd-kind-icon">Gist<wbr>Profile<wbr>Minified</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofileminified.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofileminified.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofileminified.html#ownerusername" class="tsd-kind-icon">owner<wbr>Username</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofileminified.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="graphqlrequest.html" class="tsd-kind-icon">GraphQLRequest</a>
 					</li>
@@ -267,30 +268,9 @@
 					<li class=" tsd-kind-interface">
 						<a href="repositoryprofile.html" class="tsd-kind-icon">Repository<wbr>Profile</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="repositoryprofileminified.html" class="tsd-kind-icon">Repository<wbr>Profile<wbr>Minified</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#isprivate" class="tsd-kind-icon">is<wbr>Private</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#ownername" class="tsd-kind-icon">owner<wbr>Name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="userprofile.html" class="tsd-kind-icon">User<wbr>Profile</a>
 					</li>

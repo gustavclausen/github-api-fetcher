@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RepositoryProfileMinified | GitHub API fetcher</title>
+	<title>GistProfile | GitHub API fetcher</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="repositoryprofileminified.html">RepositoryProfileMinified</a>
+					<a href="gistprofile.html">GistProfile</a>
 				</li>
 			</ul>
-			<h1>Interface RepositoryProfileMinified</h1>
+			<h1>Interface GistProfile</h1>
 		</div>
 	</div>
 </header>
@@ -65,7 +65,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Minified model used to reference RepositoryProfile which contains more details</p>
+						<p>Public profile of gist</p>
 					</div>
 				</div>
 			</section>
@@ -73,10 +73,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">RepositoryProfileMinified</span>
+						<a href="gistprofileminified.html" class="tsd-signature-type">GistProfileMinified</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="repositoryprofile.html" class="tsd-signature-type">RepositoryProfile</a>
+								<span class="target">GistProfile</span>
 							</li>
 						</ul>
 					</li>
@@ -89,11 +89,18 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#isprivate" class="tsd-kind-icon">is<wbr>Private</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#ownername" class="tsd-kind-icon">owner<wbr>Name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="repositoryprofileminified.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#commentscount" class="tsd-kind-icon">comments<wbr>Count</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#creationdatetime" class="tsd-kind-icon">creation<wbr>Date<wbr>Time</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#description" class="tsd-kind-icon">description</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#files" class="tsd-kind-icon">files</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#forkscount" class="tsd-kind-icon">forks<wbr>Count</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="gistprofile.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#isfork" class="tsd-kind-icon">is<wbr>Fork</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#lastpushdatetime" class="tsd-kind-icon">last<wbr>Push<wbr>Date<wbr>Time</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="gistprofile.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="gistprofile.html#ownerusername" class="tsd-kind-icon">owner<wbr>Username</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="gistprofile.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="gistprofile.html#starscount" class="tsd-kind-icon">stars<wbr>Count</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,78 +109,187 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="commentscount" class="tsd-anchor"></a>
+					<h3>comments<wbr>Count</h3>
+					<div class="tsd-signature tsd-kind-icon">comments<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L353">models.ts:353</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Number of comments made to gist</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="creationdatetime" class="tsd-anchor"></a>
+					<h3>creation<wbr>Date<wbr>Time</h3>
+					<div class="tsd-signature tsd-kind-icon">creation<wbr>Date<wbr>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L332">models.ts:332</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>When the gist was created on GitHub</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="description" class="tsd-anchor"></a>
+					<h3>description</h3>
+					<div class="tsd-signature tsd-kind-icon">description<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L324">models.ts:324</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Description of gist</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="files" class="tsd-anchor"></a>
+					<h3>files</h3>
+					<div class="tsd-signature tsd-kind-icon">files<span class="tsd-signature-symbol">:</span> <a href="appliedprogramminglanguage.html" class="tsd-signature-type">AppliedProgrammingLanguage</a><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L349">models.ts:349</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A list containing a breakdown of the programming language composition
+							of the gist&#39;s code</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="forkscount" class="tsd-anchor"></a>
+					<h3>forks<wbr>Count</h3>
+					<div class="tsd-signature tsd-kind-icon">forks<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L340">models.ts:340</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Number of direct forked gists</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="githubid" class="tsd-anchor"></a>
 					<h3>git<wbr>Hub<wbr>Id</h3>
 					<div class="tsd-signature tsd-kind-icon">git<wbr>Hub<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="gistprofileminified.html">GistProfileMinified</a>.<a href="gistprofileminified.html#githubid">gitHubId</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L129">models.ts:129</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L302">models.ts:302</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>GitHub&#39;s own id for repository</p>
+							<p>GitHub&#39;s own id for gist</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="isprivate" class="tsd-anchor"></a>
-					<h3>is<wbr>Private</h3>
-					<div class="tsd-signature tsd-kind-icon">is<wbr>Private<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<a name="isfork" class="tsd-anchor"></a>
+					<h3>is<wbr>Fork</h3>
+					<div class="tsd-signature tsd-kind-icon">is<wbr>Fork<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L146">models.ts:146</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L328">models.ts:328</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Indicates if repository is private</p>
+							<p>Indicates if the gist is forked</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="lastpushdatetime" class="tsd-anchor"></a>
+					<h3>last<wbr>Push<wbr>Date<wbr>Time</h3>
+					<div class="tsd-signature tsd-kind-icon">last<wbr>Push<wbr>Date<wbr>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L336">models.ts:336</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The last time a commit was pushed to the gist</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="name" class="tsd-anchor"></a>
 					<h3>name</h3>
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="gistprofileminified.html">GistProfileMinified</a>.<a href="gistprofileminified.html#name">name</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L133">models.ts:133</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L306">models.ts:306</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Name of the repository – e.g. &#39;linux&#39;</p>
+							<p>Name of gist</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="ownername" class="tsd-anchor"></a>
-					<h3>owner<wbr>Name</h3>
-					<div class="tsd-signature tsd-kind-icon">owner<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="ownerusername" class="tsd-anchor"></a>
+					<h3>owner<wbr>Username</h3>
+					<div class="tsd-signature tsd-kind-icon">owner<wbr>Username<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="gistprofileminified.html">GistProfileMinified</a>.<a href="gistprofileminified.html#ownerusername">ownerUsername</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L138">models.ts:138</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L310">models.ts:310</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Name of the owner of the repository – that can either be the username of a user,
-							or the name of a organization</p>
+							<p>GitHub username of owner of gist</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="publicurl" class="tsd-anchor"></a>
 					<h3>public<wbr>Url</h3>
 					<div class="tsd-signature tsd-kind-icon">public<wbr>Url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="gistprofileminified.html">GistProfileMinified</a>.<a href="gistprofileminified.html#publicurl">publicUrl</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L142">models.ts:142</a></li>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L314">models.ts:314</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The URL pointing to the repository on GitHub – e.g. &#39;<a href="https://github.com/torvalds/linux&#39;">https://github.com/torvalds/linux&#39;</a></p>
+							<p>The URL pointing to the gist on GitHub – e.g. &#39;<a href="https://gist.github.com/staltz/868e7e9bc2a7b8c1f754&#39;">https://gist.github.com/staltz/868e7e9bc2a7b8c1f754&#39;</a></p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="starscount" class="tsd-anchor"></a>
+					<h3>stars<wbr>Count</h3>
+					<div class="tsd-signature tsd-kind-icon">stars<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/gustavclausen/github-api-fetcher/blob/756cbed/src/models.ts#L344">models.ts:344</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Number of users who have starred the repository</p>
 						</div>
 					</div>
 				</section>
@@ -231,9 +347,51 @@
 					<li class=" tsd-kind-interface">
 						<a href="contributionsbyrepository.html" class="tsd-kind-icon">Contributions<wbr>ByRepository</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="gistprofile.html" class="tsd-kind-icon">Gist<wbr>Profile</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#commentscount" class="tsd-kind-icon">comments<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#creationdatetime" class="tsd-kind-icon">creation<wbr>Date<wbr>Time</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#description" class="tsd-kind-icon">description</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#files" class="tsd-kind-icon">files</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#forkscount" class="tsd-kind-icon">forks<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="gistprofile.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#isfork" class="tsd-kind-icon">is<wbr>Fork</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#lastpushdatetime" class="tsd-kind-icon">last<wbr>Push<wbr>Date<wbr>Time</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="gistprofile.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="gistprofile.html#ownerusername" class="tsd-kind-icon">owner<wbr>Username</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="gistprofile.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="gistprofile.html#starscount" class="tsd-kind-icon">stars<wbr>Count</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="gistprofileminified.html" class="tsd-kind-icon">Gist<wbr>Profile<wbr>Minified</a>
 					</li>
@@ -267,30 +425,9 @@
 					<li class=" tsd-kind-interface">
 						<a href="repositoryprofile.html" class="tsd-kind-icon">Repository<wbr>Profile</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="repositoryprofileminified.html" class="tsd-kind-icon">Repository<wbr>Profile<wbr>Minified</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#githubid" class="tsd-kind-icon">git<wbr>Hub<wbr>Id</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#isprivate" class="tsd-kind-icon">is<wbr>Private</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#ownername" class="tsd-kind-icon">owner<wbr>Name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="repositoryprofileminified.html#publicurl" class="tsd-kind-icon">public<wbr>Url</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="userprofile.html" class="tsd-kind-icon">User<wbr>Profile</a>
 					</li>

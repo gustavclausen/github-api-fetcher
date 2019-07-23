@@ -98,6 +98,10 @@
 				<ul>
 					<li>Repository profile</li>
 				</ul>
+				<h4 id="gist">Gist</h4>
+				<ul>
+					<li>Gist profile</li>
+				</ul>
 				<p>Check out <a href="https://gustavclausen.github.io/github-api-fetcher/">the documentation website</a> for a complete overview of the API and the included models.</p>
 				<h2 id="installation">Installation</h2>
 				<pre><code class="language-sh">npm i github-api-fetcher</code></pre>
@@ -160,7 +164,8 @@
 
 fetcher.user <span class="hljs-comment">// User route</span>
 fetcher.organization <span class="hljs-comment">// Organization route</span>
-fetcher.repository <span class="hljs-comment">// Repository route</span></code></pre>
+fetcher.repository <span class="hljs-comment">// Repository route</span>
+fetcher.gist <span class="hljs-comment">// Gist route</span></code></pre>
 				<h3 id="error-handling">Error handling</h3>
 				<h4 id="javascript">JavaScript</h4>
 				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> { APIFetcher, ResponseErrorType } = <span class="hljs-built_in">require</span>(<span class="hljs-string">"github-api-fetcher"</span>);
@@ -240,6 +245,9 @@ fetcher.repository <span class="hljs-comment">// Repository route</span></code><
 						<a href="classes/apifetcher.html" class="tsd-kind-icon">APIFetcher</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/gistroute.html" class="tsd-kind-icon">Gist<wbr>Route</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/graphqlfragment.html" class="tsd-kind-icon">GraphQLFragment</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -268,6 +276,12 @@ fetcher.repository <span class="hljs-comment">// Repository route</span></code><
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/contributionsbyrepository.html" class="tsd-kind-icon">Contributions<wbr>ByRepository</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/gistprofile.html" class="tsd-kind-icon">Gist<wbr>Profile</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/gistprofileminified.html" class="tsd-kind-icon">Gist<wbr>Profile<wbr>Minified</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="interfaces/graphqlrequest.html" class="tsd-kind-icon">GraphQLRequest</a>
