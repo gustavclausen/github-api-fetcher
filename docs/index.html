@@ -60,14 +60,18 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="github-api-fetcher">GitHub API Fetcher</h1>
+				<a href="#github-api-fetcher" id="github-api-fetcher" style="color: inherit; text-decoration: none;">
+					<h1>GitHub API Fetcher</h1>
+				</a>
 				<p><a href="https://www.npmjs.com/package/github-api-fetcher"><img src="https://img.shields.io/npm/v/github-api-fetcher.svg" alt="npm"></a>
 					<a href="https://circleci.com/gh/gustavclausen/github-api-fetcher/tree/master"><img src="https://circleci.com/gh/gustavclausen/github-api-fetcher/tree/master.svg?style=svg" alt="CircleCI"></a>
 					<a href="https://coveralls.io/github/gustavclausen/github-api-fetcher?branch=master"><img src="https://coveralls.io/repos/github/gustavclausen/github-api-fetcher/badge.svg?branch=master" alt="Coverage Status"></a>
 					<a href="https://github.com/gustavclausen/github-api-fetcher/blob/master/LICENSE"><img src="https://img.shields.io/github/license/gustavclausen/github-api-fetcher.svg" alt="License"></a>
 				<a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/gustavclausen/github-api-fetcher.svg" alt="Greenkeeper badge"></a></p>
 				<p>GitHub API fetcher is a simplified data fetching client for <a href="https://developer.github.com/v4/">GitHub&#39;s GraphQL v4 API</a> – supporting Node.js and browsers for all types of applications: websites, scripts, data scraping, plugins etc. Works seamlessly with both JavaScript and TypeScript.</p>
-				<h2 id="features">Features</h2>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
 				<ul>
 					<li>Simple, promise-based API for common requests like user/repository/organization profiles, contributions and more. Check out the next section to get a full overview of all predefined requests.</li>
 					<li>Full TypeScript support.</li>
@@ -75,8 +79,12 @@
 					<li>Adheres to <a href="https://developer.github.com/v3/guides/best-practices-for-integrators/">GitHub&#39;s best practices</a> – such as dealing with abuse rate limits.</li>
 					<li>Support for adding your own GraphQL requests.</li>
 				</ul>
-				<h3 id="predefined-requests">Predefined requests</h3>
-				<h4 id="user">User</h4>
+				<a href="#predefined-requests" id="predefined-requests" style="color: inherit; text-decoration: none;">
+					<h3>Predefined requests</h3>
+				</a>
+				<a href="#user" id="user" style="color: inherit; text-decoration: none;">
+					<h4>User</h4>
+				</a>
 				<ul>
 					<li>User profile</li>
 					<li>Organization memberships</li>
@@ -90,23 +98,35 @@
 						</ul>
 					</li>
 				</ul>
-				<h4 id="organization">Organization</h4>
+				<a href="#organization" id="organization" style="color: inherit; text-decoration: none;">
+					<h4>Organization</h4>
+				</a>
 				<ul>
 					<li>Organization profile</li>
 				</ul>
-				<h4 id="repository">Repository</h4>
+				<a href="#repository" id="repository" style="color: inherit; text-decoration: none;">
+					<h4>Repository</h4>
+				</a>
 				<ul>
 					<li>Repository profile</li>
 				</ul>
-				<h4 id="gist">Gist</h4>
+				<a href="#gist" id="gist" style="color: inherit; text-decoration: none;">
+					<h4>Gist</h4>
+				</a>
 				<ul>
 					<li>Gist profile</li>
 				</ul>
 				<p>Check out <a href="https://gustavclausen.github.io/github-api-fetcher/">the documentation website</a> for a complete overview of the API and the included models.</p>
-				<h2 id="installation">Installation</h2>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
 				<pre><code class="language-sh">npm i github-api-fetcher</code></pre>
-				<h2 id="configuration">Configuration</h2>
-				<h4 id="github-access-token">GitHub access token</h4>
+				<a href="#configuration" id="configuration" style="color: inherit; text-decoration: none;">
+					<h2>Configuration</h2>
+				</a>
+				<a href="#github-access-token" id="github-access-token" style="color: inherit; text-decoration: none;">
+					<h4>GitHub access token</h4>
+				</a>
 				<p>It&#39;s required to have a valid access token to use the client and access the GitHub API.
 				You&#39;ve the option to use your own personal access token (see this <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">guide</a>), or create an OAuth app and use the authenticated user&#39;s access token (see this <a href="https://developer.github.com/apps/building-oauth-apps/">guide</a>). Personal access tokens is recommended while developing since it&#39;s simple to setup, while the OAuth app setup is more complicated and should be used for public use.</p>
 				<p>The following scopes is required to use all predefined requests:</p>
@@ -116,11 +136,19 @@
 					<li>read:org</li>
 					<li>read:user</li>
 				</ul>
-				<h4 id="-optional-declare-access-token-in-environment-variable">(Optional) Declare access token in environment variable</h4>
+				<a href="#optional-declare-access-token-in-environment-variable" id="optional-declare-access-token-in-environment-variable" style="color: inherit; text-decoration: none;">
+					<h4>(Optional) Declare access token in environment variable</h4>
+				</a>
 				<p>Instead of passing the access token as an argument when using the client, it&#39;s possible to declare the access token in an environment variable with the name: <code>GITHUB_FETCHER_API_ACCESS_TOKEN</code>.</p>
-				<h2 id="usage">Usage</h2>
-				<h3 id="quickstart-simple-user-profile-request">Quickstart - simple user profile request</h3>
-				<h4 id="javascript">JavaScript</h4>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<a href="#quickstart---simple-user-profile-request" id="quickstart---simple-user-profile-request" style="color: inherit; text-decoration: none;">
+					<h3>Quickstart - simple user profile request</h3>
+				</a>
+				<a href="#javascript" id="javascript" style="color: inherit; text-decoration: none;">
+					<h4>JavaScript</h4>
+				</a>
 				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> { APIFetcher } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'github-api-fetcher'</span>);
 
 <span class="hljs-comment">/*
@@ -136,7 +164,9 @@
 })();</code></pre>
 				<p>Output:</p>
 				<pre><code class="language-sh">Linus Torvalds</code></pre>
-				<h4 id="typescript">TypeScript</h4>
+				<a href="#typescript" id="typescript" style="color: inherit; text-decoration: none;">
+					<h4>TypeScript</h4>
+				</a>
 				<pre><code class="language-TypeScript"><span class="hljs-keyword">import</span> { APIFetcher } <span class="hljs-keyword">from</span> <span class="hljs-string">'github-api-fetcher'</span>;
 
 <span class="hljs-comment">/*
@@ -158,7 +188,9 @@
 })();</code></pre>
 				<p>Output:</p>
 				<pre><code class="language-sh">Linus Torvalds</code></pre>
-				<h3 id="routes">Routes</h3>
+				<a href="#routes" id="routes" style="color: inherit; text-decoration: none;">
+					<h3>Routes</h3>
+				</a>
 				<p>You access the requests by the route properties on the client as shown in the example below:</p>
 				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> fetcher = <span class="hljs-keyword">new</span> APIFetcher(<span class="hljs-string">'&lt;SECRET-ACCESS-TOKEN&gt;'</span>);
 
@@ -166,8 +198,12 @@ fetcher.user <span class="hljs-comment">// User route</span>
 fetcher.organization <span class="hljs-comment">// Organization route</span>
 fetcher.repository <span class="hljs-comment">// Repository route</span>
 fetcher.gist <span class="hljs-comment">// Gist route</span></code></pre>
-				<h3 id="error-handling">Error handling</h3>
-				<h4 id="javascript">JavaScript</h4>
+				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+					<h3>Error handling</h3>
+				</a>
+				<a href="#javascript-1" id="javascript-1" style="color: inherit; text-decoration: none;">
+					<h4>JavaScript</h4>
+				</a>
 				<pre><code class="language-JavaScript"><span class="hljs-keyword">const</span> { APIFetcher, ResponseErrorType } = <span class="hljs-built_in">require</span>(<span class="hljs-string">"github-api-fetcher"</span>);
 
 <span class="hljs-keyword">const</span> fetcher = <span class="hljs-keyword">new</span> APIFetcher(<span class="hljs-string">'not-a-valid-token'</span>);
@@ -182,7 +218,9 @@ fetcher.gist <span class="hljs-comment">// Gist route</span></code></pre>
 })();</code></pre>
 				<p>Output:</p>
 				<pre><code class="language-sh">BAD_CREDENTIALS</code></pre>
-				<h4 id="typescript">TypeScript</h4>
+				<a href="#typescript-1" id="typescript-1" style="color: inherit; text-decoration: none;">
+					<h4>TypeScript</h4>
+				</a>
 				<pre><code class="language-TypeScript"><span class="hljs-keyword">import</span> { APIFetcher, RequestError, ResponseErrorType } <span class="hljs-keyword">from</span> <span class="hljs-string">"github-api-fetcher"</span>;
 
 <span class="hljs-keyword">const</span> fetcher = <span class="hljs-keyword">new</span> APIFetcher(<span class="hljs-string">'not-a-valid-token'</span>);
@@ -207,19 +245,32 @@ fetcher.gist <span class="hljs-comment">// Gist route</span></code></pre>
 </span></code></pre>
 				<p>Output:</p>
 				<pre><code class="language-sh">BAD_CREDENTIALS</code></pre>
-				<h2 id="modifying-the-project-for-your-needs">Modifying the project for your needs</h2>
+				<a href="#modifying-the-project-for-your-needs" id="modifying-the-project-for-your-needs" style="color: inherit; text-decoration: none;">
+					<h2>Modifying the project for your needs</h2>
+				</a>
 				<p>Feel free to fork this repository to add, modify, delete requests and models to suit your needs.</p>
-				<h3 id="extending-with-your-own-requests">Extending with your own requests</h3>
-				<p>You can build your own GraphQL queries following GitHub&#39;s schemas (documentation available here: <a href="https://developer.github.com/v4/)">https://developer.github.com/v4/)</a>.</p>
+				<a href="#extending-with-your-own-requests" id="extending-with-your-own-requests" style="color: inherit; text-decoration: none;">
+					<h3>Extending with your own requests</h3>
+				</a>
+				<p>You can build your own GraphQL queries following GitHub&#39;s schemas (documentation available here: <a href="https://developer.github.com/v4/">https://developer.github.com/v4/</a>).</p>
 				<p>Examples for custom requests can be found in the <a href="https://github.com/gustavclausen/github-api-fetcher/blob/master/examples/">examples folder</a>. These examples illustrates how to work with single and paged requests, as well as GraphQL fragments with plain and nested fields with aliases.</p>
-				<h3 id="modifying-models-and-requests">Modifying models and requests</h3>
+				<a href="#modifying-models-and-requests" id="modifying-models-and-requests" style="color: inherit; text-decoration: none;">
+					<h3>Modifying models and requests</h3>
+				</a>
 				<p>You can simply modify the base models and requests to add, modify or delete properties. Mulitple integration tests has been written to ensure all properties on the base models is being set upon parsing the response data.<br>You can use the NPM task, <code>npm test</code>, to run all tests.</p>
-				<h2 id="contributing">Contributing</h2>
+				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
+					<h2>Contributing</h2>
+				</a>
 				<p>This project needs your help! :muscle:</p>
 				<p>Please read <a href="https://github.com/gustavclausen/github-api-fetcher/blob/master/CONTRIBUTING.md">this document</a>. It explains how to contribute to this project.</p>
-				<h2 id="license">License</h2>
-				<p>Feel free to use the source code in any way you like – it&#39;s released under the <a href="https://github.com/gustavclausen/github-api-fetcher/blob/master/LICENSE">MIT License</a>.<br>I would appreciate being credited, but it&#39;s most certainly not required!</p>
-				<h2 id="maintainers">Maintainers</h2>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p>Feel free to use the source code in any way you like – it&#39;s released under the <a href="https://github.com/gustavclausen/github-api-fetcher/blob/master/LICENSE">MIT License</a>.
+				I would appreciate being credited, but it&#39;s most certainly not required!</p>
+				<a href="#maintainers" id="maintainers" style="color: inherit; text-decoration: none;">
+					<h2>Maintainers</h2>
+				</a>
 				<ul>
 					<li>Gustav Kofoed Clausen (<a href="http://github.com/gustavclausen">@gustavclausen</a>)</li>
 				</ul>
@@ -336,6 +387,7 @@ fetcher.gist <span class="hljs-comment">// Gist route</span></code></pre>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
@@ -384,7 +436,7 @@ fetcher.gist <span class="hljs-comment">// Gist route</span></code></pre>
 	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
