@@ -41,16 +41,22 @@ export default class APIFetcher {
             throw new Error('Config error');
         }
 
-        this.graphQLClient = new GraphQLClient(config.apiEndpoint, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
+        this.graphQLClient = new GraphQLClient(config.apiEndpoint);
+        this.setApiAccessToken(accessToken);
 
         this.user = new UserRoute(this);
         this.organization = new OrganizationRoute(this);
         this.repository = new RepositoryRoute(this);
         this.gist = new GistRoute(this);
+    }
+
+    /**
+     * Set GitHub API access token for client
+     *
+     * @param apiAccessToken GitHub API access token
+     */
+    setApiAccessToken(apiAccessToken: string): void {
+        this.graphQLClient.setHeader('Authorization', `Bearer ${apiAccessToken}`);
     }
 
     /**
