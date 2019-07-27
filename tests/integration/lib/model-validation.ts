@@ -186,15 +186,6 @@ function validateUserProfile(profile: UserProfile | null): void {
     _.forEach(keys<UserProfile>(), (propKey): void => {
         expect(_.get(profile, propKey)).toBeDefined();
     });
-
-    // Verify all properties set on 'organizationMemberships' property
-    validateOrganizationProfileMinified(profile.organizationMemberships);
-
-    // Verify all properties set on 'publicRepositoryOwnerships' property
-    validateRepositoryProfileMinified(profile.publicRepositoryOwnerships);
-
-    // Verify all properties set on 'publicGists' property
-    validateMinGistProfile(profile.publicGists);
 }
 
 export default {

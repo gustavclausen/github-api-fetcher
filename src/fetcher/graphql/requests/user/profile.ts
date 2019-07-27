@@ -3,12 +3,7 @@ import { Expose, Transform, plainToClass } from 'class-transformer';
 import { GraphQLRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
 import { GITHUB_GRAPHQL_OBJECT_NAMES } from '../../common/fragments';
 import { ParseError } from '../../../../lib/errors';
-import {
-    UserProfile,
-    OrganizationProfileMinified,
-    RepositoryProfileMinified,
-    GistProfileMinified
-} from '../../../../models';
+import { UserProfile } from '../../../../models';
 
 class UserProfileParseModel implements UserProfile {
     @Expose()
@@ -38,12 +33,6 @@ class UserProfileParseModel implements UserProfile {
     @Expose()
     @Transform((obj): number => _.get(obj, 'count'))
     followersCount!: number;
-
-    organizationMemberships!: OrganizationProfileMinified[]; // To be set later with data from another request
-
-    publicRepositoryOwnerships!: RepositoryProfileMinified[]; // To be set later with data from another request
-
-    publicGists!: GistProfileMinified[]; // To be set later with data from another request
 }
 
 const fragment = new GraphQLFragment('UserProfile', GITHUB_GRAPHQL_OBJECT_NAMES.User, [
