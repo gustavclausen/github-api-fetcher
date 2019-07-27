@@ -40,18 +40,6 @@ export interface UserProfile {
      * Number of users following this profile
      */
     followersCount: number;
-    /**
-     * Organizations that the user is member of
-     */
-    organizationMemberships: OrganizationProfileMinified[];
-    /**
-     * The user's own public repositories
-     */
-    publicRepositoryOwnerships: RepositoryProfileMinified[];
-    /**
-     * The user's own public gists
-     */
-    publicGists: GistProfileMinified[];
 }
 
 /**

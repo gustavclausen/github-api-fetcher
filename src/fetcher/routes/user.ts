@@ -26,24 +26,6 @@ export default class UserRoute extends Routefetcher {
 
         if (!fetchedProfile) return null;
 
-        // Fetch info about organizations user is member of, and add result to profile
-        const organizationMemberships = await this.getOrganizationMemberships(username);
-        if (organizationMemberships) {
-            fetchedProfile.organizationMemberships = organizationMemberships;
-        }
-
-        // Fetch info about public repositories that the user owns, and add result to profile
-        const publicRepositoryOwnerships = await this.getPublicRepositoryOwnerships(username);
-        if (publicRepositoryOwnerships) {
-            fetchedProfile.publicRepositoryOwnerships = publicRepositoryOwnerships;
-        }
-
-        // Fetch info about public gists that the user created, and add result to profile
-        const publicGists = await this.getPublicGists(username);
-        if (publicGists) {
-            fetchedProfile.publicGists = publicGists;
-        }
-
         return fetchedProfile;
     }
 

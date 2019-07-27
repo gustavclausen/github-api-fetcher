@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { APIFetcher } from '../../src/main';
 import randomData from './lib/random-data';
 import modelValidation from './lib/model-validation';
-import { UserProfile } from '../../src/models';
+import { UserProfile, OrganizationProfileMinified } from '../../src/models';
 import { Month } from '../../src/lib/date-utils';
 
 jest.setTimeout(60000); // 60 seconds timeout for all tests and before/after hooks. Tests fails with error if timeout is exceeded
@@ -26,10 +26,14 @@ describe('APIFetcher', (): void => {
             async (): Promise<void> => {
                 // Find eligible user profile with at least one organization membership
                 let result: UserProfile | null = null;
+                let randomUserOrganizationMemberships: OrganizationProfileMinified[] = [];
 
-                while (!result || _.isEmpty(result.organizationMemberships)) {
+                while (!result || _.isEmpty(randomUserOrganizationMemberships)) {
                     const randomUsername = await randomData.getUsernameOfRandomUser();
                     result = await fetcher.user.getProfile(randomUsername);
+                    randomUserOrganizationMemberships = (await fetcher.user.getOrganizationMemberships(
+                        randomUsername
+                    ))!;
                 }
 
                 userProfile = result;
