@@ -13,6 +13,7 @@ import GistRoute from './routes/gist';
  */
 export default class APIFetcher {
     private graphQLClient: GraphQLClient;
+    private accessToken: string = '';
 
     /**
      * User route
@@ -42,7 +43,7 @@ export default class APIFetcher {
         }
 
         this.graphQLClient = new GraphQLClient(config.apiEndpoint);
-        this.setApiAccessToken(accessToken);
+        this.apiAccessToken = accessToken;
 
         this.user = new UserRoute(this);
         this.organization = new OrganizationRoute(this);
@@ -51,11 +52,19 @@ export default class APIFetcher {
     }
 
     /**
+     * @returns GitHub API access token for client
+     */
+    get apiAccessToken(): string {
+        return this.accessToken;
+    }
+
+    /**
      * Set GitHub API access token for client
      *
      * @param apiAccessToken GitHub API access token
      */
-    setApiAccessToken(apiAccessToken: string): void {
+    set apiAccessToken(apiAccessToken: string) {
+        this.accessToken = apiAccessToken;
         this.graphQLClient.setHeader('Authorization', `Bearer ${apiAccessToken}`);
     }
 

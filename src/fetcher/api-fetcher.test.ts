@@ -39,6 +39,14 @@ describe('APIFetcher', (): void => {
             expect(getClientAuthorizationHeader()).toBe(`Bearer ${accessToken}`);
         });
 
+        it('should set apiAccessToken property', (): void => {
+            const accessToken = 'dummyAccessToken';
+
+            fetcher = new APIFetcher(accessToken);
+
+            expect(fetcher.apiAccessToken).toBe(accessToken);
+        });
+
         it('should throw error if no access token is set', (): void => {
             // Mock config where access token is retrieved
             jest.mock('../etc/config');
