@@ -289,9 +289,9 @@ export interface GistProfileMinified {
      */
     gitHubId: string;
     /**
-     * Name of gist
+     * The gist's id (same as the name of the gist)
      */
-    name: string;
+    gistId: string;
     /**
      * GitHub username of owner of gist
      */

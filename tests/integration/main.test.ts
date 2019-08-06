@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import _ from 'lodash';
+import uuid = require('uuid');
 import { APIFetcher } from '../../src/main';
 import randomData from './lib/random-data';
 import modelValidation from './lib/model-validation';
@@ -431,17 +432,28 @@ describe('APIFetcher', (): void => {
 
     describe('gist', (): void => {
         describe('getProfile', (): void => {
+            let [randomGistOwnerUsername, randomGistId]: [string, string] = ['', ''];
+
+            beforeAll(
+                async (): Promise<void> => {
+                    [randomGistOwnerUsername, randomGistId] = await randomData.getRandomGist();
+                }
+            );
+
             it('should return model with all properties set', async (): Promise<void> => {
-                const [randomOwnerUsername, randomGistName] = await randomData.getRandomGist();
-                const result = await fetcher.gist.getProfile(randomOwnerUsername, randomGistName);
+                const result = await fetcher.gist.getProfile(randomGistOwnerUsername, randomGistId);
 
                 modelValidation.validateGistProfile(result);
             });
 
-            it('should return null for non-existing gist', async (): Promise<void> => {
-                const [nonExistingOwnerUsername, nonExistingGistName] = await randomData.getNonExistingGist();
+            it('should return null for non-existing gist created by non-existing user', async (): Promise<void> => {
+                const [nonExistingOwnerUsername, nonExistingGistId] = await randomData.getNonExistingGist();
 
-                expect(await fetcher.gist.getProfile(nonExistingOwnerUsername, nonExistingGistName)).toBeNull();
+                expect(await fetcher.gist.getProfile(nonExistingOwnerUsername, nonExistingGistId)).toBeNull();
+            });
+
+            it('should return null for non-existing gist created by existing user', async (): Promise<void> => {
+                expect(await fetcher.gist.getProfile(randomGistId, uuid())).toBeNull();
             });
         });
     });

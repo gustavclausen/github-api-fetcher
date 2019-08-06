@@ -10,9 +10,9 @@ export default class GistRoute extends Routefetcher {
      * Example: getGist('staltz', '868e7e9bc2a7b8c1f754')
      *
      * @param ownerUsername The GitHub username of the owner
-     * @param gistName Name of the gist
+     * @param gistId The gist's id (same as the name of the gist)
      */
-    async getProfile(ownerUsername: string, gistName: string): Promise<GistProfile | null> {
-        return await this.fetcher.fetch<GistProfile>(new GistRequests.Profile(ownerUsername, gistName));
+    async getProfile(ownerUsername: string, gistId: string): Promise<GistProfile | null> {
+        return await this.fetcher.fetch<GistProfile>(new GistRequests.Profile(ownerUsername, gistId));
     }
 }

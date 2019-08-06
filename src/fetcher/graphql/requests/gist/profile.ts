@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { GraphQLRequest, GraphQLFragment, GraphQLObjectField } from '../../utils';
 import { GistProfile, AppliedProgrammingLanguage } from '../../../../models';
-import { ParseError } from '../../../../lib/errors';
+import { RequestError, ResponseErrorType } from '../../../../lib/errors';
 import { plainToClass, Expose, Transform } from 'class-transformer';
 import fragments, { GITHUB_GRAPHQL_OBJECT_NAMES } from '../../common/fragments';
 import { MinGistProfileParseModel } from '../../common/parse-models';
@@ -75,9 +75,9 @@ const fragment = new GraphQLFragment('GistProfile', GITHUB_GRAPHQL_OBJECT_NAMES.
 
 export default class GetGistProfileRequest implements GraphQLRequest<GistProfile> {
     query = `
-        query GetGistProfile($ownerUsername: String!, $gistName: String!) {
+        query GetGistProfile($ownerUsername: String!, $gistId: String!) {
             user(login: $ownerUsername) {
-                gist(name: $gistName) {
+                gist(name: $gistId) {
                     ...${fragment.name}
                 }
             }
@@ -87,17 +87,17 @@ export default class GetGistProfileRequest implements GraphQLRequest<GistProfile
     `;
     variables: object | undefined;
 
-    constructor(ownerUsername: string, gistName: string) {
+    constructor(ownerUsername: string, gistId: string) {
         this.variables = {
             ownerUsername,
-            gistName
+            gistId
         };
     }
 
     parseResponse(rawData: object): GistProfile {
         const gistProfileData = _.get(rawData, 'user.gist');
         if (!gistProfileData) {
-            throw new ParseError(rawData);
+            throw new RequestError(ResponseErrorType.NOT_FOUND, 'No data found');
         }
 
         return plainToClass(GistProfileParseModel, gistProfileData, {
