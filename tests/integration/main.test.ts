@@ -453,7 +453,7 @@ describe('APIFetcher', (): void => {
             });
 
             it('should return null for non-existing gist created by existing user', async (): Promise<void> => {
-                expect(await fetcher.gist.getProfile(randomGistId, uuid())).toBeNull();
+                expect(await fetcher.gist.getProfile(randomGistOwnerUsername, uuid())).toBeNull();
             });
         });
     });
