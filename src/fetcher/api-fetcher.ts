@@ -82,7 +82,10 @@ export default class APIFetcher {
 
             return request.parseResponse(response.data);
         } catch (error) {
-            const classifiedError = APIFetcher.classifyRequestError(error) as RequestError;
+            const classifiedError =
+                error instanceof RequestError
+                    ? (error as RequestError)
+                    : (APIFetcher.classifyRequestError(error) as RequestError);
 
             if (classifiedError.type === ResponseErrorType.NOT_FOUND) {
                 return null;
