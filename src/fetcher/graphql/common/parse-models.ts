@@ -68,7 +68,7 @@ export class MinGistProfileParseModel implements GistProfileMinified {
     gitHubId!: string;
 
     @Expose()
-    name!: string;
+    gistId!: string;
 
     @Expose()
     @Transform((obj): string => _.get(obj, 'username'))

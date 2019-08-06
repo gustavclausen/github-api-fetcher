@@ -43,7 +43,7 @@ export default {
     ]),
     minifiedGist: new GraphQLFragment('minGistProfile', GITHUB_GRAPHQL_OBJECT_NAMES.Gist, [
         new GraphQLObjectField('id', 'gitHubId'),
-        new GraphQLObjectField('name'),
+        new GraphQLObjectField('name', 'gistId'),
         new GraphQLObjectField('owner', 'ownerUsername', [new GraphQLObjectField('login', 'username')]),
         new GraphQLObjectField('url', 'publicUrl')
     ])

@@ -158,16 +158,16 @@ async function getRandomPRContributionTime(username: string): Promise<[number, M
 }
 
 /**
- * Fetches random gist, and returns username of owner and name of the gist as tuple
+ * Fetches random gist, and returns username of owner and id of the gist as tuple
  */
 async function getRandomGist(): Promise<[string, string]> {
     const randomGists = await fetchGitHubAPI('gists/public');
     const randomGist = _.sample(randomGists) as object;
 
     const ownerUsername = _.get(randomGist, 'owner.login') as string;
-    const gistName = _.get(randomGist, 'id') as string;
+    const gistId = _.get(randomGist, 'id') as string;
 
-    return [ownerUsername, gistName];
+    return [ownerUsername, gistId];
 }
 
 /**
