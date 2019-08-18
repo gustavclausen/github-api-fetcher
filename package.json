@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "class-transformer": "^0.2.3",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.1.0",
     "graphql-request": "^1.8.2",
     "lodash": "^4.17.13",
     "p-series": "^2.1.0",
